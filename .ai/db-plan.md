@@ -1,12 +1,12 @@
-# Schemat bazy danych – AI Travel Planner
+# Database Schema – AI Travel Planner
 
-## 1. Tabele
+## 1. Tables
 
 ### users
 
-Ta tabela jest zarządzana przez Supabase Auth.
+This table is managed by Supabase Auth.
 
-| Kolumna       | Typ danych   | Ograniczenia                           |
+| Column        | Data Type    | Constraints                            |
 | ------------- | ------------ | -------------------------------------- |
 | id            | uuid         | PRIMARY KEY, DEFAULT gen_random_uuid() |
 | email         | varchar(255) | NOT NULL, UNIQUE                       |
@@ -15,7 +15,7 @@ Ta tabela jest zarządzana przez Supabase Auth.
 
 ### plans
 
-| Kolumna         | Typ danych   | Ograniczenia                                     |
+| Column          | Data Type    | Constraints                                      |
 | --------------- | ------------ | ------------------------------------------------ |
 | id              | uuid         | PRIMARY KEY, DEFAULT gen_random_uuid()           |
 | user_id         | uuid         | NOT NULL, REFERENCES users(id) ON DELETE CASCADE |
@@ -32,7 +32,7 @@ Ta tabela jest zarządzana przez Supabase Auth.
 
 ### attractions
 
-| Kolumna     | Typ danych    | Ograniczenia                           |
+| Column      | Data Type     | Constraints                            |
 | ----------- | ------------- | -------------------------------------- |
 | id          | uuid          | PRIMARY KEY, DEFAULT gen_random_uuid() |
 | name        | varchar(255)  | NOT NULL                               |
@@ -42,7 +42,7 @@ Ta tabela jest zarządzana przez Supabase Auth.
 
 ### plan_activity
 
-| Kolumna        | Typ danych    | Ograniczenia                                           |
+| Column         | Data Type     | Constraints                                            |
 | -------------- | ------------- | ------------------------------------------------------ |
 | id             | uuid          | PRIMARY KEY, DEFAULT gen_random_uuid()                 |
 | plan_id        | uuid          | NOT NULL, REFERENCES plans(id) ON DELETE CASCADE       |
@@ -57,7 +57,7 @@ Ta tabela jest zarządzana przez Supabase Auth.
 
 ### generation_errors
 
-| Kolumna       | Typ danych  | Ograniczenia                                     |
+| Column        | Data Type   | Constraints                                      |
 | ------------- | ----------- | ------------------------------------------------ |
 | id            | uuid        | PRIMARY KEY, DEFAULT gen_random_uuid()           |
 | plan_id       | uuid        | NOT NULL, REFERENCES plans(id) ON DELETE CASCADE |
@@ -66,26 +66,26 @@ Ta tabela jest zarządzana przez Supabase Auth.
 
 ---
 
-## 2. Relacje między tabelami
+## 2. Table Relationships
 
-- **users (1) → (N) plans**: Jeden użytkownik może mieć wiele planów.
-- **plans (1) → (N) plan_activity**: Jeden plan może mieć wiele aktywności.
-- **attractions (1) → (N) plan_activity**: Jedna atrakcja może być powiązana z wieloma aktywnościami w różnych planach.
-- **plans (1) → (N) generation_errors**: Jeden plan może mieć wiele logów błędów generowania.
+- **users (1) → (N) plans**: One user can have many plans.
+- **plans (1) → (N) plan_activity**: One plan can have many activities.
+- **attractions (1) → (N) plan_activity**: One attraction can be linked to many activities in different plans.
+- **plans (1) → (N) generation_errors**: One plan can have many generation error logs.
 
-## 3. Indeksy
+## 3. Indexes
 
-- `users(email)` – unikalny indeks dla szybkiego logowania
-- `plans(user_id)` – przyspiesza pobieranie planów użytkownika
-- `plan_activity(plan_id, day_number)` – szybkie pobieranie aktywności dla danego planu i dnia
-- `plan_activity(attraction_id)` – szybkie wyszukiwanie po atrakcji
-- `plans(created_at)` – sortowanie po dacie utworzenia
-- `plan_activity(created_at)` – sortowanie aktywności
-- `generation_errors(plan_id)` – szybkie pobieranie błędów dla planu
+- `users(email)` – unique index for fast login
+- `plans(user_id)` – speeds up fetching user's plans
+- `plan_activity(plan_id, day_number)` – fast retrieval of activities for a given plan and day
+- `plan_activity(attraction_id)` – fast search by attraction
+- `plans(created_at)` – sorting by creation date
+- `plan_activity(created_at)` – sorting activities
+- `generation_errors(plan_id)` – fast retrieval of errors for a plan
 
-## 4. Zasady PostgreSQL (RLS)
+## 4. PostgreSQL Rules (RLS)
 
-### Przykładowe zasady RLS (Row Level Security):
+### Example RLS (Row Level Security) policies:
 
 #### plans
 
@@ -113,22 +113,22 @@ CREATE POLICY user_owns_plan ON generation_errors
 
 #### attractions
 
-- Brak RLS – atrakcje mogą być współdzielone globalnie.
+- No RLS – attractions can be shared globally.
 
 #### users
 
-- RLS nie jest wymagane – dostęp tylko przez Supabase Auth.
+- RLS not required – access only via Supabase Auth.
 
-## 5. Dodatkowe uwagi i wyjaśnienia
+## 5. Additional Notes and Explanations
 
-- Wszystkie klucze główne to UUID (gen_random_uuid), co ułatwia skalowanie i integrację z Supabase.
-- Plany i powiązane aktywności są usuwane kaskadowo po usunięciu użytkownika.
-- Dni planu są reprezentowane przez pole `day_number` w plan_activity (brak osobnej tabeli days).
-- Aktywności mogą być współdzielone między planami przez tabelę attractions.
-- Pola tekstowe mają ograniczenia długości zgodnie z wymaganiami.
-- Budżet i waluta są opcjonalne.
-- Ograniczenie do 30 dni na plan jest wymuszane przez CHECK na day_number.
-- Akceptacja aktywności jest przechowywana w polu `accepted` w plan_activity.
-- Logi błędów generowania są powiązane z planem w osobnej tabeli.
-- Indeksy i ograniczenia zapewniają wydajność i spójność danych.
-- RLS zapewnia, że użytkownik widzi tylko swoje plany i powiązane dane.
+- All primary keys are UUIDs (gen_random_uuid), which facilitates scaling and integration with Supabase.
+- Plans and related activities are deleted in cascade when a user is deleted.
+- Plan days are represented by the `day_number` field in plan_activity (no separate days table).
+- Activities can be shared between plans via the attractions table.
+- Text fields have length limits according to requirements.
+- Budget and currency are optional.
+- The 30-day limit per plan is enforced by a CHECK on day_number.
+- Activity acceptance is stored in the `accepted` field in plan_activity.
+- Generation error logs are linked to a plan in a separate table.
+- Indexes and constraints ensure data performance and consistency.
+- RLS ensures that a user only sees their own plans and related data.
