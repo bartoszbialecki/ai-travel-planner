@@ -245,7 +245,7 @@ export interface ErrorResponse {
   error: {
     code: string;
     message: string;
-    details?: Record<string, any>;
+    details?: Record<string, unknown>;
   };
 }
 
@@ -320,9 +320,7 @@ export interface AttractionSearchParams extends PaginationParams {
 /**
  * Plan list query parameters
  */
-export interface PlanListParams extends PaginationParams {
-  // Additional filters can be added here
-}
+export type PlanListParams = PaginationParams;
 
 // ============================================================================
 // TYPE GUARDS AND VALIDATORS
@@ -331,42 +329,40 @@ export interface PlanListParams extends PaginationParams {
 /**
  * Type guard to check if object is a valid GeneratePlanRequest
  */
-export function isValidGeneratePlanRequest(
-  obj: any,
-): obj is GeneratePlanRequest {
+export function isValidGeneratePlanRequest(obj: unknown): obj is GeneratePlanRequest {
   return (
     typeof obj === "object" &&
     obj !== null &&
-    typeof obj.name === "string" &&
-    typeof obj.destination === "string" &&
-    typeof obj.start_date === "string" &&
-    typeof obj.end_date === "string" &&
-    typeof obj.adults_count === "number" &&
-    typeof obj.children_count === "number" &&
-    (obj.budget_total === null || typeof obj.budget_total === "number") &&
-    (obj.budget_currency === null || typeof obj.budget_currency === "string") &&
-    (obj.travel_style === null ||
-      ["active", "relaxation", "flexible"].includes(obj.travel_style))
+    typeof (obj as Record<string, unknown>).name === "string" &&
+    typeof (obj as Record<string, unknown>).destination === "string" &&
+    typeof (obj as Record<string, unknown>).start_date === "string" &&
+    typeof (obj as Record<string, unknown>).end_date === "string" &&
+    typeof (obj as Record<string, unknown>).adults_count === "number" &&
+    typeof (obj as Record<string, unknown>).children_count === "number" &&
+    ((obj as Record<string, unknown>).budget_total === null ||
+      typeof (obj as Record<string, unknown>).budget_total === "number") &&
+    ((obj as Record<string, unknown>).budget_currency === null ||
+      typeof (obj as Record<string, unknown>).budget_currency === "string") &&
+    ((obj as Record<string, unknown>).travel_style === null ||
+      ["active", "relaxation", "flexible"].includes((obj as Record<string, unknown>).travel_style as string))
   );
 }
 
 /**
  * Type guard to check if object is a valid UpdateActivityRequest
  */
-export function isValidUpdateActivityRequest(
-  obj: any,
-): obj is UpdateActivityRequest {
+export function isValidUpdateActivityRequest(obj: unknown): obj is UpdateActivityRequest {
   return (
     typeof obj === "object" &&
     obj !== null &&
-    (obj.custom_desc === undefined ||
-      obj.custom_desc === null ||
-      typeof obj.custom_desc === "string") &&
-    (obj.opening_hours === undefined ||
-      obj.opening_hours === null ||
-      typeof obj.opening_hours === "string") &&
-    (obj.cost === undefined ||
-      obj.cost === null ||
-      typeof obj.cost === "number")
+    ((obj as Record<string, unknown>).custom_desc === undefined ||
+      (obj as Record<string, unknown>).custom_desc === null ||
+      typeof (obj as Record<string, unknown>).custom_desc === "string") &&
+    ((obj as Record<string, unknown>).opening_hours === undefined ||
+      (obj as Record<string, unknown>).opening_hours === null ||
+      typeof (obj as Record<string, unknown>).opening_hours === "string") &&
+    ((obj as Record<string, unknown>).cost === undefined ||
+      (obj as Record<string, unknown>).cost === null ||
+      typeof (obj as Record<string, unknown>).cost === "number")
   );
 }
