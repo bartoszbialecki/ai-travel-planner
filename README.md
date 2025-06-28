@@ -8,17 +8,38 @@
 
 ## Table of Contents
 
-- [Project Description](#project-description)
-- [Tech Stack](#tech-stack)
-- [Getting Started Locally](#getting-started-locally)
-- [Available Scripts](#available-scripts)
-- [Project Scope](#project-scope)
-- [Project Status](#project-status)
-- [License](#license)
+- [AI Travel Planner](#ai-travel-planner)
+  - [Table of Contents](#table-of-contents)
+  - [Project Description](#project-description)
+    - [Problem Solved](#problem-solved)
+    - [Key Features](#key-features)
+    - [Target Audience](#target-audience)
+  - [Tech Stack](#tech-stack)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+    - [AI Integration](#ai-integration)
+    - [Infrastructure](#infrastructure)
+  - [API Documentation](#api-documentation)
+    - [GET /api/plans](#get-apiplans)
+    - [POST /api/plans/generate](#post-apiplansgenerate)
+  - [Project Structure](#project-structure)
+  - [Development](#development)
+  - [Environment Variables](#environment-variables)
+  - [Getting Started Locally](#getting-started-locally)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Available Scripts](#available-scripts)
+  - [Project Scope](#project-scope)
+    - [MVP Features ✅](#mvp-features-)
+    - [Success Metrics](#success-metrics)
+    - [Future Features (Post-MVP)](#future-features-post-mvp)
+  - [Project Status](#project-status)
+    - [Development Progress](#development-progress)
+  - [License](#license)
 
 ## Project Description
 
-AI Travel Planner is a web application that automatically generates detailed, personalized travel plans based on simple input data. The application solves the time-consuming and complex problem of travel planning by using LLMs to create optimal itineraries that consider user preferences, budget, number of people, and destination location.
+AI Travel Planner is a web application that automatically generates detailed, personalized travel plans based on simple input data. The application solves the time-consuming and complex problem of travel planning by using artificial intelligence to create optimal itineraries that consider user preferences, budget, number of people, and destination location.
 
 ### Problem Solved
 
@@ -69,6 +90,132 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 - **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipelines
 - **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker
 
+## API Documentation
+
+### GET /api/plans
+
+Retrieves a paginated list of travel plans for the logged-in user with support for pagination and sorting.
+
+**Endpoint:** `GET /api/plans`
+
+**Query Parameters:**
+
+- `page` (optional, default: 1) - Page number (minimum: 1)
+- `limit` (optional, default: 10, max: 50) - Number of items per page
+- `sort` (optional, default: "created_at") - Sort column: "created_at", "name", "destination"
+- `order` (optional, default: "desc") - Sort direction: "asc", "desc"
+
+**Headers:**
+
+- `Authorization: Bearer {token}` - Required (to be implemented)
+
+**Response (200 OK):**
+
+```json
+{
+  "plans": [
+    {
+      "id": "uuid",
+      "name": "Paris Adventure",
+      "destination": "Paris, France",
+      "start_date": "2024-06-01",
+      "end_date": "2024-06-05",
+      "adults_count": 2,
+      "children_count": 1,
+      "budget_total": 3000,
+      "budget_currency": "EUR",
+      "travel_style": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "job_id": "job-uuid",
+      "status": "completed"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 25,
+    "total_pages": 3
+  }
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid query parameters
+- `500 Internal Server Error` - Server errors
+
+### POST /api/plans/generate
+
+Initiates the generation of a new travel plan using AI.
+
+**Endpoint:** `POST /api/plans/generate`
+
+**Request Body:**
+
+```json
+{
+  "name": "Paris Adventure",
+  "destination": "Paris, France",
+  "start_date": "2024-06-01",
+  "end_date": "2024-06-05",
+  "adults_count": 2,
+  "children_count": 1,
+  "budget_total": 3000,
+  "budget_currency": "EUR",
+  "travel_style": "active"
+}
+```
+
+**Response (202 Accepted):**
+
+```json
+{
+  "job_id": "job-uuid",
+  "status": "processing",
+  "estimated_completion": "2024-01-01T00:05:00Z"
+}
+```
+
+## Project Structure
+
+- `./src` - source code
+- `./src/layouts` - Astro layouts
+- `./src/pages` - Astro pages
+- `./src/pages/api` - API endpoints
+- `./src/middleware/index.ts` - Astro middleware
+- `./src/db` - Supabase clients and types
+- `./src/types.ts` - Shared types for backend and frontend (Entities, DTOs)
+- `./src/components` - Client-side components written in Astro (static) and React (dynamic)
+- `./src/components/ui` - Client-side components from Shadcn/ui
+- `./src/lib` - Services and helpers
+- `./src/assets` - static internal assets
+- `./public` - public assets
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+```
+
 ## Getting Started Locally
 
 ### Prerequisites
@@ -109,7 +256,7 @@ Planning a detailed, personalized trip requires hours of research - searching fo
    ```
 
 5. **Open your browser**
-   Navigate to `http://localhost:4321` to view the application.
+   Navigate to `http://localhost:3000` to view the application.
 
 ## Available Scripts
 

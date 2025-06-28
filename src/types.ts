@@ -298,6 +298,17 @@ export interface SavePlanCommand {
   user_id: string;
 }
 
+/**
+ * Command model for listing plans with pagination and sorting
+ */
+export interface ListPlansCommand {
+  user_id: string;
+  page: number;
+  limit: number;
+  sort: "created_at" | "name" | "destination";
+  order: "asc" | "desc";
+}
+
 // ============================================================================
 // UTILITY TYPES
 // ============================================================================
@@ -323,7 +334,10 @@ export interface AttractionSearchParams extends PaginationParams {
 /**
  * Plan list query parameters
  */
-export type PlanListParams = PaginationParams;
+export type PlanListParams = PaginationParams & {
+  sort?: "created_at" | "name" | "destination";
+  order?: "asc" | "desc";
+};
 
 // ============================================================================
 // TYPE GUARDS AND VALIDATORS
