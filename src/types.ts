@@ -107,6 +107,8 @@ export interface PlanListResponse {
     | "budget_currency"
     | "travel_style"
     | "created_at"
+    | "job_id"
+    | "status"
   >[];
   pagination: {
     page: number;
@@ -246,6 +248,7 @@ export interface ErrorResponse {
     code: string;
     message: string;
     details?: Record<string, unknown>;
+    error_details?: unknown;
   };
 }
 

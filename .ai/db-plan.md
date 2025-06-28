@@ -28,6 +28,8 @@ This table is managed by Supabase Auth.
 | budget_total    | integer      | NULLABLE                                         |
 | budget_currency | varchar(16)  | NULLABLE                                         |
 | travel_style    | varchar(64)  | NULLABLE                                         |
+| job_id          | uuid         | UNIQUE, NOT NULL                                 |
+| status          | varchar(32)  | NOT NULL, DEFAULT 'processing'                   |
 | created_at      | timestamptz  | NOT NULL, DEFAULT now()                          |
 
 ### attractions
@@ -62,6 +64,7 @@ This table is managed by Supabase Auth.
 | id            | uuid        | PRIMARY KEY, DEFAULT gen_random_uuid()           |
 | plan_id       | uuid        | NOT NULL, REFERENCES plans(id) ON DELETE CASCADE |
 | error_message | text        | NOT NULL                                         |
+| error_details | jsonb       | NULLABLE                                         |
 | created_at    | timestamptz | NOT NULL, DEFAULT now()                          |
 
 ---
@@ -77,6 +80,8 @@ This table is managed by Supabase Auth.
 
 - `users(email)` – unique index for fast login
 - `plans(user_id)` – speeds up fetching user's plans
+- `plans(job_id)` – unique index for job lookup
+- `plans(status)` – index for status queries
 - `plan_activity(plan_id, day_number)` – fast retrieval of activities for a given plan and day
 - `plan_activity(attraction_id)` – fast search by attraction
 - `plans(created_at)` – sorting by creation date
@@ -129,6 +134,6 @@ CREATE POLICY user_owns_plan ON generation_errors
 - Budget and currency are optional.
 - The 30-day limit per plan is enforced by a CHECK on day_number.
 - Activity acceptance is stored in the `accepted` field in plan_activity.
-- Generation error logs are linked to a plan in a separate table.
+- Generation error logs are linked to a plan in a separate table and can store structured error details.
 - Indexes and constraints ensure data performance and consistency.
 - RLS ensures that a user only sees their own plans and related data.
