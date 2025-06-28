@@ -47,24 +47,24 @@ export interface Database {
       generation_errors: {
         Row: {
           created_at: string;
+          error_details: Json | null;
           error_message: string;
           id: string;
           plan_id: string;
-          error_details: Json | null;
         };
         Insert: {
           created_at?: string;
+          error_details?: Json | null;
           error_message: string;
           id?: string;
           plan_id: string;
-          error_details?: Json | null;
         };
         Update: {
           created_at?: string;
+          error_details?: Json | null;
           error_message?: string;
           id?: string;
           plan_id?: string;
-          error_details?: Json | null;
         };
         Relationships: [
           {
@@ -140,12 +140,12 @@ export interface Database {
           destination: string;
           end_date: string;
           id: string;
+          job_id: string | null;
           name: string;
           start_date: string;
+          status: string | null;
           travel_style: string | null;
           user_id: string;
-          job_id: string;
-          status: string;
         };
         Insert: {
           adults_count: number;
@@ -156,12 +156,12 @@ export interface Database {
           destination: string;
           end_date: string;
           id?: string;
+          job_id?: string | null;
           name: string;
           start_date: string;
+          status?: string | null;
           travel_style?: string | null;
           user_id: string;
-          job_id: string;
-          status?: string;
         };
         Update: {
           adults_count?: number;
@@ -172,12 +172,12 @@ export interface Database {
           destination?: string;
           end_date?: string;
           id?: string;
+          job_id?: string | null;
           name?: string;
           start_date?: string;
+          status?: string | null;
           travel_style?: string | null;
           user_id?: string;
-          job_id?: string;
-          status?: string;
         };
         Relationships: [];
       };
