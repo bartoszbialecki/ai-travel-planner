@@ -309,6 +309,14 @@ export interface ListPlansCommand {
   order: "asc" | "desc";
 }
 
+/**
+ * Command model for retrieving a single plan by ID
+ */
+export interface GetPlanCommand {
+  plan_id: string;
+  user_id: string;
+}
+
 // ============================================================================
 // UTILITY TYPES
 // ============================================================================

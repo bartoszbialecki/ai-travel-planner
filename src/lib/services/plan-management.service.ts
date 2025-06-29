@@ -1,5 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ListPlansCommand, PlanListResponse } from "../../types";
+import type {
+  ListPlansCommand,
+  PlanListResponse,
+  GetPlanCommand,
+  PlanDetailResponse,
+  ActivityResponse,
+  PlanSummary,
+} from "../../types";
 import type { Tables } from "../../db/database.types";
 import { supabaseClient } from "../../db/supabase.client";
 import { logGenerationErrorWithoutJobId } from "./error-logging.service";
@@ -100,6 +107,140 @@ export class PlanManagementService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       await logGenerationErrorWithoutJobId(userId, `GetPlanById error: ${errorMessage}`);
+
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieves detailed plan information with activities grouped by days
+   */
+  async getPlanDetails(command: GetPlanCommand): Promise<PlanDetailResponse> {
+    try {
+      const { plan_id, user_id } = command;
+
+      // Input validation
+      if (!plan_id || !user_id) {
+        throw new Error("Plan ID and user ID are required");
+      }
+
+      // Get plan details with user authorization check
+      const { data: plan, error: planError } = await this.supabase
+        .from("plans")
+        .select("*")
+        .eq("id", plan_id)
+        .eq("user_id", user_id)
+        .single();
+
+      if (planError) {
+        if (planError.code === "PGRST116") {
+          // No rows returned - plan not found or doesn't belong to user
+          throw new Error("Plan not found");
+        }
+        throw new Error(`Database error: ${planError.message}`);
+      }
+
+      if (!plan) {
+        throw new Error("Plan not found");
+      }
+
+      // Get activities with attraction details in a single optimized query
+      const { data: activities, error: activitiesError } = await this.supabase
+        .from("plan_activity")
+        .select(
+          `
+          id,
+          day_number,
+          activity_order,
+          accepted,
+          custom_desc,
+          opening_hours,
+          cost,
+          attraction:attractions (
+            id,
+            name,
+            address,
+            description
+          )
+        `
+        )
+        .eq("plan_id", plan_id)
+        .order("day_number", { ascending: true })
+        .order("activity_order", { ascending: true });
+
+      if (activitiesError) {
+        throw new Error(`Database error: ${activitiesError.message}`);
+      }
+
+      // Process activities and calculate summary efficiently
+      const activitiesByDay: Record<number, ActivityResponse[]> = {};
+      let totalActivities = 0;
+      let acceptedActivities = 0;
+      let estimatedTotalCost = 0;
+
+      if (activities && activities.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        activities.forEach((activity: any) => {
+          const dayNumber = activity.day_number;
+
+          // Initialize day array if not exists
+          if (!activitiesByDay[dayNumber]) {
+            activitiesByDay[dayNumber] = [];
+          }
+
+          // Create activity response object
+          const activityResponse: ActivityResponse = {
+            id: activity.id,
+            attraction: {
+              id: activity.attraction.id,
+              name: activity.attraction.name,
+              address: activity.attraction.address,
+              description: activity.attraction.description,
+            },
+            day_number: activity.day_number,
+            activity_order: activity.activity_order,
+            accepted: activity.accepted,
+            custom_desc: activity.custom_desc,
+            opening_hours: activity.opening_hours,
+            cost: activity.cost,
+          };
+
+          activitiesByDay[dayNumber].push(activityResponse);
+          totalActivities++;
+
+          // Update summary statistics
+          if (activity.accepted) {
+            acceptedActivities++;
+          }
+
+          if (activity.cost && typeof activity.cost === "number") {
+            estimatedTotalCost += activity.cost;
+          }
+        });
+      }
+
+      // Calculate total days efficiently
+      const startDate = new Date(plan.start_date);
+      const endDate = new Date(plan.end_date);
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+      // Create summary with calculated statistics
+      const summary: PlanSummary = {
+        total_days: totalDays,
+        total_activities: totalActivities,
+        accepted_activities: acceptedActivities,
+        estimated_total_cost: estimatedTotalCost,
+      };
+
+      // Return complete plan details
+      return {
+        ...plan,
+        activities: activitiesByDay,
+        summary,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      await logGenerationErrorWithoutJobId(command.user_id, `GetPlanDetails error: ${errorMessage}`);
 
       throw error;
     }
