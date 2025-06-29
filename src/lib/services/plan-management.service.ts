@@ -6,6 +6,7 @@ import type {
   PlanDetailResponse,
   ActivityResponse,
   PlanSummary,
+  DeletePlanCommand,
 } from "../../types";
 import type { Tables } from "../../db/database.types";
 import { supabaseClient } from "../../db/supabase.client";
@@ -248,17 +249,51 @@ export class PlanManagementService {
 
   /**
    * Deletes a plan by ID for a specific user
+   * Implements proper permission validation and cascading deletion handling
    */
-  async deletePlan(planId: string, userId: string): Promise<void> {
+  async deletePlan(command: DeletePlanCommand): Promise<void> {
     try {
-      const { error } = await this.supabase.from("plans").delete().eq("id", planId).eq("user_id", userId);
+      const { plan_id, user_id } = command;
 
-      if (error) {
-        throw new Error(`Database error: ${error.message}`);
+      // Input validation
+      if (!plan_id || !user_id) {
+        throw new Error("Plan ID and user ID are required");
+      }
+
+      // First, verify that the plan exists and belongs to the user
+      // This provides better error handling and security
+      const { data: plan, error: checkError } = await this.supabase
+        .from("plans")
+        .select("id")
+        .eq("id", plan_id)
+        .eq("user_id", user_id)
+        .single();
+
+      if (checkError) {
+        if (checkError.code === "PGRST116") {
+          // No rows returned - plan not found or doesn't belong to user
+          throw new Error("Plan not found");
+        }
+        throw new Error(`Database error: ${checkError.message}`);
+      }
+
+      if (!plan) {
+        throw new Error("Plan not found");
+      }
+
+      // Delete the plan (cascading deletion will handle related records)
+      const { error: deleteError } = await this.supabase
+        .from("plans")
+        .delete()
+        .eq("id", plan_id)
+        .eq("user_id", user_id);
+
+      if (deleteError) {
+        throw new Error(`Database error: ${deleteError.message}`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-      await logGenerationErrorWithoutJobId(userId, `DeletePlan error: ${errorMessage}`);
+      await logGenerationErrorWithoutJobId(command.user_id, `DeletePlan error: ${errorMessage}`);
 
       throw error;
     }

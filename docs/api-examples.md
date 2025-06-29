@@ -514,3 +514,153 @@ function PlansList() {
   }
 }
 ```
+
+## DELETE /api/plans/{id} Examples
+
+### Basic Request
+
+```bash
+curl -X DELETE "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-426614174000" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+### Successful Response
+
+```json
+{
+  "message": "Plan deleted successfully"
+}
+```
+
+### JavaScript/TypeScript Examples
+
+#### Using fetch() for DELETE /api/plans/{id}
+
+```javascript
+// Basic delete request
+const response = await fetch("/api/plans/123e4567-e89b-12d3-a456-426614174000", {
+  method: "DELETE",
+  headers: {
+    Authorization: "Bearer your_token_here",
+  },
+});
+
+if (response.ok) {
+  const data = await response.json();
+  console.log(data.message); // "Plan deleted successfully"
+} else {
+  const error = await response.json();
+  console.error("Delete failed:", error.error);
+}
+```
+
+#### Error Handling for DELETE /api/plans/{id}
+
+```javascript
+try {
+  const response = await fetch("/api/plans/123e4567-e89b-12d3-a456-426614174000", {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer your_token_here",
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error("API Error:", error.error);
+
+    switch (response.status) {
+      case 400:
+        console.error("Invalid plan ID format:", error.error.details);
+        break;
+      case 401:
+        console.error("Unauthorized - check your token");
+        break;
+      case 403:
+        console.error("Forbidden - you don't have permission to delete this plan");
+        break;
+      case 404:
+        console.error("Plan not found");
+        break;
+      case 500:
+        console.error("Server error:", error.error.message);
+        break;
+    }
+  } else {
+    const data = await response.json();
+    console.log("Plan deleted:", data.message);
+  }
+} catch (error) {
+  console.error("Network error:", error);
+}
+```
+
+### Error Response Examples
+
+#### Invalid Plan ID Format (400 Bad Request)
+
+```bash
+curl -X DELETE "http://localhost:3000/api/plans/invalid-uuid" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+```json
+{
+  "error": {
+    "code": "INVALID_PLAN_ID",
+    "message": "Invalid plan ID format",
+    "details": {
+      "formErrors": [],
+      "fieldErrors": {
+        "": ["Invalid plan ID format"]
+      }
+    }
+  }
+}
+```
+
+#### Plan Not Found (404 Not Found)
+
+```bash
+curl -X DELETE "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-426614174000" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+```json
+{
+  "error": {
+    "code": "PLAN_NOT_FOUND",
+    "message": "Plan with the given ID does not exist"
+  }
+}
+```
+
+#### Forbidden (403 Forbidden)
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You do not have permission to delete this plan"
+  }
+}
+```
+
+#### Database Error (500 Internal Server Error)
+
+```json
+{
+  "error": {
+    "code": "DATABASE_ERROR",
+    "message": "Database error occurred"
+  }
+}
+```
+
+### Important Notes
+
+- **Irreversible Operation**: Deleting a plan is irreversible and removes all related data including activities and attractions
+- **Cascading Deletion**: The operation automatically removes all related records (plan_activity, generation_errors) due to database constraints
+- **Authorization Required**: A valid Bearer token is required in the Authorization header
+- **User Ownership**: Users can only delete plans that belong to them
+- **UUID Format**: Plan ID must be a valid UUID format

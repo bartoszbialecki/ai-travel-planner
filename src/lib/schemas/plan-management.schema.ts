@@ -46,3 +46,13 @@ export const updateActivitySchema = z
     cost: z.number().positive("Cost must be positive").nullable().optional(),
   })
   .strict();
+
+/**
+ * Schema for validating plan deletion command
+ */
+export const deletePlanCommandSchema = z
+  .object({
+    plan_id: z.string().uuid("Invalid plan ID format"),
+    user_id: z.string().min(1, "User ID is required"),
+  })
+  .strict();
