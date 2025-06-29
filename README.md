@@ -22,6 +22,7 @@
   - [API Documentation](#api-documentation)
     - [GET /api/plans](#get-apiplans)
     - [POST /api/plans/generate](#post-apiplansgenerate)
+    - [PUT /api/plans/{id}/activities/{activityId}/reject](#put-apiplansidactivitiesactivityidreject)
   - [Project Structure](#project-structure)
   - [Development](#development)
   - [Environment Variables](#environment-variables)
@@ -173,6 +174,61 @@ Initiates the generation of a new travel plan using AI.
   "job_id": "job-uuid",
   "status": "processing",
   "estimated_completion": "2024-01-01T00:05:00Z"
+}
+```
+
+### PUT /api/plans/{id}/activities/{activityId}/reject
+
+Rejects (removes acceptance of) a specific activity in a travel plan. Requires user authentication and verifies plan ownership.
+
+**Endpoint:** `PUT /api/plans/{id}/activities/{activityId}/reject`
+
+**Path Parameters:**
+
+- `id` (required) - UUID of the plan
+- `activityId` (required) - UUID of the activity to reject
+
+**Headers:**
+
+- `Authorization: Bearer {token}` - Required JWT token
+
+**Request Body:**
+
+- _None_
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "uuid",
+  "accepted": false,
+  "message": "Activity rejected"
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid UUID format or command parameters
+- `401 Unauthorized` - Missing or invalid authorization token
+- `403 Forbidden` - Plan does not belong to the logged-in user
+- `404 Not Found` - Plan or activity does not exist
+- `500 Internal Server Error` - Server or database error
+
+**Example Request:**
+
+```http
+PUT /api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987e6543-e21b-12d3-a456-426614174999/reject
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Example Error Response:**
+
+```json
+{
+  "error": {
+    "code": "PLAN_NOT_FOUND",
+    "message": "Plan with the given ID does not exist"
+  }
 }
 ```
 

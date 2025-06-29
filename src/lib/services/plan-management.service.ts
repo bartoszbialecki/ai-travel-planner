@@ -386,6 +386,147 @@ export class PlanManagementService {
       throw error;
     }
   }
+
+  /**
+   * Rejects an activity in a plan
+   * Implements proper permission validation and activity verification
+   */
+  async rejectActivity(
+    command: ToggleActivityCommand,
+    userId: string
+  ): Promise<{ success: boolean; error?: string; errorCode?: string; statusCode?: number }> {
+    try {
+      const { plan_id, activity_id } = command;
+
+      // Input validation
+      if (!plan_id || !activity_id) {
+        return {
+          success: false,
+          error: "Plan ID and activity ID are required",
+          errorCode: "MISSING_PARAMETERS",
+          statusCode: 400,
+        };
+      }
+
+      // First, verify that the plan exists and belongs to the user
+      const { data: plan, error: planError } = await this.supabase
+        .from("plans")
+        .select("id, user_id")
+        .eq("id", plan_id)
+        .single();
+
+      if (planError) {
+        if (planError.code === "PGRST116") {
+          // No rows returned - plan not found
+          return {
+            success: false,
+            error: "Plan not found",
+            errorCode: "PLAN_NOT_FOUND",
+            statusCode: 404,
+          };
+        }
+        return {
+          success: false,
+          error: `Database error: ${planError.message}`,
+          errorCode: "DATABASE_ERROR",
+          statusCode: 500,
+        };
+      }
+
+      if (!plan) {
+        return {
+          success: false,
+          error: "Plan not found",
+          errorCode: "PLAN_NOT_FOUND",
+          statusCode: 404,
+        };
+      }
+
+      // Verify that the plan belongs to the authenticated user
+      if (plan.user_id !== userId) {
+        return {
+          success: false,
+          error: "Plan does not belong to the authenticated user",
+          errorCode: "FORBIDDEN",
+          statusCode: 403,
+        };
+      }
+
+      // Verify that the activity exists and belongs to the plan
+      const { data: activity, error: activityError } = await this.supabase
+        .from("plan_activity")
+        .select("id, plan_id")
+        .eq("id", activity_id)
+        .eq("plan_id", plan_id)
+        .single();
+
+      if (activityError) {
+        if (activityError.code === "PGRST116") {
+          // No rows returned - activity not found or doesn't belong to plan
+          return {
+            success: false,
+            error: "Activity not found",
+            errorCode: "ACTIVITY_NOT_FOUND",
+            statusCode: 404,
+          };
+        }
+        return {
+          success: false,
+          error: `Database error: ${activityError.message}`,
+          errorCode: "DATABASE_ERROR",
+          statusCode: 500,
+        };
+      }
+
+      if (!activity) {
+        return {
+          success: false,
+          error: "Activity not found",
+          errorCode: "ACTIVITY_NOT_FOUND",
+          statusCode: 404,
+        };
+      }
+
+      // Verify the activity belongs to the plan
+      if (activity.plan_id !== plan_id) {
+        return {
+          success: false,
+          error: "Activity does not belong to the plan",
+          errorCode: "ACTIVITY_NOT_IN_PLAN",
+          statusCode: 400,
+        };
+      }
+
+      // Update the activity's accepted status to false (reject)
+      const { error: updateError } = await this.supabase
+        .from("plan_activity")
+        .update({ accepted: false })
+        .eq("id", activity_id)
+        .eq("plan_id", plan_id);
+
+      if (updateError) {
+        return {
+          success: false,
+          error: `Database error: ${updateError.message}`,
+          errorCode: "DATABASE_ERROR",
+          statusCode: 500,
+        };
+      }
+
+      // Return success response
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      await logGenerationErrorWithoutJobId(userId, `RejectActivity error: ${errorMessage}`);
+
+      return {
+        success: false,
+        error: errorMessage,
+        errorCode: "UNEXPECTED_ERROR",
+        statusCode: 500,
+      };
+    }
+  }
 }
 
 /**
