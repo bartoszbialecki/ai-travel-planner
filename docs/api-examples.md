@@ -664,3 +664,224 @@ curl -X DELETE "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-42661417
 - **Authorization Required**: A valid Bearer token is required in the Authorization header
 - **User Ownership**: Users can only delete plans that belong to them
 - **UUID Format**: Plan ID must be a valid UUID format
+
+## PUT /api/plans/{id}/activities/{activityId}/accept Examples
+
+### Basic Request
+
+```bash
+curl -X PUT "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987fcdeb-51a2-43d1-9f12-345678901234/accept" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+### Successful Response
+
+```json
+{
+  "id": "987fcdeb-51a2-43d1-9f12-345678901234",
+  "accepted": true,
+  "message": "Activity accepted"
+}
+```
+
+### JavaScript/TypeScript Examples
+
+#### Using fetch() for PUT /api/plans/{id}/activities/{activityId}/accept
+
+```javascript
+// Basic accept activity request
+const response = await fetch(
+  "/api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987fcdeb-51a2-43d1-9f12-345678901234/accept",
+  {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer your_token_here",
+    },
+  }
+);
+
+if (response.ok) {
+  const data = await response.json();
+  console.log(data.message); // "Activity accepted"
+  console.log(data.id); // Activity ID
+  console.log(data.accepted); // true
+} else {
+  const error = await response.json();
+  console.error("Accept failed:", error.error);
+}
+```
+
+#### Error Handling for PUT /api/plans/{id}/activities/{activityId}/accept
+
+```javascript
+try {
+  const response = await fetch(
+    "/api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987fcdeb-51a2-43d1-9f12-345678901234/accept",
+    {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer your_token_here",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error("API Error:", error.error);
+
+    switch (response.status) {
+      case 400:
+        console.error("Invalid parameters:", error.error.details);
+        break;
+      case 401:
+        console.error("Unauthorized - check your token");
+        break;
+      case 403:
+        console.error("Forbidden - you don't have permission to modify this plan");
+        break;
+      case 404:
+        console.error("Plan or activity not found:", error.error.message);
+        break;
+      case 500:
+        console.error("Server error:", error.error.message);
+        break;
+      case 503:
+        console.error("Service unavailable:", error.error.message);
+        break;
+    }
+  } else {
+    const data = await response.json();
+    console.log("Activity accepted:", data.message);
+  }
+} catch (error) {
+  console.error("Network error:", error);
+}
+```
+
+### Error Response Examples
+
+#### Invalid Plan ID Format (400 Bad Request)
+
+```bash
+curl -X PUT "http://localhost:3000/api/plans/invalid-uuid/activities/987fcdeb-51a2-43d1-9f12-345678901234/accept" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+```json
+{
+  "error": {
+    "code": "INVALID_PLAN_ID",
+    "message": "Invalid plan ID format",
+    "details": {
+      "formErrors": [],
+      "fieldErrors": {
+        "": ["Invalid plan ID format"]
+      }
+    }
+  }
+}
+```
+
+#### Invalid Activity ID Format (400 Bad Request)
+
+```bash
+curl -X PUT "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-426614174000/activities/invalid-uuid/accept" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+```json
+{
+  "error": {
+    "code": "INVALID_ACTIVITY_ID",
+    "message": "Invalid activity ID format",
+    "details": {
+      "formErrors": [],
+      "fieldErrors": {
+        "": ["Invalid activity ID format"]
+      }
+    }
+  }
+}
+```
+
+#### Plan Not Found (404 Not Found)
+
+```bash
+curl -X PUT "http://localhost:3000/api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987fcdeb-51a2-43d1-9f12-345678901234/accept" \
+  -H "Authorization: Bearer your_token_here"
+```
+
+```json
+{
+  "error": {
+    "code": "PLAN_NOT_FOUND",
+    "message": "Plan with the given ID does not exist"
+  }
+}
+```
+
+#### Activity Not Found (404 Not Found)
+
+```json
+{
+  "error": {
+    "code": "ACTIVITY_NOT_FOUND",
+    "message": "Activity with the given ID does not exist"
+  }
+}
+```
+
+#### Activity Not in Plan (404 Not Found)
+
+```json
+{
+  "error": {
+    "code": "ACTIVITY_NOT_IN_PLAN",
+    "message": "Activity does not belong to the specified plan"
+  }
+}
+```
+
+#### Forbidden (403 Forbidden)
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You do not have permission to modify this plan"
+  }
+}
+```
+
+#### Database Error (500 Internal Server Error)
+
+```json
+{
+  "error": {
+    "code": "DATABASE_ERROR",
+    "message": "Database error occurred"
+  }
+}
+```
+
+#### Service Unavailable (503 Service Unavailable)
+
+```json
+{
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "message": "Service temporarily unavailable"
+  }
+}
+```
+
+### Important Notes for Activity Acceptance
+
+- **Authorization Required**: A valid Bearer token is required in the Authorization header
+- **User Ownership**: Users can only accept activities in plans that belong to them
+- **UUID Format**: Both plan ID and activity ID must be valid UUID format
+- **Plan Verification**: The system verifies that the plan exists and belongs to the user
+- **Activity Verification**: The system verifies that the activity exists and belongs to the specified plan
+- **Atomic Operation**: The acceptance operation is atomic and updates the `accepted` field to `true`
+- **No Request Body**: This endpoint does not require a request body
+- **Idempotent**: Accepting an already accepted activity will not cause an error

@@ -56,3 +56,14 @@ export const deletePlanCommandSchema = z
     user_id: z.string().min(1, "User ID is required"),
   })
   .strict();
+
+/**
+ * Schema for validating activity toggle command
+ */
+export const toggleActivityCommandSchema = z
+  .object({
+    plan_id: z.string().uuid("Invalid plan ID format"),
+    activity_id: z.string().uuid("Invalid activity ID format"),
+    accepted: z.boolean(),
+  })
+  .strict();
