@@ -208,19 +208,6 @@ export interface UpdateActivityResponse extends UpdateActivityRequest {
 }
 
 // ============================================================================
-// PLAN SAVING DTOs
-// ============================================================================
-
-/**
- * Response DTO for plan saving
- */
-export interface SavePlanResponse {
-  id: string;
-  message: string;
-  saved_at: string;
-}
-
-// ============================================================================
 // ATTRACTIONS DTOs
 // ============================================================================
 
@@ -286,14 +273,6 @@ export interface ToggleActivityCommand {
  * Command model for deleting a plan
  */
 export interface DeletePlanCommand {
-  plan_id: string;
-  user_id: string;
-}
-
-/**
- * Command model for saving a plan
- */
-export interface SavePlanCommand {
   plan_id: string;
   user_id: string;
 }

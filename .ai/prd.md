@@ -109,33 +109,32 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 
 ## 5. User Stories
 
-### US-001: New User Registration
+### US-001: User Registration
 
-**Title:** As a new user, I want to register to be able to use the application
+**Title:** As a new user, I want to create an account in the application to generate and manage travel plans
 
-**Description:** User wants to create an account in the application to generate and save travel plans.
+**Description:** User wants to create a personal account to access the AI travel planning features.
 
 **Acceptance Criteria:**
 
-- User can enter email and password
-- System validates email correctness and password strength
-- After registration, user is automatically logged in
-- User receives confirmation of account creation
-- User data is securely stored in compliance with GDPR
+- User can register with email and password
+- Email validation is required
+- Password meets security requirements
+- Account is created successfully
+- User receives confirmation email
+- User is automatically logged in after registration
 
 ### US-002: User Login
 
-**Title:** As a registered user, I want to log in to access my plans
+**Title:** As a registered user, I want to log into my account to access my travel plans
 
-**Description:** User wants to log into an existing account to access their saved travel plans.
+**Description:** User wants to log into an existing account to access their travel plans.
 
 **Acceptance Criteria:**
 
-- User can enter email and password
-- System verifies login data correctness
-- After successful login, user is redirected to main page
-- In case of incorrect data, user receives clear error message
-- User session is securely managed
+- User can log in with email and password
+- Incorrect credentials are handled with error message
+- User is redirected to dashboard after login
 
 ### US-003: Entering Travel Data
 
@@ -209,61 +208,58 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 - Editing interface is simple and accessible
 - User can cancel changes
 
-### US-008: Saving Travel Plan
+### US-008: Plan Management
 
-**Title:** As a user, I want to save the accepted plan to be able to return to it later
+**Title:** As a user, I want to manage my travel plans to organize my trips effectively
 
-**Description:** User wants to keep the final version of the plan after moderation and editing.
-
-**Acceptance Criteria:**
-
-- User can save plan after accepting activities
-- Saved plan is assigned to user account
-- Plan is securely stored using RLS
-- User receives confirmation of saving
-- Plan can be edited or deleted later
-
-### US-009: Viewing Saved Plans
-
-**Title:** As a user, I want to see a list of my saved travel plans
-
-**Description:** User wants to have access to all their previously saved plans.
+**Description:** User wants to have control over their travel plans including viewing, editing, and deleting them.
 
 **Acceptance Criteria:**
 
-- User sees list of all saved plans
-- Each plan has basic information (destination, dates, number of people)
-- List is sorted chronologically
-- User can open any plan for review
-- Interface is responsive and accessible
+- User can view list of all their plans
+- User can open any plan to see details
+- User can delete any plan
+- User can edit plan details (name, dates, etc.)
+- No limit on plans
+- Ability to delete plan
 
-### US-010: Opening Saved Plan
+### US-009: Viewing Plans
 
-**Title:** As a user, I want to open a saved plan to review or edit it
+**Title:** As a user, I want to see a list of my travel plans
 
-**Description:** User wants to access details of a specific saved plan.
-
-**Acceptance Criteria:**
-
-- User can open any saved plan
-- Plan displays with full details
-- User can edit activity descriptions
-- All plan data is correctly loaded
-- Interface is consistent with newly generated plan view
-
-### US-011: Deleting Saved Plan
-
-**Title:** As a user, I want to delete an unnecessary plan to organize my list
-
-**Description:** User wants to delete a plan they no longer need.
+**Description:** User wants to have access to all their previously created plans.
 
 **Acceptance Criteria:**
 
-- User can delete any saved plan
-- System asks for deletion confirmation
-- After deletion, plan disappears from list
-- User receives deletion confirmation
-- Operation is irreversible
+- User sees list of all plans
+- Plans are sorted by creation date (newest first)
+- Each plan shows basic info (name, destination, dates)
+- User can click on any plan to open it
+
+### US-010: Opening Plan
+
+**Title:** As a user, I want to open a plan to review or edit it
+
+**Description:** User wants to access details of a specific plan.
+
+**Acceptance Criteria:**
+
+- User can open any plan
+- Plan shows all activities
+- Plan shows summary statistics
+- User can modify plan details
+
+### US-011: Deleting Plan
+
+**Title:** As a user, I want to delete a plan that I no longer need
+
+**Description:** User wants to remove plans that are no longer relevant.
+
+**Acceptance Criteria:**
+
+- User can delete any plan
+- Deletion is permanent and irreversible
+- All related data is removed
 
 ### US-012: User Logout
 

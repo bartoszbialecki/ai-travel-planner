@@ -298,24 +298,6 @@
 }
 ```
 
-### Plan Saving Endpoint
-
-#### POST /api/plans/{id}/save
-
-**Description**: Save a generated plan after acceptance
-**Headers**: Authorization: Bearer {token}
-**Response** (200 OK):
-
-```json
-{
-  "id": "uuid",
-  "message": "Plan saved successfully",
-  "saved_at": "2024-01-01T00:00:00Z"
-}
-```
-
-**Error Codes**: 400 (Plan not ready for saving), 404 (Plan not found)
-
 ### Attractions Endpoints
 
 #### GET /api/attractions
