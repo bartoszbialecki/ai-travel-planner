@@ -41,9 +41,9 @@ export const activityIdSchema = z.string().uuid("Invalid activity ID format");
  */
 export const updateActivitySchema = z
   .object({
-    custom_desc: z.string().nullable().optional(),
-    opening_hours: z.string().nullable().optional(),
-    cost: z.number().positive("Cost must be positive").nullable().optional(),
+    custom_desc: z.string().max(1000, "Custom description cannot exceed 1000 characters").optional(),
+    opening_hours: z.string().max(255, "Opening hours cannot exceed 255 characters").optional(),
+    cost: z.number().min(0, "Cost must be non-negative").optional(),
   })
   .strict();
 

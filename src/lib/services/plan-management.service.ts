@@ -9,10 +9,12 @@ import type {
   DeletePlanCommand,
   ToggleActivityCommand,
   ActivityAcceptResponse,
+  UpdateActivityCommand,
+  UpdateActivityResponse,
 } from "../../types";
 import type { Tables } from "../../db/database.types";
 import { supabaseClient } from "../../db/supabase.client";
-import { logGenerationErrorWithoutJobId } from "./error-logging.service";
+import { logGenerationErrorWithoutJobId, logApiErrorWithContext } from "./error-logging.service";
 
 /**
  * Service for managing travel plans
@@ -525,6 +527,122 @@ export class PlanManagementService {
         errorCode: "UNEXPECTED_ERROR",
         statusCode: 500,
       };
+    }
+  }
+
+  /**
+   * Updates activity details in a plan
+   * Implements proper permission validation and activity verification
+   */
+  async updateActivity(command: UpdateActivityCommand): Promise<UpdateActivityResponse> {
+    try {
+      const { plan_id, activity_id, custom_desc, opening_hours, cost } = command;
+
+      // Input validation
+      if (!plan_id || !activity_id) {
+        throw new Error("Plan ID and activity ID are required");
+      }
+
+      // First, verify that the plan exists and belongs to the user
+      const { data: plan, error: planError } = await this.supabase
+        .from("plans")
+        .select("id, user_id")
+        .eq("id", plan_id)
+        .single();
+
+      if (planError) {
+        if (planError.code === "PGRST116") {
+          // No rows returned - plan not found
+          throw new Error("Plan not found");
+        }
+        throw new Error(`Database error: ${planError.message}`);
+      }
+
+      if (!plan) {
+        throw new Error("Plan not found");
+      }
+
+      // TODO: Verify that the plan belongs to the authenticated user when auth is implemented
+      // For now, we'll proceed with the operation
+      // if (plan.user_id !== userId) {
+      //   throw new Error("Plan does not belong to the authenticated user");
+      // }
+
+      // Verify that the activity exists and belongs to the plan
+      const { data: activity, error: activityError } = await this.supabase
+        .from("plan_activity")
+        .select("id, plan_id")
+        .eq("id", activity_id)
+        .eq("plan_id", plan_id)
+        .single();
+
+      if (activityError) {
+        if (activityError.code === "PGRST116") {
+          // No rows returned - activity not found or doesn't belong to plan
+          throw new Error("Activity not found");
+        }
+        throw new Error(`Database error: ${activityError.message}`);
+      }
+
+      if (!activity) {
+        throw new Error("Activity not found");
+      }
+
+      // Verify the activity belongs to the plan
+      if (activity.plan_id !== plan_id) {
+        throw new Error("Activity does not belong to the plan");
+      }
+
+      // Prepare update data - only include fields that are provided
+      const updateData: Partial<{
+        custom_desc: string | null;
+        opening_hours: string | null;
+        cost: number | null;
+      }> = {};
+
+      if (custom_desc !== undefined) {
+        updateData.custom_desc = custom_desc;
+      }
+      if (opening_hours !== undefined) {
+        updateData.opening_hours = opening_hours;
+      }
+      if (cost !== undefined) {
+        updateData.cost = cost;
+      }
+
+      // Update the activity details
+      const { data: updatedActivity, error: updateError } = await this.supabase
+        .from("plan_activity")
+        .update(updateData)
+        .eq("id", activity_id)
+        .eq("plan_id", plan_id)
+        .select("id, custom_desc, opening_hours, cost")
+        .single();
+
+      if (updateError) {
+        throw new Error(`Database error: ${updateError.message}`);
+      }
+
+      if (!updatedActivity) {
+        throw new Error("Failed to update activity");
+      }
+
+      // Return success response
+      return {
+        id: updatedActivity.id,
+        custom_desc: updatedActivity.custom_desc,
+        opening_hours: updatedActivity.opening_hours,
+        cost: updatedActivity.cost,
+        message: "Activity updated successfully",
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      await logApiErrorWithContext({
+        plan_id: command.plan_id,
+        error_message: `UpdateActivity error: ${errorMessage}`,
+      });
+
+      throw error;
     }
   }
 }

@@ -64,3 +64,25 @@ export async function logGenerationErrorWithoutJobId(user_id: string, error_mess
     console.error("Failed to log generation error:", error);
   }
 }
+
+/**
+ * Logs API error with context (plan_id, error_message)
+ */
+export async function logApiErrorWithContext({ plan_id, error_message }: { plan_id?: string; error_message: string }) {
+  try {
+    if (!plan_id || typeof plan_id !== "string") {
+      console.error("logApiErrorWithContext: plan_id is required and must be a string");
+      return;
+    }
+    await supabaseClient.from("generation_errors").insert([
+      {
+        plan_id,
+        error_message,
+        error_details: null,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+  } catch (err) {
+    console.error("Failed to log API error:", err);
+  }
+}
