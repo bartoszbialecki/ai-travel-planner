@@ -86,6 +86,21 @@ export interface GenerationStatusResponse {
   error_message?: string;
 }
 
+/**
+ * ViewModel for the travel plan generation form (frontend)
+ */
+export interface GeneratePlanFormValues {
+  name: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  adultsCount: number;
+  childrenCount: number;
+  budgetTotal?: number;
+  budgetCurrency?: string;
+  travelStyle?: "active" | "relaxation" | "flexible";
+}
+
 // ============================================================================
 // PLAN MANAGEMENT DTOs
 // ============================================================================
@@ -369,4 +384,27 @@ export function isValidUpdateActivityRequest(obj: unknown): obj is UpdateActivit
       (obj as Record<string, unknown>).cost === null ||
       typeof (obj as Record<string, unknown>).cost === "number")
   );
+}
+
+/**
+ * State for the travel plan generation form
+ */
+export interface FormState {
+  values: GeneratePlanFormValues;
+  errors: Partial<Record<keyof GeneratePlanFormValues, string>>;
+  loading: boolean;
+  limitReached: boolean;
+  apiError?: string;
+}
+
+/**
+ * State for the plan generation status modal
+ */
+export interface StatusState {
+  jobId: string;
+  status: "processing" | "completed" | "failed";
+  progress: number;
+  eta?: string;
+  planId?: string;
+  error?: string;
 }

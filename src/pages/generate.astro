@@ -1,0 +1,15 @@
+---
+import GenerationPage from "../components/GenerationPage";
+import "../styles/global.css";
+---
+
+<head>
+  <title>Wygeneruj plan podróży | AI Travel Planner</title>
+  <meta
+    name="description"
+    content="Wygeneruj szczegółowy plan podróży z pomocą AI. Wprowadź dane i otrzymaj gotowy plan!"
+  />
+</head>
+<main class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+  <GenerationPage client:only="react" />
+</main>
