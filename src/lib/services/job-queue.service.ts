@@ -117,6 +117,9 @@ export class JobQueueService {
       // Save activities to database
       await this.saveActivitiesToDatabase(planData.id, aiResult.data);
 
+      // Update plan status in database to completed
+      await supabaseClient.from("plans").update({ status: "completed" }).eq("id", planData.id);
+
       // Update job status
       job.status = "completed";
       job.progress = 100;
@@ -129,6 +132,17 @@ export class JobQueueService {
       job.error_message = error instanceof Error ? error.message : "Unknown error";
       job.updated_at = new Date();
       this.jobs.set(job_id, job);
+
+      // Update plan status in database to failed (if planData is available)
+      try {
+        // Try to get planData again in case of error before it was fetched
+        const { data: planData } = await supabaseClient.from("plans").select("id").eq("job_id", job_id).single();
+        if (planData) {
+          await supabaseClient.from("plans").update({ status: "failed" }).eq("id", planData.id);
+        }
+      } catch {
+        // Ignore errors here to avoid masking the original error
+      }
 
       console.error(`Job ${job_id} failed:`, error);
     }
