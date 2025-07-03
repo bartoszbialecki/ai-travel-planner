@@ -181,7 +181,6 @@ export class JobQueueService {
           custom_desc: activity.description,
           opening_hours: activity.opening_hours,
           cost: activity.cost,
-          accepted: false, // Default to false, user will accept/reject
         });
       }
     }
