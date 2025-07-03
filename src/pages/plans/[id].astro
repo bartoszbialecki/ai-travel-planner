@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PlanDetailsPage from "../../components/plan-details/PlanDetailsPage";
+---
+
+<BaseLayout>
+  <head slot="head">
+    <title>Szczegóły planu podróży | AI Travel Planner</title>
+    <meta name="description" content="Szczegóły wygenerowanego planu podróży." />
+  </head>
+  <main class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+    <PlanDetailsPage planId={Astro.params.id} client:only="react" />
+  </main>
+</BaseLayout>
