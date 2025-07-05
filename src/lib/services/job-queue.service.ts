@@ -1,5 +1,5 @@
 import { supabaseClient } from "../../db/supabase.client";
-import { MockAIService } from "./ai/mock-ai.service";
+import { createAIService } from "./ai";
 import type { AIGenerationRequest, AITravelPlanResponse } from "./ai/types";
 
 export interface JobStatus {
@@ -15,11 +15,11 @@ export interface JobStatus {
 export class JobQueueService {
   private static instance: JobQueueService;
   private jobs = new Map<string, JobStatus>();
-  private aiService: MockAIService;
+  private aiService: ReturnType<typeof createAIService>;
   private isProcessing = false;
 
   private constructor() {
-    this.aiService = new MockAIService();
+    this.aiService = createAIService();
   }
 
   static getInstance(): JobQueueService {
