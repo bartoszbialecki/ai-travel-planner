@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import { Topbar } from "../components/ui/Topbar";
+const { user } = Astro.locals;
 ---
 
 <html lang="pl">
@@ -9,6 +11,7 @@ import "../styles/global.css";
     <slot name="head" />
   </head>
   <body class="bg-gray-50 min-h-screen">
+    <Topbar client:load user={user} />
     <slot />
   </body>
 </html>

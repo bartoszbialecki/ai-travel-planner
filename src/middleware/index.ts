@@ -13,12 +13,9 @@ const PUBLIC_PATHS = [
   "/api/auth/reset-password",
 ];
 
-export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // Allow public paths without authentication
-  if (PUBLIC_PATHS.includes(url.pathname)) {
-    return next();
-  }
+const AUTH_ONLY_PATHS = ["/auth/login", "/auth/register"];
 
+export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
   // Create SSR Supabase instance for the current request and assign to locals
   const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
   locals.supabase = supabase;
@@ -27,6 +24,22 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // If user is logged in and tries to access login/register, redirect to dashboard
+  if (user && AUTH_ONLY_PATHS.includes(url.pathname)) {
+    return redirect("/");
+  }
+
+  // Allow public paths without authentication
+  if (PUBLIC_PATHS.includes(url.pathname)) {
+    if (user) {
+      locals.user = {
+        email: user.email ?? "",
+        id: user.id ?? "",
+      };
+    }
+    return next();
+  }
 
   if (user) {
     locals.user = {
