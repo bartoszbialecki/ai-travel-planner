@@ -8,6 +8,9 @@ const RegisterForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -29,14 +32,43 @@ const RegisterForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    validate(); // nie wysyłamy dalej
+    setApiError(null);
+    setSuccess(null);
+    if (!validate()) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setApiError(data.error || "Registration failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setSuccess("Registration successful! Redirecting...");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+    } catch {
+      setApiError("Unexpected error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 w-full">
       <AuthHeader title="Rejestracja" />
+      {apiError && <p className="text-red-500 text-sm mb-4">{apiError}</p>}
+      {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
       <div className="mb-4">
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email
@@ -79,8 +111,8 @@ const RegisterForm: React.FC = () => {
         />
         {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
       </div>
-      <Button type="submit" className="w-full">
-        Zarejestruj się
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? "Registering..." : "Register"}
       </Button>
       <AuthFooter mode="register" />
     </form>
