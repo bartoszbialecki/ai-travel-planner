@@ -17,7 +17,7 @@ export function createAIService(): BaseAIService {
   return new OpenRouterAIService(apiKey, {
     model: import.meta.env.OPENROUTER_MODEL || "gpt-4o-mini",
     baseUrl: import.meta.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
-    timeout: parseInt(import.meta.env.OPENROUTER_TIMEOUT || "30000"),
+    timeout: parseInt(import.meta.env.OPENROUTER_TIMEOUT || "300000"), // 5 minutes
     maxRetries: parseInt(import.meta.env.OPENROUTER_MAX_RETRIES || "3"),
     temperature: parseFloat(import.meta.env.OPENROUTER_TEMPERATURE || "0.7"),
     maxTokens: parseInt(import.meta.env.OPENROUTER_MAX_TOKENS || "4000"),

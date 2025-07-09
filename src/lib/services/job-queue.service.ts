@@ -1,4 +1,4 @@
-import { supabaseClient } from "../../db/supabase.client";
+import { createSupabaseServiceRoleClient } from "../../db/supabase.client";
 import { createAIService } from "./ai";
 import type { AIGenerationRequest, AITravelPlanResponse } from "./ai/types";
 
@@ -11,6 +11,9 @@ export interface JobStatus {
   created_at: Date;
   updated_at: Date;
 }
+
+// Service Role client for background jobs (bypasses RLS)
+const supabaseServiceRoleClient = createSupabaseServiceRoleClient();
 
 export class JobQueueService {
   private static instance: JobQueueService;
@@ -75,7 +78,7 @@ export class JobQueueService {
       this.jobs.set(job_id, job);
 
       // Get plan data from database
-      const { data: planData, error: planError } = await supabaseClient
+      const { data: planData, error: planError } = await supabaseServiceRoleClient
         .from("plans")
         .select("*")
         .eq("job_id", job_id)
@@ -118,7 +121,7 @@ export class JobQueueService {
       await this.saveActivitiesToDatabase(planData.id, aiResult.data);
 
       // Update plan status in database to completed
-      await supabaseClient.from("plans").update({ status: "completed" }).eq("id", planData.id);
+      await supabaseServiceRoleClient.from("plans").update({ status: "completed" }).eq("id", planData.id);
 
       // Update job status
       job.status = "completed";
@@ -136,9 +139,13 @@ export class JobQueueService {
       // Update plan status in database to failed (if planData is available)
       try {
         // Try to get planData again in case of error before it was fetched
-        const { data: planData } = await supabaseClient.from("plans").select("id").eq("job_id", job_id).single();
+        const { data: planData } = await supabaseServiceRoleClient
+          .from("plans")
+          .select("id")
+          .eq("job_id", job_id)
+          .single();
         if (planData) {
-          await supabaseClient.from("plans").update({ status: "failed" }).eq("id", planData.id);
+          await supabaseServiceRoleClient.from("plans").update({ status: "failed" }).eq("id", planData.id);
         }
       } catch {
         // Ignore errors here to avoid masking the original error
@@ -154,7 +161,7 @@ export class JobQueueService {
     for (const day of aiData.days) {
       for (const activity of day.activities) {
         // First, create or get attraction
-        const { data: attraction, error: attractionError } = await supabaseClient
+        const { data: attraction, error: attractionError } = await supabaseServiceRoleClient
           .from("attractions")
           .upsert(
             {
@@ -186,7 +193,7 @@ export class JobQueueService {
     }
 
     if (activities.length > 0) {
-      const { error } = await supabaseClient.from("plan_activity").insert(activities);
+      const { error } = await supabaseServiceRoleClient.from("plan_activity").insert(activities);
 
       if (error) {
         console.error("Error saving activities:", error);

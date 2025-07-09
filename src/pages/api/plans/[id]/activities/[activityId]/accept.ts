@@ -5,7 +5,6 @@ import {
   toggleActivityCommandSchema,
 } from "../../../../../../lib/schemas/plan-management.schema";
 import { planManagementService } from "../../../../../../lib/services/plan-management.service";
-import { DEFAULT_USER_ID } from "../../../../../../db/supabase.client";
 import { logGenerationErrorWithoutJobId } from "../../../../../../lib/services/error-logging.service";
 import type { ErrorResponse } from "../../../../../../types";
 
@@ -34,6 +33,7 @@ export const prerender = false;
  * - 500 Internal Server Error: Server or database error
  */
 export const PUT: APIRoute = async (context) => {
+  const user = context.locals.user;
   try {
     const { id, activityId } = context.params;
 
@@ -93,23 +93,13 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
-    // TODO: Extract user_id from authorization token when auth is implemented
-    // For now, use DEFAULT_USER_ID
-    // const user_id = DEFAULT_USER_ID;
-
-    // TODO: Validate authorization token and extract user_id
-    // const authHeader = context.request.headers.get("Authorization");
-    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: {
-    //         code: "UNAUTHORIZED",
-    //         message: "Missing or invalid authorization token",
-    //       },
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
+    // Use authenticated user id from locals
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Accept the activity using the service
     const result = await planManagementService.acceptActivity({
@@ -183,7 +173,7 @@ export const PUT: APIRoute = async (context) => {
       if (errorMessage.includes("Database error")) {
         // Log database errors for debugging
         await logGenerationErrorWithoutJobId(
-          DEFAULT_USER_ID,
+          user && user.id ? user.id : "",
           `PUT /api/plans/[id]/activities/[activityId]/accept database error: ${errorMessage}`
         );
 
@@ -201,7 +191,7 @@ export const PUT: APIRoute = async (context) => {
       // Network or connection errors (503)
       if (errorMessage.includes("network") || errorMessage.includes("connection") || errorMessage.includes("timeout")) {
         await logGenerationErrorWithoutJobId(
-          DEFAULT_USER_ID,
+          user && user.id ? user.id : "",
           `PUT /api/plans/[id]/activities/[activityId]/accept network error: ${errorMessage}`
         );
 
@@ -220,7 +210,7 @@ export const PUT: APIRoute = async (context) => {
     // Log unexpected errors for debugging
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     await logGenerationErrorWithoutJobId(
-      DEFAULT_USER_ID,
+      user && user.id ? user.id : "",
       `PUT /api/plans/[id]/activities/[activityId]/accept unexpected error: ${errorMessage}`
     );
 

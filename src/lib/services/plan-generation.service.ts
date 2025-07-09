@@ -1,11 +1,11 @@
-import { supabaseClient } from "../../db/supabase.client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CreatePlanCommand } from "../../types";
 import { randomUUID } from "crypto";
 
-export async function createPlanInDb(input: CreatePlanCommand) {
+export async function createPlanInDb(supabase: SupabaseClient, input: CreatePlanCommand) {
   const job_id = randomUUID();
   const estimated_completion = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // +5 min
-  const { error } = await supabaseClient
+  const { error } = await supabase
     .from("plans")
     .insert([
       {
@@ -64,10 +64,10 @@ function calculateTimeBasedProgress(createdAt: string, estimatedCompletion: stri
  * - plan_id: string | undefined - Plan ID (only when status="completed")
  * - error_message: string | undefined - Error details (only when status="failed")
  */
-export async function getPlanGenerationStatus(jobId: string) {
+export async function getPlanGenerationStatus(supabase: SupabaseClient, jobId: string) {
   // Get plan by job_id from database with additional fields for progress calculation
   // This query uses the unique constraint on job_id for efficient lookup
-  const { data: plan, error: planError } = await supabaseClient
+  const { data: plan, error: planError } = await supabase
     .from("plans")
     .select("id, status, created_at, job_id")
     .eq("job_id", jobId)
@@ -96,7 +96,7 @@ export async function getPlanGenerationStatus(jobId: string) {
   if (plan.status === "failed") {
     // Query generation_errors table for the most recent error
     // Orders by created_at desc to get the latest error first
-    const { data: errorRow } = await supabaseClient
+    const { data: errorRow } = await supabase
       .from("generation_errors")
       .select("error_message")
       .eq("plan_id", plan.id)

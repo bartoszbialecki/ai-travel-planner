@@ -13,10 +13,14 @@ const GenerationPage: React.FC = () => {
     window.location.href = `/plans/${planId}`;
   }, []);
 
+  const handleRetry = () => {
+    setJobId(null);
+  };
+
   return (
     <div className="container mx-auto max-w-xl py-8">
       <GenerationForm onSubmit={handleFormSubmit} />
-      {jobId && <StatusModal jobId={jobId} onComplete={handleStatusComplete} />}
+      {jobId && <StatusModal jobId={jobId} onComplete={handleStatusComplete} onRetry={handleRetry} />}
     </div>
   );
 };

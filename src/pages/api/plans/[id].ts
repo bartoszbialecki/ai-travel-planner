@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { planIdSchema, deletePlanCommandSchema } from "../../../lib/schemas/plan-management.schema";
-import { planManagementService } from "../../../lib/services/plan-management.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { PlanManagementService } from "../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 import type { DeletePlanResponse, ErrorResponse } from "../../../types";
 
@@ -28,6 +27,7 @@ export const prerender = false;
  * - 500 Internal Server Error: Server errors
  */
 export const GET: APIRoute = async (context) => {
+  const user = context.locals.user;
   try {
     const { id } = context.params;
 
@@ -48,9 +48,14 @@ export const GET: APIRoute = async (context) => {
 
     const planId = parseResult.data;
 
-    // TODO: Extract user_id from authorization token when auth is implemented
-    // For now, use DEFAULT_USER_ID
-    const user_id = DEFAULT_USER_ID;
+    // Use authenticated user id from locals
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const user_id = user.id;
 
     // TODO: Validate authorization token and extract user_id
     // const authHeader = context.request.headers.get("Authorization");
@@ -67,6 +72,7 @@ export const GET: APIRoute = async (context) => {
     // }
 
     // Retrieve plan details using the service
+    const planManagementService = new PlanManagementService(context.locals.supabase);
     const result = await planManagementService.getPlanDetails({
       plan_id: planId,
       user_id,
@@ -110,7 +116,7 @@ export const GET: APIRoute = async (context) => {
       // Database errors (500)
       if (errorMessage.includes("Database error")) {
         // Log database errors for debugging
-        await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `GET /api/plans/[id] database error: ${errorMessage}`);
+        await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans/[id] database error: ${errorMessage}`);
 
         return new Response(
           JSON.stringify({
@@ -126,7 +132,7 @@ export const GET: APIRoute = async (context) => {
 
     // Log unexpected errors for debugging
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `GET /api/plans/[id] unexpected error: ${errorMessage}`);
+    await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans/[id] unexpected error: ${errorMessage}`);
 
     console.error("GET /api/plans/[id] error:", error);
 
@@ -170,6 +176,7 @@ export const GET: APIRoute = async (context) => {
  * - 500 Internal Server Error: Server errors
  */
 export const DELETE: APIRoute = async (context) => {
+  const user = context.locals.user;
   try {
     const { id } = context.params;
 
@@ -191,9 +198,14 @@ export const DELETE: APIRoute = async (context) => {
 
     const planId = parseResult.data;
 
-    // TODO: Extract user_id from authorization token when auth is implemented
-    // For now, use DEFAULT_USER_ID
-    const user_id = DEFAULT_USER_ID;
+    // Use authenticated user id from locals
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const user_id = user.id;
 
     // Validate the delete command structure
     const commandValidation = deletePlanCommandSchema.safeParse({
@@ -231,6 +243,7 @@ export const DELETE: APIRoute = async (context) => {
     // }
 
     // Delete plan using the service
+    const planManagementService = new PlanManagementService(context.locals.supabase);
     await planManagementService.deletePlan({
       plan_id: planId,
       user_id,
@@ -298,7 +311,7 @@ export const DELETE: APIRoute = async (context) => {
       // Database errors (500)
       if (errorMessage.includes("Database error")) {
         // Log database errors for debugging
-        await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `DELETE /api/plans/[id] database error: ${errorMessage}`);
+        await logGenerationErrorWithoutJobId(user?.id || "", `DELETE /api/plans/[id] database error: ${errorMessage}`);
 
         const errorResponse: ErrorResponse = {
           error: {
@@ -315,7 +328,7 @@ export const DELETE: APIRoute = async (context) => {
 
     // Log unexpected errors for debugging
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `DELETE /api/plans/[id] unexpected error: ${errorMessage}`);
+    await logGenerationErrorWithoutJobId(user?.id || "", `DELETE /api/plans/[id] unexpected error: ${errorMessage}`);
 
     console.error("DELETE /api/plans/[id] error:", error);
 

@@ -7,15 +7,15 @@ import { Button } from "@/components/ui/button";
 interface StatusModalProps {
   jobId: string;
   onComplete: (planId: string) => void;
+  onRetry: () => void;
 }
 
 const TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
 
-const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete }) => {
+const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry }) => {
   const { status, progress, planId, error } = usePlanGenerationStatus(jobId);
   const modalRef = useRef<HTMLDivElement>(null);
   const [timedOut, setTimedOut] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
 
   // Focus trap on modal open
   useEffect(() => {
@@ -33,13 +33,13 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete }) => {
     if (status === "completed" || status === "failed") return;
     const timeout = setTimeout(() => setTimedOut(true), TIMEOUT_MS);
     return () => clearTimeout(timeout);
-  }, [status, retryKey]);
+  }, [status]);
 
   // Retry logic
-  const handleRetry = () => {
-    setTimedOut(false);
-    setRetryKey((k) => k + 1);
-  };
+  // const handleRetry = () => {
+  //   setTimedOut(false);
+  //   setRetryKey((k) => k + 1);
+  // };
 
   // Return to form
   const handleReturn = () => {
@@ -79,7 +79,7 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete }) => {
                 <Button variant="secondary" className="flex-1" onClick={handleReturn}>
                   Wróć do formularza
                 </Button>
-                <Button className="flex-1" onClick={handleRetry}>
+                <Button className="flex-1" onClick={onRetry}>
                   Spróbuj ponownie
                 </Button>
               </div>
@@ -109,7 +109,7 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete }) => {
                 <div className="text-red-600 text-center mt-4" aria-live="assertive">
                   {error || "Wystąpił błąd podczas generowania planu."}
                   <div className="mt-4">
-                    <Button onClick={handleRetry}>Spróbuj ponownie</Button>
+                    <Button onClick={onRetry}>Spróbuj ponownie</Button>
                   </div>
                 </div>
               )}

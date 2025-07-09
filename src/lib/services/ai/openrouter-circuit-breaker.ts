@@ -1,3 +1,5 @@
+import { OPENROUTER_TIMEOUT_MS } from "./openrouter-constants";
+
 export interface CircuitBreakerOptions {
   failureThreshold: number;
   recoveryTimeout: number;
@@ -156,5 +158,5 @@ class CircuitBreaker {
 export const openRouterCircuitBreaker = new CircuitBreaker({
   failureThreshold: 5, // Open circuit after 5 consecutive failures
   recoveryTimeout: 30 * 1000, // Wait 30 seconds before attempting recovery
-  expectedResponseTime: 25 * 1000, // Expect responses within 25 seconds
+  expectedResponseTime: OPENROUTER_TIMEOUT_MS, // Use shared timeout value
 });

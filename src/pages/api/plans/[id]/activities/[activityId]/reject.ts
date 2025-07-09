@@ -6,7 +6,6 @@ import {
 } from "../../../../../../lib/schemas/plan-management.schema";
 import { PlanManagementService } from "../../../../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../../../../lib/services/error-logging.service";
-import { DEFAULT_USER_ID } from "../../../../../../db/supabase.client";
 import type { ActivityRejectResponse, ErrorResponse } from "../../../../../../types";
 
 export const prerender = false;
@@ -79,18 +78,25 @@ export const PUT: APIRoute = async ({ params, locals }) => {
     // Stage 2: Business Logic Implementation
     const planManagementService = new PlanManagementService(locals.supabase);
 
+    const userId = locals.user && locals.user.id ? locals.user.id : undefined;
+    if (!userId) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     const result = await planManagementService.rejectActivity(
       {
         plan_id: planIdValid,
         activity_id: activityIdValid,
         accepted: false,
       },
-      DEFAULT_USER_ID
+      userId
     );
 
     if (!result.success) {
       // Log the error for monitoring
-      await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `Activity rejection failed: ${result.error}`);
+      await logGenerationErrorWithoutJobId(userId, `Activity rejection failed: ${result.error}`);
 
       return new Response(
         JSON.stringify({

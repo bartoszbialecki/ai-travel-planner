@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { planListParamsSchema } from "../../../lib/schemas/plan-management.schema";
-import { planManagementService } from "../../../lib/services/plan-management.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { PlanManagementService } from "../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 
 export const prerender = false;
@@ -24,6 +23,7 @@ export const prerender = false;
  * - 500 Internal Server Error: Server errors
  */
 export const GET: APIRoute = async (context) => {
+  const user = context.locals.user;
   try {
     // Parse and validate query parameters
     const url = new URL(context.request.url);
@@ -45,11 +45,17 @@ export const GET: APIRoute = async (context) => {
 
     const { page, limit, sort, order } = parseResult.data;
 
-    // TODO: Extract user_id from authorization token when auth is implemented
-    // For now, use DEFAULT_USER_ID
-    const user_id = DEFAULT_USER_ID;
+    // Use authenticated user id from locals
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const user_id = user.id;
 
     // Retrieve plans using the service
+    const planManagementService = new PlanManagementService(context.locals.supabase);
     const result = await planManagementService.listPlans({
       user_id,
       page,
@@ -65,7 +71,7 @@ export const GET: APIRoute = async (context) => {
   } catch (error) {
     // Log error for debugging
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, `GET /api/plans error: ${errorMessage}`);
+    await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans error: ${errorMessage}`);
 
     console.error("GET /api/plans error:", error);
 

@@ -14,6 +14,7 @@ import { OpenRouterError, ValidationError } from "./openrouter.types";
 import { openRouterMonitoring } from "./openrouter-monitoring";
 import { openRouterCache } from "./openrouter-cache";
 import { openRouterCircuitBreaker } from "./openrouter-circuit-breaker";
+import { OPENROUTER_TIMEOUT_MS } from "./openrouter-constants";
 
 /**
  * OpenRouter AI Service implementation for travel plan generation.
@@ -59,7 +60,7 @@ export class OpenRouterAIService extends BaseAIService {
     this.apiKey = apiKey;
     this.baseUrl = options?.baseUrl || "https://openrouter.ai/api/v1";
     this.model = options?.model || "gpt-4o-mini";
-    this.timeout = options?.timeout || 30000;
+    this.timeout = options?.timeout || OPENROUTER_TIMEOUT_MS;
     this.maxRetries = options?.maxRetries || 3;
     this.temperature = options?.temperature || 0.7;
     this.maxTokens = options?.maxTokens || 4000;

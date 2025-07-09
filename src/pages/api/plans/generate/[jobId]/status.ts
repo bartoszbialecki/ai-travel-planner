@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import type { GenerationStatusResponse, ErrorResponse } from "../../../../../types";
 import { getPlanGenerationStatus } from "../../../../../lib/services/plan-generation.service";
+import { createSupabaseServiceRoleClient } from "../../../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -83,7 +84,8 @@ export const GET: APIRoute = async (context) => {
   try {
     // Step 2: Business Logic via service
     // Retrieve plan generation status from database
-    const status = await getPlanGenerationStatus(jobId);
+    const supabase = createSupabaseServiceRoleClient();
+    const status = await getPlanGenerationStatus(supabase, jobId);
 
     // Handle case when plan is not found
     if (status.notFound) {

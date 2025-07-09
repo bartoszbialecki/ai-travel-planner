@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import type { GeneratePlanRequest } from "../../../types";
 import { generatePlanRequestSchema } from "../../../lib/schemas/plan-generation.schema";
 import { createPlanInDb } from "../../../lib/services/plan-generation.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 import { JobQueueService } from "../../../lib/services/job-queue.service";
 
@@ -31,6 +30,7 @@ export const prerender = false;
  * - 500 Internal Server Error: Server errors
  */
 export const POST: APIRoute = async (context) => {
+  const user = context.locals.user;
   // Parse and validate input
   let body: GeneratePlanRequest;
   try {
@@ -53,9 +53,15 @@ export const POST: APIRoute = async (context) => {
 
   // Create plan in database
   try {
-    const { job_id, estimated_completion } = await createPlanInDb({
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const { job_id, estimated_completion } = await createPlanInDb(context.locals.supabase, {
       ...parseResult.data,
-      user_id: DEFAULT_USER_ID,
+      user_id: user.id,
     });
 
     // Add job to background processing queue
@@ -69,7 +75,7 @@ export const POST: APIRoute = async (context) => {
   } catch (err) {
     // Log error to generation_errors table
     const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(DEFAULT_USER_ID, errorMessage);
+    await logGenerationErrorWithoutJobId(user?.id || "", errorMessage);
     console.error("Plan generation DB error", err);
     return new Response(JSON.stringify({ error: { code: "internal_error", message: "Failed to create plan." } }), {
       status: 500,
