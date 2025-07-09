@@ -4,7 +4,7 @@ import {
   activityIdSchema,
   toggleActivityCommandSchema,
 } from "../../../../../../lib/schemas/plan-management.schema";
-import { planManagementService } from "../../../../../../lib/services/plan-management.service";
+import { PlanManagementService } from "../../../../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../../../../lib/services/error-logging.service";
 import type { ErrorResponse } from "../../../../../../types";
 
@@ -100,8 +100,7 @@ export const PUT: APIRoute = async (context) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    // Accept the activity using the service
+    const planManagementService = new PlanManagementService(context.locals.supabase);
     const result = await planManagementService.acceptActivity({
       plan_id: planId,
       activity_id: activityIdValid,
