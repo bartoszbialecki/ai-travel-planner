@@ -23,13 +23,13 @@ export const prerender = false;
  * - activityId (required) - UUID of the activity to accept
  *
  * Headers:
- * - Authorization: Bearer {token} - required JWT token (TODO: implement when auth is ready)
+ * - Authorization: Bearer {token} - required JWT token
  *
  * Responses:
  * - 200 OK: Activity successfully accepted
  * - 400 Bad Request: Invalid UUID format or input data
- * - 401 Unauthorized: Missing or invalid authorization token (TODO: implement)
- * - 403 Forbidden: User doesn't have access to the plan (TODO: implement)
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: User doesn't have access to the plan
  * - 404 Not Found: Plan or activity doesn't exist
  * - 500 Internal Server Error: Server or database error
  */
@@ -106,6 +106,7 @@ export const PUT: APIRoute = async (context) => {
       plan_id: planId,
       activity_id: activityIdValid,
       accepted: true,
+      user_id: user.id,
     });
 
     return new Response(JSON.stringify(result), {

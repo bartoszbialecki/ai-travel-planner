@@ -307,9 +307,9 @@ export class PlanManagementService {
    * Accepts or rejects an activity in a plan
    * Implements proper permission validation and activity verification
    */
-  async acceptActivity(command: ToggleActivityCommand): Promise<ActivityAcceptResponse> {
+  async acceptActivity(command: ToggleActivityCommand & { user_id: string }): Promise<ActivityAcceptResponse> {
     try {
-      const { plan_id, activity_id, accepted } = command;
+      const { plan_id, activity_id, accepted, user_id } = command;
 
       // Input validation
       if (!plan_id || !activity_id) {
@@ -317,7 +317,6 @@ export class PlanManagementService {
       }
 
       // First, verify that the plan exists and belongs to the user
-      // This provides better error handling and security
       const { data: plan, error: planError } = await this.supabase
         .from("plans")
         .select("id, user_id")
@@ -336,8 +335,10 @@ export class PlanManagementService {
         throw new Error("Plan not found");
       }
 
-      // TODO: Verify user_id matches the authenticated user when auth is implemented
-      // For now, we'll proceed with the operation
+      // Enforce user ownership
+      if (plan.user_id !== user_id) {
+        throw new Error("Plan does not belong to the authenticated user");
+      }
 
       // Verify that the activity exists and belongs to the plan
       const { data: activity, error: activityError } = await this.supabase
@@ -534,9 +535,9 @@ export class PlanManagementService {
    * Updates activity details in a plan
    * Implements proper permission validation and activity verification
    */
-  async updateActivity(command: UpdateActivityCommand): Promise<UpdateActivityResponse> {
+  async updateActivity(command: UpdateActivityCommand & { user_id: string }): Promise<UpdateActivityResponse> {
     try {
-      const { plan_id, activity_id, custom_desc, opening_hours, cost } = command;
+      const { plan_id, activity_id, custom_desc, opening_hours, cost, user_id } = command;
 
       // Input validation
       if (!plan_id || !activity_id) {
@@ -562,11 +563,10 @@ export class PlanManagementService {
         throw new Error("Plan not found");
       }
 
-      // TODO: Verify that the plan belongs to the authenticated user when auth is implemented
-      // For now, we'll proceed with the operation
-      // if (plan.user_id !== userId) {
-      //   throw new Error("Plan does not belong to the authenticated user");
-      // }
+      // Enforce user ownership
+      if (plan.user_id !== user_id) {
+        throw new Error("Plan does not belong to the authenticated user");
+      }
 
       // Verify that the activity exists and belongs to the plan
       const { data: activity, error: activityError } = await this.supabase

@@ -30,14 +30,14 @@ export const prerender = false;
  * }
  *
  * Headers:
- * - Authorization: Bearer {token} - required JWT token (TODO: implement when auth is ready)
+ * - Authorization: Bearer {token} - required JWT token
  * - Content-Type: application/json
  *
  * Responses:
  * - 200 OK: Activity successfully updated
  * - 400 Bad Request: Invalid UUID format, request body, or validation errors
- * - 401 Unauthorized: Missing or invalid authorization token (TODO: implement)
- * - 403 Forbidden: User doesn't own the plan (TODO: implement)
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: User doesn't own the plan
  * - 404 Not Found: Plan or activity doesn't exist
  * - 500 Internal Server Error: Server or database error
  */
@@ -117,20 +117,14 @@ export const PUT: APIRoute = async (context) => {
 
     const { custom_desc, opening_hours, cost } = bodyValidation.data;
 
-    // TODO: Extract user_id from authorization token when auth is implemented
-    // For now, use DEFAULT_USER_ID
-    // const authHeader = context.request.headers.get("Authorization");
-    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: {
-    //         code: "UNAUTHORIZED",
-    //         message: "Missing or invalid authorization token",
-    //       },
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
+    // Use authenticated user id from locals
+    const user = context.locals.user;
+    if (!user || !user.id) {
+      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Prepare command for service layer
     const command: UpdateActivityCommand = {
@@ -139,6 +133,7 @@ export const PUT: APIRoute = async (context) => {
       custom_desc,
       opening_hours,
       cost,
+      user_id: user.id,
     };
 
     // Update the activity using the service

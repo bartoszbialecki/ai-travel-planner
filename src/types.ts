@@ -270,9 +270,13 @@ export interface CreatePlanCommand extends GeneratePlanRequest {
  * Command model for updating plan activity
  * Maps to TablesUpdate<'plan_activity'>
  */
-export interface UpdateActivityCommand extends UpdateActivityRequest {
+export interface UpdateActivityCommand {
   plan_id: string;
   activity_id: string;
+  custom_desc?: string | null;
+  opening_hours?: string | null;
+  cost?: number | null;
+  user_id: string; // Now required
 }
 
 /**
@@ -282,6 +286,7 @@ export interface ToggleActivityCommand {
   plan_id: string;
   activity_id: string;
   accepted: boolean;
+  user_id: string; // Now required
 }
 
 /**

@@ -17,13 +17,13 @@ export const prerender = false;
  * - id (required) - UUID of the plan to retrieve
  *
  * Headers:
- * - Authorization: Bearer {token} - required JWT token (TODO: implement when auth is ready)
+ * - Authorization: Bearer {token} - required JWT token
  *
  * Responses:
  * - 200 OK: Successfully retrieved plan details
  * - 400 Bad Request: Invalid plan ID format
- * - 401 Unauthorized: Missing or invalid authorization token (TODO: implement)
- * - 403 Forbidden: Plan does not belong to the logged-in user (TODO: implement)
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: Plan does not belong to the logged-in user
  * - 404 Not Found: Plan with the given ID does not exist
  * - 500 Internal Server Error: Server errors
  */
@@ -57,20 +57,6 @@ export const GET: APIRoute = async (context) => {
       });
     }
     const user_id = user.id;
-
-    // TODO: Validate authorization token and extract user_id
-    // const authHeader = context.request.headers.get("Authorization");
-    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //   return new Response(
-    //     JSON.stringify({
-    //       error: {
-    //         code: "UNAUTHORIZED",
-    //         message: "Missing or invalid authorization token",
-    //       },
-    //     }),
-    //     { status: 401, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
 
     // Retrieve plan details using the service
     const planManagementService = new PlanManagementService(context.locals.supabase);
@@ -166,13 +152,13 @@ export const GET: APIRoute = async (context) => {
  * - id (required) - UUID of the plan to delete
  *
  * Headers:
- * - Authorization: Bearer {token} - required JWT token (TODO: implement when auth is ready)
+ * - Authorization: Bearer {token} - required JWT token
  *
  * Responses:
  * - 200 OK: Plan successfully deleted
  * - 400 Bad Request: Invalid plan ID format or command parameters
- * - 401 Unauthorized: Missing or invalid authorization token (TODO: implement)
- * - 403 Forbidden: Plan does not belong to the logged-in user (TODO: implement)
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: Plan does not belong to the logged-in user
  * - 404 Not Found: Plan with the given ID does not exist
  * - 500 Internal Server Error: Server errors
  */
@@ -227,21 +213,6 @@ export const DELETE: APIRoute = async (context) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    // TODO: Validate authorization token and extract user_id
-    // const authHeader = context.request.headers.get("Authorization");
-    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //   const errorResponse: ErrorResponse = {
-    //     error: {
-    //       code: "UNAUTHORIZED",
-    //       message: "Missing or invalid authorization token",
-    //     },
-    //   };
-    //   return new Response(JSON.stringify(errorResponse), {
-    //     status: 401,
-    //     headers: { "Content-Type": "application/json" },
-    //   });
-    // }
 
     // Delete plan using the service
     const planManagementService = new PlanManagementService(context.locals.supabase);
