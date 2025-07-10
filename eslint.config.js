@@ -62,5 +62,14 @@ export default tseslint.config(
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  // Add override for backend/server files
+  [
+    {
+      files: ["src/pages/api/**/*.ts", "src/lib/services/**/*.ts"],
+      rules: {
+        "no-console": "off",
+      },
+    },
+  ]
 );

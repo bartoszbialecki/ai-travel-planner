@@ -4,6 +4,7 @@ import { generatePlanRequestSchema } from "../../../lib/schemas/plan-generation.
 import { createPlanInDb } from "../../../lib/services/plan-generation.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 import { JobQueueService } from "../../../lib/services/job-queue.service";
+import { logger } from "../../../lib/services/logger";
 
 export const prerender = false;
 
@@ -76,7 +77,7 @@ export const POST: APIRoute = async (context) => {
     // Log error to generation_errors table
     const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
     await logGenerationErrorWithoutJobId(user?.id || "", errorMessage);
-    console.error("Plan generation DB error", err);
+    logger.error("Plan generation DB error", err);
     return new Response(JSON.stringify({ error: { code: "internal_error", message: "Failed to create plan." } }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

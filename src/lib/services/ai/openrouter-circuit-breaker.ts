@@ -1,4 +1,5 @@
 import { OPENROUTER_TIMEOUT_MS } from "./openrouter-constants";
+import { logger } from "@/lib/services/logger";
 
 export interface CircuitBreakerOptions {
   failureThreshold: number;
@@ -42,7 +43,7 @@ class CircuitBreaker {
     if (this.state === "OPEN") {
       if (this.shouldAttemptReset()) {
         this.state = "HALF_OPEN";
-        console.log("🔄 Circuit Breaker: Attempting recovery (HALF_OPEN)");
+        logger.log("🔄 Circuit Breaker: Attempting recovery (HALF_OPEN)");
       } else {
         throw new Error("Circuit breaker is OPEN - service temporarily unavailable");
       }
@@ -68,7 +69,7 @@ class CircuitBreaker {
 
     if (this.state === "HALF_OPEN") {
       this.state = "CLOSED";
-      console.log("✅ Circuit Breaker: Service recovered, circuit CLOSED");
+      logger.log("✅ Circuit Breaker: Service recovered, circuit CLOSED");
     }
   }
 
@@ -82,11 +83,11 @@ class CircuitBreaker {
     if (this.state === "HALF_OPEN") {
       this.state = "OPEN";
       this.nextAttemptTime = new Date(Date.now() + this.options.recoveryTimeout);
-      console.log("❌ Circuit Breaker: Recovery failed, circuit OPEN");
+      logger.log("❌ Circuit Breaker: Recovery failed, circuit OPEN");
     } else if (this.state === "CLOSED" && this.failureCount >= this.options.failureThreshold) {
       this.state = "OPEN";
       this.nextAttemptTime = new Date(Date.now() + this.options.recoveryTimeout);
-      console.log("🚨 Circuit Breaker: Failure threshold reached, circuit OPEN");
+      logger.log("🚨 Circuit Breaker: Failure threshold reached, circuit OPEN");
     }
   }
 
@@ -136,7 +137,7 @@ class CircuitBreaker {
     this.lastFailureTime = undefined;
     this.lastSuccessTime = undefined;
     this.nextAttemptTime = undefined;
-    console.log("🔄 Circuit Breaker: Manually reset");
+    logger.log("🔄 Circuit Breaker: Manually reset");
   }
 
   /**

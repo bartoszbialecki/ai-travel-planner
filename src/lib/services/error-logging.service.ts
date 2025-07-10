@@ -1,4 +1,5 @@
 import { supabaseClient } from "../../db/supabase.client";
+import { logger } from "@/lib/services/logger";
 
 export async function logGenerationError(job_id: string, error_message: string, details?: Record<string, unknown>) {
   // First, get plan_id from plans table using job_id
@@ -9,7 +10,7 @@ export async function logGenerationError(job_id: string, error_message: string, 
     .single();
 
   if (planError || !planData) {
-    console.error("Failed to find plan for job_id:", job_id, planError);
+    logger.error("Failed to find plan for job_id:", job_id, planError);
     return;
   }
 
@@ -23,7 +24,7 @@ export async function logGenerationError(job_id: string, error_message: string, 
     },
   ]);
   if (error) {
-    console.error("Failed to log generation error:", error);
+    logger.error("Failed to log generation error:", error);
   }
 }
 
@@ -48,7 +49,7 @@ export async function logGenerationErrorWithoutJobId(user_id: string, error_mess
     .single();
 
   if (tempError || !tempPlan) {
-    console.error("Failed to create temp plan for error logging:", tempError);
+    logger.error("Failed to create temp plan for error logging:", tempError);
     return;
   }
 
@@ -61,7 +62,7 @@ export async function logGenerationErrorWithoutJobId(user_id: string, error_mess
     },
   ]);
   if (error) {
-    console.error("Failed to log generation error:", error);
+    logger.error("Failed to log generation error:", error);
   }
 }
 
@@ -71,7 +72,7 @@ export async function logGenerationErrorWithoutJobId(user_id: string, error_mess
 export async function logApiErrorWithContext({ plan_id, error_message }: { plan_id?: string; error_message: string }) {
   try {
     if (!plan_id || typeof plan_id !== "string") {
-      console.error("logApiErrorWithContext: plan_id is required and must be a string");
+      logger.error("logApiErrorWithContext: plan_id is required and must be a string");
       return;
     }
     await supabaseClient.from("generation_errors").insert([
@@ -83,6 +84,6 @@ export async function logApiErrorWithContext({ plan_id, error_message }: { plan_
       },
     ]);
   } catch (err) {
-    console.error("Failed to log API error:", err);
+    logger.error("Failed to log API error:", err);
   }
 }

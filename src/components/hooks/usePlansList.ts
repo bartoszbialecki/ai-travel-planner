@@ -52,7 +52,7 @@ export function usePlansList({
 
   useEffect(() => {
     fetchPlans();
-  }, [page, sort, order, limit]);
+  }, [page, sort, order, limit, fetchPlans]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;

@@ -7,6 +7,7 @@ import {
 import { PlanManagementService } from "../../../../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../../../../lib/services/error-logging.service";
 import type { ErrorResponse } from "../../../../../../types";
+import { logger } from "@/lib/services/logger";
 
 export const prerender = false;
 
@@ -213,7 +214,7 @@ export const PUT: APIRoute = async (context) => {
       `PUT /api/plans/[id]/activities/[activityId]/accept unexpected error: ${errorMessage}`
     );
 
-    console.error("PUT /api/plans/[id]/activities/[activityId]/accept error:", error);
+    logger.error("PUT /api/plans/[id]/activities/[activityId]/accept error:", error);
 
     return new Response(
       JSON.stringify({

@@ -1,5 +1,6 @@
 import type { AIGenerationRequest, AIGenerationResult } from "./types";
 import type { UsageStats } from "./openrouter.types";
+import { logger } from "@/lib/services/logger";
 
 export interface MonitoringMetrics {
   requestCount: number;
@@ -72,7 +73,7 @@ class OpenRouterMonitoring {
       success: true,
     });
 
-    console.log(`✅ OpenRouter: Successfully generated plan for ${request.destination}`, {
+    logger.log(`✅ OpenRouter: Successfully generated plan for ${request.destination}`, {
       processingTime: result.processing_time_ms,
       tokens: usageStats.totalTokens,
       model,
@@ -111,7 +112,7 @@ class OpenRouterMonitoring {
       success: false,
     });
 
-    console.error(`❌ OpenRouter: Failed to generate plan for ${request.destination}`, {
+    logger.error(`❌ OpenRouter: Failed to generate plan for ${request.destination}`, {
       error: error.message,
       statusCode,
       requestId: errorLog.requestId,
@@ -124,7 +125,7 @@ class OpenRouterMonitoring {
   private logPerformance(metrics: PerformanceMetrics): void {
     // In a production environment, this would send metrics to a monitoring service
     // For now, we'll just log to console with structured format
-    console.log("📊 OpenRouter Performance:", {
+    logger.log("📊 OpenRouter Performance:", {
       destination: metrics.destination,
       model: metrics.model,
       processingTime: metrics.processingTime,

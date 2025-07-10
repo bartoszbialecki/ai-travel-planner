@@ -1,3 +1,4 @@
+import { logger } from "../logger";
 import { BaseAIService } from "./base-ai.service";
 import { MockAIService } from "./mock-ai.service";
 import { OpenRouterAIService } from "./openrouter-ai.service";
@@ -10,7 +11,7 @@ export function createAIService(): BaseAIService {
   const apiKey = import.meta.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    console.warn("OpenRouter API key not found, using mock service");
+    logger.warn("OpenRouter API key not found, using mock service");
     return new MockAIService();
   }
 

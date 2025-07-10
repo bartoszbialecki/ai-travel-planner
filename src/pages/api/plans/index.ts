@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { planListParamsSchema } from "../../../lib/schemas/plan-management.schema";
 import { PlanManagementService } from "../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
+import { logger } from "../../../lib/services/logger";
 
 export const prerender = false;
 
@@ -73,7 +74,7 @@ export const GET: APIRoute = async (context) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans error: ${errorMessage}`);
 
-    console.error("GET /api/plans error:", error);
+    logger.error("GET /api/plans error:", error);
 
     return new Response(
       JSON.stringify({

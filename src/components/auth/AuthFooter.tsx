@@ -10,7 +10,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
     <div className="mt-6 text-center text-sm text-gray-500">
       {mode === "login" && (
         <>
-          <span>Don't have an account? </span>
+          <span>Don&apos;t have an account? </span>
           <a href="/auth/register" className="text-blue-600 hover:underline">
             Register
           </a>

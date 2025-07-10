@@ -1,4 +1,5 @@
 import type { AIGenerationRequest, AIGenerationResult } from "./types";
+import { logger } from "@/lib/services/logger";
 
 export interface CacheEntry {
   result: AIGenerationResult;
@@ -218,7 +219,7 @@ setInterval(
   () => {
     const cleaned = openRouterCache.cleanup();
     if (cleaned > 0) {
-      console.log(`🧹 OpenRouter Cache: Cleaned ${cleaned} expired entries`);
+      logger.log(`🧹 OpenRouter Cache: Cleaned ${cleaned} expired entries`);
     }
   },
   60 * 60 * 1000

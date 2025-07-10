@@ -15,6 +15,7 @@ import { openRouterMonitoring } from "./openrouter-monitoring";
 import { openRouterCache } from "./openrouter-cache";
 import { openRouterCircuitBreaker } from "./openrouter-circuit-breaker";
 import { OPENROUTER_TIMEOUT_MS } from "./openrouter-constants";
+import { logger } from "@/lib/services/logger";
 
 /**
  * OpenRouter AI Service implementation for travel plan generation.
@@ -91,7 +92,7 @@ export class OpenRouterAIService extends BaseAIService {
       // Check cache first
       const cachedResult = openRouterCache.get(request);
       if (cachedResult) {
-        console.log("💾 OpenRouter: Serving from cache");
+        logger.log("💾 OpenRouter: Serving from cache");
         return cachedResult;
       }
 
@@ -359,7 +360,7 @@ Your responses must be in valid JSON format according to the provided schema. Al
         const retryable = response.status === 429 || response.status >= 500;
 
         // Log detailed error information for debugging
-        console.error(`OpenRouter API Error (${response.status}):`, {
+        logger.error(`OpenRouter API Error (${response.status}):`, {
           status: response.status,
           statusText: response.statusText,
           error: errorText,
@@ -477,7 +478,7 @@ Your responses must be in valid JSON format according to the provided schema. Al
         dayNumbers.length !== expectedDayNumbers.length ||
         !dayNumbers.every((dayNum: number, index: number) => dayNum === expectedDayNumbers[index])
       ) {
-        console.warn("Missing days detected:", {
+        logger.warn("Missing days detected:", {
           expected: expectedDayNumbers,
           received: dayNumbers,
           daysCount: parsed.days.length,
@@ -494,7 +495,7 @@ Your responses must be in valid JSON format according to the provided schema. Al
       }
 
       // Log the raw content for debugging
-      console.error("Failed to parse API response:", {
+      logger.error("Failed to parse API response:", {
         content: content.substring(0, 500) + (content.length > 500 ? "..." : ""),
         error: error instanceof Error ? error.message : "Unknown error",
       });

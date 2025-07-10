@@ -73,8 +73,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
         setSuccess(true);
         if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
         successTimeoutRef.current = setTimeout(() => setSuccess(false), 1500);
-      } catch (e: any) {
-        setError(e.message || "Failed to save description");
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          setError(e.message || "Failed to save description");
+        } else {
+          setError("Failed to save description");
+        }
       } finally {
         setLoading(false);
       }

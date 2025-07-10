@@ -3,6 +3,7 @@ import { planIdSchema, deletePlanCommandSchema } from "../../../lib/schemas/plan
 import { PlanManagementService } from "../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 import type { DeletePlanResponse, ErrorResponse } from "../../../types";
+import { logger } from "../../../lib/services/logger";
 
 export const prerender = false;
 
@@ -134,7 +135,7 @@ export const GET: APIRoute = async (context) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans/[id] unexpected error: ${errorMessage}`);
 
-    console.error("GET /api/plans/[id] error:", error);
+    logger.error("GET /api/plans/[id] error:", error);
 
     return new Response(
       JSON.stringify({
@@ -330,7 +331,7 @@ export const DELETE: APIRoute = async (context) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     await logGenerationErrorWithoutJobId(user?.id || "", `DELETE /api/plans/[id] unexpected error: ${errorMessage}`);
 
-    console.error("DELETE /api/plans/[id] error:", error);
+    logger.error("DELETE /api/plans/[id] error:", error);
 
     const errorResponse: ErrorResponse = {
       error: {

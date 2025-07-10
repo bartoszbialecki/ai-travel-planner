@@ -37,8 +37,7 @@ const LoginForm: React.FC = () => {
       }
       // On success, redirect to dashboard (SSR will handle session)
       window.location.href = "/";
-    } catch (err) {
-      console.error("Login error:", err);
+    } catch {
       setErrors((prev) => ({ ...prev, api: "Unexpected error. Please try again later." }));
       setLoading(false);
     }

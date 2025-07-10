@@ -1,6 +1,7 @@
 import { createSupabaseServiceRoleClient } from "../../db/supabase.client";
 import { createAIService } from "./ai";
 import type { AIGenerationRequest, AITravelPlanResponse } from "./ai/types";
+import { logger } from "@/lib/services/logger";
 
 export interface JobStatus {
   job_id: string;
@@ -151,7 +152,7 @@ export class JobQueueService {
         // Ignore errors here to avoid masking the original error
       }
 
-      console.error(`Job ${job_id} failed:`, error);
+      logger.error(`Job ${job_id} failed:`, error);
     }
   }
 
@@ -175,7 +176,7 @@ export class JobQueueService {
           .single();
 
         if (attractionError) {
-          console.error("Error creating attraction:", attractionError);
+          logger.error("Error creating attraction:", attractionError);
           continue;
         }
 
@@ -196,7 +197,7 @@ export class JobQueueService {
       const { error } = await supabaseServiceRoleClient.from("plan_activity").insert(activities);
 
       if (error) {
-        console.error("Error saving activities:", error);
+        logger.error("Error saving activities:", error);
         throw new Error("Failed to save activities to database");
       }
     }

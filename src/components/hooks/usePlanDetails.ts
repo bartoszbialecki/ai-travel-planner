@@ -68,8 +68,12 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
       }
       // Redirect or clear plan after deletion
       setPlan(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete plan");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to delete plan");
+      } else {
+        setError("Failed to delete plan");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,9 +104,13 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
           const resp = await res.json().catch(() => ({}));
           throw new Error(resp?.error?.message || "Failed to edit activity");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setPlan(prevPlan);
-        setError(err.message || "Failed to edit activity");
+        if (err instanceof Error) {
+          setError(err.message || "Failed to edit activity");
+        } else {
+          setError("Failed to edit activity");
+        }
       }
     },
     [plan, planId]
@@ -128,9 +136,13 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
           const resp = await res.json().catch(() => ({}));
           throw new Error(resp?.error?.message || "Failed to accept activity");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setPlan(prevPlan);
-        setError(err.message || "Failed to accept activity");
+        if (err instanceof Error) {
+          setError(err.message || "Failed to accept activity");
+        } else {
+          setError("Failed to accept activity");
+        }
       }
     },
     [plan, planId]
@@ -156,9 +168,13 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
           const resp = await res.json().catch(() => ({}));
           throw new Error(resp?.error?.message || "Failed to reject activity");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setPlan(prevPlan);
-        setError(err.message || "Failed to reject activity");
+        if (err instanceof Error) {
+          setError(err.message || "Failed to reject activity");
+        } else {
+          setError("Failed to reject activity");
+        }
       }
     },
     [plan, planId]
