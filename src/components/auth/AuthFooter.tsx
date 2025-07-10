@@ -1,7 +1,7 @@
 import React from "react";
 
 interface AuthFooterProps {
-  mode: "login" | "register" | "forgot" | "reset";
+  mode: "login" | "register";
 }
 
 const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
@@ -14,10 +14,6 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
           <a href="/auth/register" className="text-blue-600 hover:underline">
             Register
           </a>
-          <span> &middot; </span>
-          <a href="/auth/forgot-password" className="text-blue-600 hover:underline">
-            Forgot password?
-          </a>
         </>
       )}
       {mode === "register" && (
@@ -25,20 +21,6 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
           <span>Already have an account? </span>
           <a href="/auth/login" className="text-blue-600 hover:underline">
             Log in
-          </a>
-        </>
-      )}
-      {mode === "forgot" && (
-        <>
-          <a href="/auth/login" className="text-blue-600 hover:underline">
-            Back to login
-          </a>
-        </>
-      )}
-      {mode === "reset" && (
-        <>
-          <a href="/auth/login" className="text-blue-600 hover:underline">
-            Back to login
           </a>
         </>
       )}

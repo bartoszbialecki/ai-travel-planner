@@ -2,16 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServerInstance } from "../db/supabase.client";
 
 // List of public routes that do not require authentication
-const PUBLIC_PATHS = [
-  "/auth/login",
-  "/auth/register",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/api/auth/login",
-  "/api/auth/register",
-  "/api/auth/forgot-password",
-  "/api/auth/reset-password",
-];
+const PUBLIC_PATHS = ["/auth/login", "/auth/register", "/api/auth/login", "/api/auth/register"];
 
 const AUTH_ONLY_PATHS = ["/auth/login", "/auth/register"];
 
