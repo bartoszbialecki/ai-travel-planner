@@ -60,7 +60,7 @@ const PlansGrid: React.FC<PlansGridProps> = ({ plans, onPlanClick, loading }) =>
                 {plan.adults_count} adults, {plan.children_count} children
               </div>
               <div className="text-xs mb-1">Style: {plan.travel_style || "-"}</div>
-              <div className="text-xs text-right text-muted-foreground">Utworzono: {plan.created_at?.slice(0, 10)}</div>
+              <div className="text-xs text-right text-muted-foreground">Created: {plan.created_at?.slice(0, 10)}</div>
             </CardContent>
           </Card>
         </a>

@@ -31,7 +31,7 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
       .then(async (res) => {
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data?.error?.message || "Błąd pobierania planu");
+          throw new Error(data?.error?.message || "Failed to fetch plan");
         }
         return res.json();
       })
@@ -64,12 +64,12 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
       const res = await fetch(`/api/plans/${planId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error?.message || "Błąd usuwania planu");
+        throw new Error(data?.error?.message || "Failed to delete plan");
       }
       // Redirect or clear plan after deletion
       setPlan(null);
     } catch (err: any) {
-      setError(err.message || "Błąd usuwania planu");
+      setError(err.message || "Failed to delete plan");
     } finally {
       setLoading(false);
     }
@@ -98,11 +98,11 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
         });
         if (!res.ok) {
           const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Błąd edycji aktywności");
+          throw new Error(resp?.error?.message || "Failed to edit activity");
         }
       } catch (err: any) {
         setPlan(prevPlan);
-        setError(err.message || "Błąd edycji aktywności");
+        setError(err.message || "Failed to edit activity");
       }
     },
     [plan, planId]
@@ -126,11 +126,11 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
         const res = await fetch(`/api/plans/${planId}/activities/${activityId}/accept`, { method: "PUT" });
         if (!res.ok) {
           const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Błąd akceptacji aktywności");
+          throw new Error(resp?.error?.message || "Failed to accept activity");
         }
       } catch (err: any) {
         setPlan(prevPlan);
-        setError(err.message || "Błąd akceptacji aktywności");
+        setError(err.message || "Failed to accept activity");
       }
     },
     [plan, planId]
@@ -154,11 +154,11 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
         const res = await fetch(`/api/plans/${planId}/activities/${activityId}/reject`, { method: "PUT" });
         if (!res.ok) {
           const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Błąd odrzucenia aktywności");
+          throw new Error(resp?.error?.message || "Failed to reject activity");
         }
       } catch (err: any) {
         setPlan(prevPlan);
-        setError(err.message || "Błąd odrzucenia aktywności");
+        setError(err.message || "Failed to reject activity");
       }
     },
     [plan, planId]

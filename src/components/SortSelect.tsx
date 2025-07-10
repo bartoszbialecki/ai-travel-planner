@@ -17,14 +17,14 @@ interface SortSelectProps {
 }
 
 const sortOptions = [
-  { value: "created_at", label: "Data utworzenia" },
-  { value: "name", label: "Nazwa" },
-  { value: "destination", label: "Cel podróży" },
+  { value: "created_at", label: "Creation date" },
+  { value: "name", label: "Name" },
+  { value: "destination", label: "Destination" },
 ];
 
 const orderOptions = [
-  { value: "asc", label: "Rosnąco" },
-  { value: "desc", label: "Malejąco" },
+  { value: "asc", label: "Ascending" },
+  { value: "desc", label: "Descending" },
 ];
 
 const SortSelect: React.FC<SortSelectProps> = ({ sort, order, onSortChange }) => {
@@ -32,7 +32,7 @@ const SortSelect: React.FC<SortSelectProps> = ({ sort, order, onSortChange }) =>
     <div className="flex gap-2 items-center mb-4">
       <Select value={sort} onValueChange={(v) => onSortChange(v as typeof sort, order)}>
         <SelectTrigger className="w-40">
-          <SelectValue placeholder="Sortuj według" />
+          <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
           {sortOptions.map((opt) => (
@@ -44,7 +44,7 @@ const SortSelect: React.FC<SortSelectProps> = ({ sort, order, onSortChange }) =>
       </Select>
       <Select value={order} onValueChange={(v) => onSortChange(sort, v as typeof order)}>
         <SelectTrigger className="w-32">
-          <SelectValue placeholder="Kolejność" />
+          <SelectValue placeholder="Order" />
         </SelectTrigger>
         <SelectContent>
           {orderOptions.map((opt) => (

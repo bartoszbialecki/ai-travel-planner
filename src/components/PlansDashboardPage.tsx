@@ -25,9 +25,9 @@ const PlansDashboardPage: React.FC = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Twoje plany podróży</h1>
+        <h1 className="text-2xl font-bold">Your travel plans</h1>
         <a href="/generate" tabIndex={0} className="shadcn-btn shadcn-btn-primary">
-          + Nowy plan
+          + New plan
         </a>
       </div>
       <SortSelect sort={sort} order={order} onSortChange={handleSortChange} />
@@ -48,13 +48,3 @@ const PlansDashboardPage: React.FC = () => {
 };
 
 export default PlansDashboardPage;
-
-/**
- * Example usage (in an Astro or React page):
- *
- * import PlansDashboardPage from "@/components/PlansDashboardPage";
- *
- * function Page() {
- *   return <PlansDashboardPage />;
- * }
- */

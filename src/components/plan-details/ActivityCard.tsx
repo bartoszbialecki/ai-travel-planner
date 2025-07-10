@@ -15,7 +15,7 @@ const Badge: React.FC<{ status: "accepted" | "rejected" }> = ({ status }) => (
       }
     `}
   >
-    {status === "accepted" ? "Zaakceptowana" : "Odrzucona"}
+    {status === "accepted" ? "Accepted" : "Rejected"}
   </span>
 );
 
@@ -74,7 +74,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
         if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
         successTimeoutRef.current = setTimeout(() => setSuccess(false), 1500);
       } catch (e: any) {
-        setError(e.message || "Błąd zapisu opisu");
+        setError(e.message || "Failed to save description");
       } finally {
         setLoading(false);
       }
@@ -93,7 +93,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
             loading={loading}
             error={error}
           />
-          {success && <div className="text-green-600 text-xs mt-1">Opis zapisany!</div>}
+          {success && <div className="text-green-600 text-xs mt-1">Description saved!</div>}
         </CardContent>
       </Card>
     );
@@ -119,18 +119,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
           {activity.accepted === undefined || activity.accepted === null ? (
             <>
               <Button variant="outline" size="sm" onClick={() => onAccept(activity.id)}>
-                Akceptuj
+                Accept
               </Button>
               <Button variant="outline" size="sm" onClick={() => onReject(activity.id)}>
-                Odrzuć
+                Reject
               </Button>
               <Button variant="secondary" size="sm" onClick={handleEditClick}>
-                Edytuj
+                Edit
               </Button>
             </>
           ) : (
             <Button variant="secondary" size="sm" onClick={handleEditClick}>
-              Edytuj
+              Edit
             </Button>
           )}
         </CardAction>
@@ -139,8 +139,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
         <div className="text-gray-700 dark:text-gray-200 text-sm">
           {activity.custom_desc || activity.attraction.description}
         </div>
-        {activity.opening_hours && <div className="text-xs text-gray-400">Godziny: {activity.opening_hours}</div>}
-        {activity.cost !== null && <div className="text-xs text-gray-400">Koszt: {activity.cost} zł</div>}
+        {activity.opening_hours && <div className="text-xs text-gray-400">Hours: {activity.opening_hours}</div>}
+        {activity.cost !== null && <div className="text-xs text-gray-400">Cost: {activity.cost} zł</div>}
       </CardContent>
     </Card>
   );

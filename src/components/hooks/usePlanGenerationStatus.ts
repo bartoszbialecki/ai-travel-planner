@@ -26,7 +26,7 @@ export function usePlanGenerationStatus(jobId: string | null): UsePlanGeneration
       try {
         const res = await fetch(`/api/plans/generate/${jobId}/status`);
         if (!res.ok) {
-          throw new Error("Błąd pobierania statusu generowania planu");
+          throw new Error("Failed to fetch plan generation status");
         }
         const data: GenerationStatusResponse = await res.json();
         if (!isMounted) return;
@@ -35,7 +35,7 @@ export function usePlanGenerationStatus(jobId: string | null): UsePlanGeneration
         setPlanId(data.plan_id);
         setError(data.error_message);
       } catch {
-        setError("Nie udało się pobrać statusu generowania planu");
+        setError("Could not fetch plan generation status");
       }
     }
 

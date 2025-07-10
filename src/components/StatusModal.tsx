@@ -64,52 +64,52 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
       <Card className="w-full max-w-md outline-none" tabIndex={-1} ref={modalRef}>
         <CardHeader>
           <CardTitle id="modal-title" className="text-lg font-semibold">
-            Trwa generowanie planu podróży...
+            Generating your travel plan...
           </CardTitle>
         </CardHeader>
         <CardContent>
           {timedOut ? (
             <>
               <div className="text-red-600 text-center mb-4" aria-live="assertive">
-                Przekroczono limit czasu oczekiwania na wygenerowanie planu.
+                The generation process timed out.
                 <br />
-                Spróbuj ponownie później lub wróć do formularza.
+                Please try again later or return to the form.
               </div>
               <div className="flex gap-2 w-full">
                 <Button variant="secondary" className="flex-1" onClick={handleReturn}>
-                  Wróć do formularza
+                  Return to form
                 </Button>
                 <Button className="flex-1" onClick={onRetry}>
-                  Spróbuj ponownie
+                  Try again
                 </Button>
               </div>
             </>
           ) : (
             <>
               <div className="w-full mb-4">
-                <Progress value={progress} max={100} className="h-3" aria-label="Postęp generowania" />
+                <Progress value={progress} max={100} className="h-3" aria-label="Generation progress" />
                 <div className="text-center text-sm mt-1" aria-live="polite">
                   {progress}%
                 </div>
               </div>
               <div id="modal-desc" className="sr-only">
                 {status === "processing"
-                  ? "Plan jest generowany. Proszę czekać."
+                  ? "Your plan is being generated. Please wait."
                   : status === "failed"
-                    ? error || "Wystąpił błąd podczas generowania planu."
-                    : "Plan został wygenerowany."}
+                    ? error || "An error occurred while generating the plan."
+                    : "Your plan has been generated."}
               </div>
               {status === "processing" && (
                 <div className="flex items-center gap-2 text-gray-600" aria-live="polite">
                   <span className="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full" />
-                  <span>Generowanie planu...</span>
+                  <span>Generating plan...</span>
                 </div>
               )}
               {status === "failed" && (
                 <div className="text-red-600 text-center mt-4" aria-live="assertive">
-                  {error || "Wystąpił błąd podczas generowania planu."}
+                  {error || "An error occurred while generating the plan."}
                   <div className="mt-4">
-                    <Button onClick={onRetry}>Spróbuj ponownie</Button>
+                    <Button onClick={onRetry}>Try again</Button>
                   </div>
                 </div>
               )}

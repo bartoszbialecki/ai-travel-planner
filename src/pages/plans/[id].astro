@@ -5,8 +5,8 @@ import PlanDetailsPage from "../../components/plan-details/PlanDetailsPage";
 
 <BaseLayout>
   <head slot="head">
-    <title>Szczegóły planu podróży | AI Travel Planner</title>
-    <meta name="description" content="Szczegóły wygenerowanego planu podróży." />
+    <title>Travel plan details | AI Travel Planner</title>
+    <meta name="description" content="Details of the generated travel plan." />
   </head>
   <main class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
     <PlanDetailsPage planId={Astro.params.id} client:only="react" />

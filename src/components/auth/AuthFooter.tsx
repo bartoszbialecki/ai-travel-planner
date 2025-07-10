@@ -10,35 +10,35 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
     <div className="mt-6 text-center text-sm text-gray-500">
       {mode === "login" && (
         <>
-          <span>Nie masz konta? </span>
+          <span>Don't have an account? </span>
           <a href="/auth/register" className="text-blue-600 hover:underline">
-            Zarejestruj się
+            Register
           </a>
           <span> &middot; </span>
           <a href="/auth/forgot-password" className="text-blue-600 hover:underline">
-            Nie pamiętasz hasła?
+            Forgot password?
           </a>
         </>
       )}
       {mode === "register" && (
         <>
-          <span>Masz już konto? </span>
+          <span>Already have an account? </span>
           <a href="/auth/login" className="text-blue-600 hover:underline">
-            Zaloguj się
+            Log in
           </a>
         </>
       )}
       {mode === "forgot" && (
         <>
           <a href="/auth/login" className="text-blue-600 hover:underline">
-            Powrót do logowania
+            Back to login
           </a>
         </>
       )}
       {mode === "reset" && (
         <>
           <a href="/auth/login" className="text-blue-600 hover:underline">
-            Powrót do logowania
+            Back to login
           </a>
         </>
       )}

@@ -14,20 +14,20 @@ const RegisterForm: React.FC = () => {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!email) newErrors.email = "Email jest wymagany";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Nieprawidłowy format email";
-    if (!password) newErrors.password = "Hasło jest wymagane";
-    else if (password.length < 8) newErrors.password = "Hasło musi mieć co najmniej 8 znaków";
+    if (!email) newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Invalid email format";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
     else if (
       !/[A-Z]/.test(password) ||
       !/[a-z]/.test(password) ||
       !/\d/.test(password) ||
       !/[@$!%*?&]/.test(password)
     ) {
-      newErrors.password = "Hasło musi zawierać wielką i małą literę, cyfrę oraz znak specjalny";
+      newErrors.password = "Password must contain uppercase, lowercase, a digit, and a special character";
     }
-    if (!confirmPassword) newErrors.confirmPassword = "Potwierdź hasło";
-    else if (password !== confirmPassword) newErrors.confirmPassword = "Hasła nie są identyczne";
+    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password";
+    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -66,7 +66,7 @@ const RegisterForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 w-full">
-      <AuthHeader title="Rejestracja" />
+      <AuthHeader title="Register" />
       {apiError && <p className="text-red-500 text-sm mb-4">{apiError}</p>}
       {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
       <div className="mb-4">
@@ -85,7 +85,7 @@ const RegisterForm: React.FC = () => {
       </div>
       <div className="mb-4">
         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Hasło
+          Password
         </label>
         <input
           id="password"
@@ -99,7 +99,7 @@ const RegisterForm: React.FC = () => {
       </div>
       <div className="mb-6">
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-          Powtórz hasło
+          Confirm password
         </label>
         <input
           id="confirmPassword"

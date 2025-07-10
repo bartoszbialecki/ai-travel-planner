@@ -10,8 +10,8 @@ const ForgotPasswordForm: React.FC = () => {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!email) newErrors.email = "Email jest wymagany";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Nieprawidłowy format email";
+    if (!email) newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Invalid email format";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -25,10 +25,10 @@ const ForgotPasswordForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 w-full">
-      <AuthHeader title="Odzyskiwanie hasła" />
+      <AuthHeader title="Password recovery" />
       {submitted ? (
         <div className="text-green-600 text-center mb-6">
-          Jeśli podany email istnieje, wysłaliśmy link do resetu hasła.
+          If the provided email exists, we have sent a password reset link.
         </div>
       ) : (
         <>
@@ -47,7 +47,7 @@ const ForgotPasswordForm: React.FC = () => {
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
           <Button type="submit" className="w-full">
-            Wyślij link resetujący
+            Send reset link
           </Button>
         </>
       )}

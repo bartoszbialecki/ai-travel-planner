@@ -19,10 +19,10 @@ const DaySection: React.FC<DaySectionProps> = ({
 }) => {
   return (
     <section>
-      <h2 className="text-xl font-semibold mb-6 px-1">Dzień {dayNumber}</h2>
+      <h2 className="text-xl font-semibold mb-6 px-1">Day {dayNumber}</h2>
       <div className="flex flex-col gap-4">
         {activities.length === 0 ? (
-          <div className="text-gray-500">Brak aktywności na ten dzień.</div>
+          <div className="text-gray-500">No activities for this day.</div>
         ) : (
           activities.map((activity) => (
             <ActivityCard

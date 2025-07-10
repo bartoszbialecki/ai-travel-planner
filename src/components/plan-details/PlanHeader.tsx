@@ -31,12 +31,12 @@ const PlanHeader: React.FC<PlanHeaderProps> = ({ plan, onDelete }) => {
         <div>
           <div className="text-2xl font-bold mb-1">{plan.name}</div>
           <div className="text-gray-600 dark:text-gray-300 text-sm">
-            {plan.destination} | {plan.start_date} - {plan.end_date} | {plan.adults_count} dorosłych,{" "}
-            {plan.children_count} dzieci
+            {plan.destination} | {plan.start_date} - {plan.end_date} | {plan.adults_count} adults, {plan.children_count}{" "}
+            children
           </div>
           {plan.budget_total && (
             <div className="text-sm mt-1">
-              Budżet: {plan.budget_total} {plan.budget_currency}
+              Budget: {plan.budget_total} {plan.budget_currency}
             </div>
           )}
         </div>
@@ -44,20 +44,20 @@ const PlanHeader: React.FC<PlanHeaderProps> = ({ plan, onDelete }) => {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="destructive" onClick={() => setOpen(true)}>
-                Usuń plan
+                Delete plan
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeaderUI>
-                <DialogTitle>Potwierdź usunięcie planu</DialogTitle>
+                <DialogTitle>Confirm plan deletion</DialogTitle>
               </DialogHeaderUI>
-              <div className="py-2">Czy na pewno chcesz usunąć ten plan? Tej operacji nie można cofnąć.</div>
+              <div className="py-2">Are you sure you want to delete this plan? This action cannot be undone.</div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Anuluj</Button>
+                  <Button variant="outline">Cancel</Button>
                 </DialogClose>
                 <Button variant="destructive" onClick={handleDelete}>
-                  Usuń
+                  Delete
                 </Button>
               </DialogFooter>
             </DialogContent>

@@ -15,34 +15,34 @@ export function validateGeneratePlanForm(
 ): Partial<Record<keyof import("../types").GeneratePlanFormValues, string>> {
   const errors: Partial<Record<keyof import("../types").GeneratePlanFormValues, string>> = {};
   if (!values.name || values.name.trim().length < 3) {
-    errors.name = "Nazwa planu jest wymagana (min. 3 znaki)";
+    errors.name = "Plan name is required (min. 3 characters)";
   }
   if (!values.destination || values.destination.trim().length < 2) {
-    errors.destination = "Miejsce docelowe jest wymagane (min. 2 znaki)";
+    errors.destination = "Destination is required (min. 2 characters)";
   }
   if (!values.startDate) {
-    errors.startDate = "Data rozpoczęcia jest wymagana";
+    errors.startDate = "Start date is required";
   }
   if (!values.endDate) {
-    errors.endDate = "Data zakończenia jest wymagana";
+    errors.endDate = "End date is required";
   }
   if (values.startDate && values.endDate && values.startDate >= values.endDate) {
-    errors.endDate = "Data zakończenia musi być po dacie rozpoczęcia";
+    errors.endDate = "End date must be after start date";
   }
   if (!values.adultsCount || values.adultsCount < 1) {
-    errors.adultsCount = "Co najmniej 1 dorosły";
+    errors.adultsCount = "At least 1 adult is required";
   }
   if (values.childrenCount == null || values.childrenCount < 0) {
-    errors.childrenCount = "Liczba dzieci nie może być ujemna";
+    errors.childrenCount = "Number of children cannot be negative";
   }
   if (values.budgetTotal != null && (isNaN(values.budgetTotal) || values.budgetTotal < 0)) {
-    errors.budgetTotal = "Budżet musi być liczbą nieujemną";
+    errors.budgetTotal = "Budget must be a non-negative number";
   }
   if (values.budgetCurrency && !/^[A-Za-z]{3}$/.test(values.budgetCurrency)) {
-    errors.budgetCurrency = "Waluta musi mieć 3 litery (np. PLN, EUR)";
+    errors.budgetCurrency = "Currency must be 3 letters (e.g. PLN, EUR)";
   }
   if (values.travelStyle && !["active", "relaxation", "flexible"].includes(values.travelStyle)) {
-    errors.travelStyle = "Nieprawidłowy styl podróży";
+    errors.travelStyle = "Invalid travel style";
   }
   return errors;
 }

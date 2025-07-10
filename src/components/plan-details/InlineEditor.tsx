@@ -17,14 +17,14 @@ const InlineEditor: React.FC<InlineEditorProps> = ({ value, onChange, onCancel, 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={loading}
-        placeholder="Wpisz opis aktywności..."
+        placeholder="Enter activity description..."
       />
       {error && <div className="text-red-600 text-xs">{error}</div>}
       <div className="flex gap-2">
         <Button variant="outline" size="sm" onClick={onCancel} disabled={loading}>
-          Anuluj
+          Cancel
         </Button>
-        {loading && <span className="text-blue-600 text-xs self-center">Zapisywanie...</span>}
+        {loading && <span className="text-blue-600 text-xs self-center">Saving...</span>}
       </div>
     </div>
   );

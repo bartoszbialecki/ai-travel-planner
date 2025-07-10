@@ -33,13 +33,13 @@ export function usePlansList({
         url.searchParams.set("sort", params?.sort ?? sort);
         url.searchParams.set("order", params?.order ?? order);
         const res = await fetch(url.toString());
-        if (!res.ok) throw new Error("Błąd pobierania listy planów");
+        if (!res.ok) throw new Error("Failed to fetch plans list");
         const data: PlanListResponse = await res.json();
         setPlans(Array.isArray(data.plans) ? data.plans : []);
         setPage(data.pagination.page);
         setTotalPages(data.pagination.total_pages);
       } catch (e: unknown) {
-        let message = "Nieznany błąd";
+        let message = "Unknown error";
         if (e instanceof Error) message = e.message;
         setError(message);
         setPlans([]);

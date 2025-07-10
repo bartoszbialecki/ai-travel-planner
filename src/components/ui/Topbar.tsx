@@ -37,9 +37,6 @@ export const Topbar: React.FC<TopbarProps> = ({ user: initialUser }) => {
             <a href="/generate" className="ml-4 text-gray-700 hover:text-blue-600">
               Generate Plan
             </a>
-            <a href="/profile" className="ml-4 text-gray-700 hover:text-blue-600">
-              Profile
-            </a>
           </>
         )}
       </div>

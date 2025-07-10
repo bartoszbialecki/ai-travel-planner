@@ -66,7 +66,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       });
       if (res.status === 429) {
         setLimitReached(true);
-        setApiError("Osiągnięto limit 2 planów dziennie. Spróbuj jutro.");
+        setApiError("You have reached the daily limit of 2 plans. Please try again tomorrow.");
         setLoading(false);
         return;
       }
@@ -76,7 +76,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       }
       if (!res.ok) {
         const data = await res.json();
-        setApiError(data?.error?.message || "Wystąpił błąd podczas generowania planu.");
+        setApiError(data?.error?.message || "An error occurred while generating the plan.");
         setLoading(false);
         return;
       }
@@ -84,7 +84,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       resetDraft();
       onSubmit(data.job_id);
     } catch {
-      setApiError("Nie udało się połączyć z serwerem. Spróbuj ponownie.");
+      setApiError("Could not connect to the server. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
   return (
     <form className="space-y-4 px-2 sm:px-0 max-w-lg w-full" onSubmit={handleSubmit} aria-labelledby="form-title">
       <h2 id="form-title" className="text-xl font-bold mb-2">
-        Wygeneruj plan podróży
+        Generate travel plan
       </h2>
       {apiError && (
         <Alert variant="destructive" className="mb-2" aria-live="assertive">
@@ -102,7 +102,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       )}
       <div>
         <label className="block font-medium mb-1" htmlFor="name">
-          Nazwa planu *
+          Plan name *
         </label>
         <Input
           id="name"
@@ -124,7 +124,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       </div>
       <div>
         <label className="block font-medium mb-1" htmlFor="destination">
-          Miejsce docelowe *
+          Destination *
         </label>
         <Input
           id="destination"
@@ -147,7 +147,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="startDate">
-            Data rozpoczęcia *
+            Start date *
           </label>
           <Input
             id="startDate"
@@ -169,7 +169,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
         </div>
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="endDate">
-            Data zakończenia *
+            End date *
           </label>
           <Input
             id="endDate"
@@ -193,7 +193,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="adultsCount">
-            Dorośli *
+            Adults *
           </label>
           <Input
             id="adultsCount"
@@ -220,7 +220,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
         </div>
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="childrenCount">
-            Dzieci
+            Children
           </label>
           <Input
             id="childrenCount"
@@ -253,7 +253,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="budgetTotal">
-            Budżet
+            Budget
           </label>
           <Input
             id="budgetTotal"
@@ -285,7 +285,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
         </div>
         <div className="flex-1">
           <label className="block font-medium mb-1" htmlFor="budgetCurrency">
-            Waluta
+            Currency
           </label>
           <Input
             id="budgetCurrency"
@@ -319,7 +319,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
       </div>
       <div>
         <label className="block font-medium mb-1" htmlFor="travelStyle">
-          Styl podróży
+          Travel style
         </label>
         <Select value={values.travelStyle ?? ""} onValueChange={handleSelectChange} disabled={loading || limitReached}>
           <SelectTrigger
@@ -327,12 +327,12 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             aria-invalid={!!errors.travelStyle}
             aria-describedby={errors.travelStyle ? "error-travelStyle" : undefined}
           >
-            <SelectValue placeholder="Wybierz..." />
+            <SelectValue placeholder="Choose..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">Aktywny</SelectItem>
-            <SelectItem value="relaxation">Relaks</SelectItem>
-            <SelectItem value="flexible">Elastyczny</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="relaxation">Relaxation</SelectItem>
+            <SelectItem value="flexible">Flexible</SelectItem>
           </SelectContent>
         </Select>
         {errors.travelStyle && (
@@ -347,7 +347,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
         disabled={loading || limitReached}
         aria-disabled={loading || limitReached}
       >
-        {loading ? "Generowanie..." : limitReached ? "Limit dzienny osiągnięty" : "Wygeneruj plan"}
+        {loading ? "Generating..." : limitReached ? "Daily limit reached" : "Generate plan"}
       </Button>
     </form>
   );

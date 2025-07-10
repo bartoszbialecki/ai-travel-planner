@@ -25,17 +25,17 @@ const PlanDetailsPage: React.FC<PlanDetailsPageProps> = ({ planId }) => {
 
   // Loading state
   if (loading) {
-    return <div className="text-center py-10 text-gray-500">Ładowanie planu...</div>;
+    return <div className="text-center py-10 text-gray-500">Loading plan...</div>;
   }
 
   // Error state
   if (error) {
-    return <div className="text-center py-10 text-red-600">Błąd: {error}</div>;
+    return <div className="text-center py-10 text-red-600">Error: {error}</div>;
   }
 
   // No plan found
   if (!plan) {
-    return <div className="text-center py-10 text-gray-500">Nie znaleziono planu.</div>;
+    return <div className="text-center py-10 text-gray-500">Plan not found.</div>;
   }
 
   // Get activities for the current day

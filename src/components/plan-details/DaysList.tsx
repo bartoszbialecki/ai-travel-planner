@@ -26,7 +26,7 @@ const DaysList: React.FC<DaysListProps> = ({ activities, currentDay, onDaySelect
             onClick={() => onDaySelect(day)}
             className="min-w-[80px]"
           >
-            Dzień {day}
+            Day {day}
           </Button>
         ))}
       </nav>
@@ -38,12 +38,12 @@ const DaysList: React.FC<DaysListProps> = ({ activities, currentDay, onDaySelect
     <div className="max-w-xs mb-2">
       <Select value={String(currentDay)} onValueChange={(val) => onDaySelect(Number(val))}>
         <SelectTrigger>
-          <SelectValue placeholder="Wybierz dzień" />
+          <SelectValue placeholder="Select day" />
         </SelectTrigger>
         <SelectContent>
           {days.map((day) => (
             <SelectItem key={day} value={String(day)}>
-              Dzień {day}
+              Day {day}
             </SelectItem>
           ))}
         </SelectContent>

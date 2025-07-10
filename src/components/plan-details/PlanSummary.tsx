@@ -11,16 +11,16 @@ const PlanSummary: React.FC<PlanSummaryProps> = ({ summary }) => {
     <Card className="my-4">
       <CardContent className="flex flex-col gap-2">
         <div>
-          Liczba dni: <span className="font-semibold">{summary.total_days}</span>
+          Number of days: <span className="font-semibold">{summary.total_days}</span>
         </div>
         <div>
-          Liczba aktywności: <span className="font-semibold">{summary.total_activities}</span>
+          Number of activities: <span className="font-semibold">{summary.total_activities}</span>
         </div>
         <div>
-          Zaakceptowane aktywności: <span className="font-semibold">{summary.accepted_activities}</span>
+          Accepted activities: <span className="font-semibold">{summary.accepted_activities}</span>
         </div>
         <div>
-          Szacowany koszt: <span className="font-semibold">{summary.estimated_total_cost} zł</span>
+          Estimated cost: <span className="font-semibold">{summary.estimated_total_cost} zł</span>
         </div>
       </CardContent>
     </Card>

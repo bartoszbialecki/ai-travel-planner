@@ -21,13 +21,13 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
   return (
     <div className="flex justify-center mt-8 items-center gap-2">
       <Button variant="outline" onClick={() => onPageChange(page - 1)} disabled={page === 1}>
-        Poprzednia
+        Previous
       </Button>
       <span className="px-4 py-2">
-        Strona {page} z {totalPages}
+        Page {page} of {totalPages}
       </span>
       <Button variant="outline" onClick={() => onPageChange(page + 1)} disabled={page === totalPages}>
-        Następna
+        Next
       </Button>
     </div>
   );
