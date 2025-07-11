@@ -91,6 +91,17 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 - **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipelines
 - **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker
 
+### Testing
+
+- **[Vitest](https://vitest.dev/)** - Unit and integration test framework for Astro/React
+- **[@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/)** - React component testing utilities
+- **[@testing-library/jest-dom](https://github.com/testing-library/jest-dom)** - Custom DOM element matchers (compatible with Vitest)
+- **[jsdom](https://github.com/jsdom/jsdom)** - DOM environment simulation for testing
+- **[MSW (Mock Service Worker)](https://mswjs.io/)** - API call mocking for testing
+- **[Playwright](https://playwright.dev/)** - End-to-end testing across multiple browsers
+- **[Lighthouse](https://developers.google.com/web/tools/lighthouse)** - Performance and accessibility auditing
+- **[k6](https://k6.io/)** - Load testing for API endpoints
+
 ## API Documentation
 
 ### GET /api/plans
@@ -316,14 +327,17 @@ SUPABASE_KEY=your_supabase_anon_key
 
 ## Available Scripts
 
-| Script             | Description                          |
-| ------------------ | ------------------------------------ |
-| `npm run dev`      | Start the development server         |
-| `npm run build`    | Build the application for production |
-| `npm run preview`  | Preview the production build locally |
-| `npm run lint`     | Run ESLint to check code quality     |
-| `npm run lint:fix` | Fix ESLint errors automatically      |
-| `npm run format`   | Format code using Prettier           |
+| Script                  | Description                          |
+| ----------------------- | ------------------------------------ |
+| `npm run dev`           | Start the development server         |
+| `npm run build`         | Build the application for production |
+| `npm run preview`       | Preview the production build locally |
+| `npm run lint`          | Run ESLint to check code quality     |
+| `npm run lint:fix`      | Fix ESLint errors automatically      |
+| `npm run format`        | Format code using Prettier           |
+| `npm run test`          | Run unit and integration tests       |
+| `npm run test:e2e`      | Run end-to-end tests                 |
+| `npm run test:coverage` | Run tests with coverage report       |
 
 ## Project Scope
 
