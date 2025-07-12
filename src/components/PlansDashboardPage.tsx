@@ -40,7 +40,7 @@ const PlansDashboardPage: React.FC = () => {
       ) : (
         <>
           <PlansGrid plans={plans} onPlanClick={handlePlanClick} />
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}
         </>
       )}
     </div>

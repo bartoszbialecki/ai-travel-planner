@@ -36,7 +36,9 @@ export function usePlansList({
         if (!res.ok) throw new Error("Failed to fetch plans list");
         const data: PlanListResponse = await res.json();
         setPlans(Array.isArray(data.plans) ? data.plans : []);
-        setPage(data.pagination.page);
+        if (data.pagination.page !== page) {
+          setPage(data.pagination.page);
+        }
         setTotalPages(data.pagination.total_pages);
       } catch (e: unknown) {
         let message = "Unknown error";
@@ -52,7 +54,7 @@ export function usePlansList({
 
   useEffect(() => {
     fetchPlans();
-  }, [page, sort, order, limit, fetchPlans]);
+  }, [fetchPlans]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
