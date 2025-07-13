@@ -4,5 +4,13 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "cSpell.words": ["Supabase"]
+  "cSpell.words": ["Supabase"],
+  "vitest.enable": true,
+  "vitest.commandLine": "npx vitest",
+  "vitest.include": ["**/*.{test,spec}.{js,ts,jsx,tsx}"],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**", "**/cypress/**", "**/e2e/**"],
+  "vitest.nodeEnv": null,
+  "testing.automaticallyOpenPeekView": "never",
+  "testing.openTesting": "neverOpen",
+  "testing.automaticallyOpenTestResults": "neverOpen"
 }

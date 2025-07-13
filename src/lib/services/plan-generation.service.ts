@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CreatePlanCommand } from "../../types";
-import { randomUUID } from "crypto";
+import { generateUUID } from "../utils/uuid";
 
 export async function createPlanInDb(supabase: SupabaseClient, input: CreatePlanCommand) {
-  const job_id = randomUUID();
+  const job_id = generateUUID();
   const estimated_completion = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // +5 min
   const { error } = await supabase
     .from("plans")
@@ -87,8 +87,20 @@ export async function getPlanGenerationStatus(supabase: SupabaseClient, jobId: s
   } else if (plan.status === "processing") {
     // Calculate time-based progress for processing status
     // Estimate completion time as 5 minutes from creation (matching createPlanInDb)
-    const estimatedCompletion = new Date(new Date(plan.created_at).getTime() + 5 * 60 * 1000).toISOString();
-    progress = calculateTimeBasedProgress(plan.created_at, estimatedCompletion);
+    try {
+      const createdDate = new Date(plan.created_at);
+      // Check if the date is valid
+      if (isNaN(createdDate.getTime())) {
+        // If date is invalid, return default progress
+        progress = 50;
+      } else {
+        const estimatedCompletion = new Date(createdDate.getTime() + 5 * 60 * 1000).toISOString();
+        progress = calculateTimeBasedProgress(plan.created_at, estimatedCompletion);
+      }
+    } catch {
+      // If date parsing fails, return default progress
+      progress = 50;
+    }
   }
 
   // Get detailed error message if generation failed

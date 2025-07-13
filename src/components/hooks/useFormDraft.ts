@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { GeneratePlanFormValues } from "../../types";
 
 const DRAFT_KEY = "plan-generation-draft";
@@ -22,7 +22,20 @@ export function useFormDraft() {
   const [values, setValues] = useState<GeneratePlanFormValues>(() => {
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
-      return saved ? { ...defaultValues, ...JSON.parse(saved) } : defaultValues;
+      if (!saved) return defaultValues;
+
+      const parsed = JSON.parse(saved);
+      // Filter out only valid properties to avoid extra properties
+      const filteredDraft: Partial<GeneratePlanFormValues> = {};
+      const validKeys = Object.keys(defaultValues) as (keyof GeneratePlanFormValues)[];
+
+      validKeys.forEach((key) => {
+        if (parsed[key] !== undefined) {
+          filteredDraft[key] = parsed[key];
+        }
+      });
+
+      return { ...defaultValues, ...filteredDraft };
     } catch {
       // Ignore JSON parse/localStorage errors
       return defaultValues;
@@ -39,14 +52,14 @@ export function useFormDraft() {
   }, [values]);
 
   // Reset draft (e.g. after successful submission)
-  const resetDraft = () => {
+  const resetDraft = useCallback(() => {
     setValues(defaultValues);
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {
       // Ignore localStorage errors
     }
-  };
+  }, []);
 
   return { values, setValues, resetDraft };
 }

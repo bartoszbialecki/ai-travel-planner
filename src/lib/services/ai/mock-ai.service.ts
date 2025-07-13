@@ -48,7 +48,9 @@ export class MockAIService extends BaseAIService {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end.getTime() - start.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // For same-day trips, return 1 day minimum
+    return Math.max(1, days);
   }
 
   private generateMockActivities(destination: string, day: number, request: AIGenerationRequest) {
@@ -153,25 +155,26 @@ export class MockAIService extends BaseAIService {
     }
 
     // Default attractions for other destinations
+    const capitalizedDestination = destination.charAt(0).toUpperCase() + destination.slice(1);
     return [
       {
-        name: "Muzeum Miejskie",
-        description: "Interesujące muzeum prezentujące historię i kulturę regionu",
-        address: "ul. Główna 1, Miasto",
+        name: `${capitalizedDestination} City Museum`,
+        description: `Interesting museum showcasing the history and culture of ${capitalizedDestination}`,
+        address: `Main Street 1, ${capitalizedDestination}`,
         opening_hours: "10:00-18:00",
         baseCost: 15,
       },
       {
-        name: "Park Miejski",
-        description: "Spokojny park idealny na spacer i odpoczynek",
-        address: "ul. Parkowa 5, Miasto",
+        name: `${capitalizedDestination} Central Park`,
+        description: `Peaceful park in ${capitalizedDestination} perfect for walks and relaxation`,
+        address: `Park Avenue 5, ${capitalizedDestination}`,
         opening_hours: "06:00-22:00",
         baseCost: 0,
       },
       {
-        name: "Restauracja Regionalna",
-        description: "Lokalna restauracja serwująca tradycyjne dania",
-        address: "ul. Smaczna 10, Miasto",
+        name: `${capitalizedDestination} Local Restaurant`,
+        description: `Traditional restaurant in ${capitalizedDestination} serving local dishes`,
+        address: `Delicious Street 10, ${capitalizedDestination}`,
         opening_hours: "12:00-22:00",
         baseCost: 25,
       },

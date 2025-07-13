@@ -88,7 +88,7 @@ export const GET: APIRoute = async (context) => {
     const status = await getPlanGenerationStatus(supabase, jobId);
 
     // Handle case when plan is not found
-    if (status.notFound) {
+    if (!status || status.notFound) {
       const errorResponse: ErrorResponse = {
         error: {
           code: "PLAN_NOT_FOUND",
