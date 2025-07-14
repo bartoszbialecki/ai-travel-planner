@@ -56,17 +56,22 @@ if (!Element.prototype.scrollIntoView) {
 }
 
 // Mock console methods to reduce noise in tests
+// eslint-disable-next-line no-console
 const originalConsoleError = console.error;
+// eslint-disable-next-line no-console
 const originalConsoleWarn = console.warn;
 
 beforeAll(() => {
+  // eslint-disable-next-line no-console
   console.error = (...args: unknown[]) => {
     if (typeof args[0] === "string" && args[0].includes("Warning: ReactDOM.render is no longer supported")) {
       return;
     }
+
     originalConsoleError.call(console, ...args);
   };
 
+  // eslint-disable-next-line no-console
   console.warn = (...args: unknown[]) => {
     if (
       typeof args[0] === "string" &&
@@ -74,11 +79,14 @@ beforeAll(() => {
     ) {
       return;
     }
+
     originalConsoleWarn.call(console, ...args);
   };
 });
 
 afterAll(() => {
+  // eslint-disable-next-line no-console
   console.error = originalConsoleError;
+  // eslint-disable-next-line no-console
   console.warn = originalConsoleWarn;
 });

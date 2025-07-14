@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { APIRoute } from "astro";
 import { POST } from "../generate";
 import type { GeneratePlanRequest } from "../../../../types";
-import { generatePlanRequestSchema } from "../../../../lib/schemas/plan-generation.schema";
 import { createPlanInDb } from "../../../../lib/services/plan-generation.service";
 import { logGenerationErrorWithoutJobId } from "../../../../lib/services/error-logging.service";
 import { JobQueueService } from "../../../../lib/services/job-queue.service";
@@ -32,6 +30,7 @@ vi.mock("../../../../lib/services/logger", () => ({
 }));
 
 // Create mock context helper
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createMockContext = (overrides: any = {}) => ({
   request: {
     json: vi.fn().mockResolvedValue({}),
@@ -204,7 +203,7 @@ describe("POST /api/plans/generate", () => {
         end_date: "2024-06-10",
         adults_count: 2,
         children_count: 0,
-        travel_style: "invalid" as any, // Invalid: not in enum
+        travel_style: "invalid" as unknown as "active" | "relaxation" | "flexible", // Invalid: not in enum
       };
 
       const context = createMockContext({

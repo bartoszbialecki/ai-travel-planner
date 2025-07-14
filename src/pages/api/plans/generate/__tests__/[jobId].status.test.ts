@@ -14,6 +14,7 @@ vi.mock("../../../../../db/supabase.client", () => ({
 }));
 
 // Create mock context helper
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createMockContext = (jobId: string, overrides: any = {}) => ({
   params: { jobId },
   request: {
@@ -34,6 +35,7 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockCreateSupabaseClient.mockReturnValue({ mockSupabaseClient: true } as any);
   });
 
@@ -68,7 +70,7 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
     });
 
     it("should return 400 for undefined jobId", async () => {
-      const context = createMockContext(undefined as any);
+      const context = createMockContext(undefined as unknown as string);
 
       const response = await GET(context);
       const data: ErrorResponse = await response.json();
@@ -348,6 +350,7 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const validUUID = "123e4567-e89b-12d3-a456-426614174000";
       const context = createMockContext(validUUID);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockGetPlanGenerationStatus.mockResolvedValue(null as any);
 
       const response = await GET(context);
@@ -361,6 +364,7 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const validUUID = "123e4567-e89b-12d3-a456-426614174000";
       const context = createMockContext(validUUID);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockGetPlanGenerationStatus.mockResolvedValue(undefined as any);
 
       const response = await GET(context);

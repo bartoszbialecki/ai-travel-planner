@@ -316,9 +316,9 @@ describe("useFormDraft", () => {
       act(() => {
         result.current.setValues({
           ...defaultValues,
-          budgetTotal: null as any,
-          budgetCurrency: null as any,
-          travelStyle: null as any,
+          budgetTotal: undefined,
+          budgetCurrency: undefined,
+          travelStyle: undefined,
         });
       });
 
@@ -376,7 +376,7 @@ describe("useFormDraft", () => {
     });
 
     it("should handle localStorage returning non-string values", () => {
-      mockLocalStorage.getItem.mockReturnValue(123 as any);
+      mockLocalStorage.getItem.mockReturnValue(123 as unknown as string);
 
       const { result } = renderHook(() => useFormDraft());
 

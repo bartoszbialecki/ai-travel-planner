@@ -336,7 +336,7 @@ describe("generatePlanRequestSchema", () => {
     });
 
     it("should reject string adults count", () => {
-      const request = { ...validRequest, adults_count: "2" as any };
+      const request = { ...validRequest, adults_count: "2" as unknown as number };
       const result = generatePlanRequestSchema.safeParse(request);
 
       expect(result.success).toBe(false);
@@ -448,7 +448,7 @@ describe("generatePlanRequestSchema", () => {
     });
 
     it("should reject string budget", () => {
-      const request = { ...validRequest, budget_total: "1000" as any };
+      const request = { ...validRequest, budget_total: "1000" as unknown as number };
       const result = generatePlanRequestSchema.safeParse(request);
 
       expect(result.success).toBe(false);
@@ -523,7 +523,7 @@ describe("generatePlanRequestSchema", () => {
       const validStyles = ["active", "relaxation", "flexible"];
 
       validStyles.forEach((style) => {
-        const request = { ...validRequest, travel_style: style as any };
+        const request = { ...validRequest, travel_style: style as "active" | "relaxation" | "flexible" };
         const result = generatePlanRequestSchema.safeParse(request);
 
         expect(result.success).toBe(true);
@@ -534,7 +534,7 @@ describe("generatePlanRequestSchema", () => {
       const invalidStyles = ["adventure", "luxury", "budget", "family", ""];
 
       invalidStyles.forEach((style) => {
-        const request = { ...validRequest, travel_style: style as any };
+        const request = { ...validRequest, travel_style: style as unknown as "active" | "relaxation" | "flexible" };
         const result = generatePlanRequestSchema.safeParse(request);
 
         expect(result.success).toBe(false);
@@ -542,7 +542,7 @@ describe("generatePlanRequestSchema", () => {
     });
 
     it("should reject uppercase travel styles", () => {
-      const request = { ...validRequest, travel_style: "ACTIVE" as any };
+      const request = { ...validRequest, travel_style: "ACTIVE" as unknown as "active" | "relaxation" | "flexible" };
       const result = generatePlanRequestSchema.safeParse(request);
 
       expect(result.success).toBe(false);
@@ -567,7 +567,7 @@ describe("generatePlanRequestSchema", () => {
         children_count: -1,
         budget_total: -100,
         budget_currency: "INVALID",
-        travel_style: "invalid" as any,
+        travel_style: "invalid" as unknown as "active" | "relaxation" | "flexible",
       };
 
       const result = generatePlanRequestSchema.safeParse(invalidRequest);
@@ -647,8 +647,8 @@ describe("generatePlanRequestSchema", () => {
     it("should not coerce string numbers to numbers", () => {
       const request = {
         ...validRequest,
-        adults_count: "2" as any,
-        children_count: "1" as any,
+        adults_count: "2" as unknown as number,
+        children_count: "1" as unknown as number,
       };
 
       const result = generatePlanRequestSchema.safeParse(request);
@@ -659,7 +659,7 @@ describe("generatePlanRequestSchema", () => {
     it("should not coerce boolean values", () => {
       const request = {
         ...validRequest,
-        adults_count: true as any,
+        adults_count: true as unknown as number,
       };
 
       const result = generatePlanRequestSchema.safeParse(request);
