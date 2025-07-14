@@ -72,20 +72,6 @@ test.describe("Plan Generation Flow", () => {
     await generationPage.testFormErrorHandling();
   });
 
-  test.describe("Error Scenarios", () => {
-    test.skip("should handle generation failure with retry", async () => {
-      // This test would need API mocking to simulate failures
-      const formData = GenerationPage.createSampleFormData();
-      await generationPage.testRetryFunctionality(formData);
-    });
-
-    test.skip("should handle timeout scenarios", async () => {
-      // This test would need special setup to simulate timeouts
-      const formData = GenerationPage.createSampleFormData();
-      await generationPage.testTimeoutHandling(formData);
-    });
-  });
-
   test.describe("Form Validation", () => {
     test("should require mandatory fields", async () => {
       const form = generationPage.generationForm;

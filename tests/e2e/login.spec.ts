@@ -62,7 +62,7 @@ test.describe("Login Flow", () => {
     expect(loginPage.page.url()).toContain("/auth/login");
   });
 
-  test.skip("should show error for invalid credentials", async () => {
+  test("should show error for invalid credentials", async () => {
     // This test requires API mocking or test user setup
     const invalidCredentials = {
       email: "invalid@example.com",
@@ -76,7 +76,7 @@ test.describe("Login Flow", () => {
 
     // Verify error message
     const errorText = await loginPage.getErrorAlertText();
-    expect(errorText).toContain("Login failed");
+    expect(errorText).toContain("Invalid email or password");
   });
 
   test("should handle form submission states correctly", async () => {
