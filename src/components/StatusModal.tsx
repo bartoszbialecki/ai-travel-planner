@@ -60,8 +60,9 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
       aria-modal="true"
       aria-labelledby="modal-title"
       aria-describedby="modal-desc"
+      data-test-id="status-modal"
     >
-      <Card className="w-full max-w-md outline-none" tabIndex={-1} ref={modalRef}>
+      <Card className="w-full max-w-md outline-none" tabIndex={-1} ref={modalRef} data-test-id="status-modal-card">
         <CardHeader>
           <CardTitle id="modal-title" className="text-lg font-semibold">
             Generating your travel plan...
@@ -70,16 +71,21 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
         <CardContent>
           {timedOut ? (
             <>
-              <div className="text-red-600 text-center mb-4" aria-live="assertive">
+              <div className="text-red-600 text-center mb-4" aria-live="assertive" data-test-id="timeout-message">
                 The generation process timed out.
                 <br />
                 Please try again later or return to the form.
               </div>
               <div className="flex gap-2 w-full">
-                <Button variant="secondary" className="flex-1" onClick={handleReturn}>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={handleReturn}
+                  data-test-id="timeout-return-button"
+                >
                   Return to form
                 </Button>
-                <Button className="flex-1" onClick={onRetry}>
+                <Button className="flex-1" onClick={onRetry} data-test-id="timeout-retry-button">
                   Try again
                 </Button>
               </div>
@@ -87,8 +93,14 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
           ) : (
             <>
               <div className="w-full mb-4">
-                <Progress value={progress} max={100} className="h-3" aria-label="Generation progress" />
-                <div className="text-center text-sm mt-1" aria-live="polite">
+                <Progress
+                  value={progress}
+                  max={100}
+                  className="h-3"
+                  aria-label="Generation progress"
+                  data-test-id="generation-progress-bar"
+                />
+                <div className="text-center text-sm mt-1" aria-live="polite" data-test-id="generation-progress-text">
                   {progress}%
                 </div>
               </div>
@@ -100,16 +112,22 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
                     : "Your plan has been generated."}
               </div>
               {status === "processing" && (
-                <div className="flex items-center gap-2 text-gray-600" aria-live="polite">
+                <div
+                  className="flex items-center gap-2 text-gray-600"
+                  aria-live="polite"
+                  data-test-id="processing-status"
+                >
                   <span className="animate-spin inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                   <span>Generating plan...</span>
                 </div>
               )}
               {status === "failed" && (
-                <div className="text-red-600 text-center mt-4" aria-live="assertive">
+                <div className="text-red-600 text-center mt-4" aria-live="assertive" data-test-id="failed-status">
                   {error || "An error occurred while generating the plan."}
                   <div className="mt-4">
-                    <Button onClick={onRetry}>Try again</Button>
+                    <Button onClick={onRetry} data-test-id="failed-retry-button">
+                      Try again
+                    </Button>
                   </div>
                 </div>
               )}

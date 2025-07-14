@@ -91,12 +91,17 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form className="space-y-4 px-2 sm:px-0 max-w-lg w-full" onSubmit={handleSubmit} aria-labelledby="form-title">
+    <form
+      className="space-y-4 px-2 sm:px-0 max-w-lg w-full"
+      onSubmit={handleSubmit}
+      aria-labelledby="form-title"
+      data-test-id="generation-form"
+    >
       <h2 id="form-title" className="text-xl font-bold mb-2">
         Generate travel plan
       </h2>
       {apiError && (
-        <Alert variant="destructive" className="mb-2" aria-live="assertive">
+        <Alert variant="destructive" className="mb-2" aria-live="assertive" data-test-id="form-error-alert">
           {apiError}
         </Alert>
       )}
@@ -115,6 +120,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           aria-invalid={!!errors.name}
           aria-describedby={errors.name ? "error-name" : undefined}
           ref={errors.name ? firstErrorRef : undefined}
+          data-test-id="form-input-name"
         />
         {errors.name && (
           <Alert variant="destructive" id="error-name" className="mt-1">
@@ -137,6 +143,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           aria-invalid={!!errors.destination}
           aria-describedby={errors.destination ? "error-destination" : undefined}
           ref={errors.destination && !errors.name ? firstErrorRef : undefined}
+          data-test-id="form-input-destination"
         />
         {errors.destination && (
           <Alert variant="destructive" id="error-destination" className="mt-1">
@@ -160,6 +167,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             aria-invalid={!!errors.startDate}
             aria-describedby={errors.startDate ? "error-startDate" : undefined}
             ref={errors.startDate && !errors.name && !errors.destination ? firstErrorRef : undefined}
+            data-test-id="form-input-start-date"
           />
           {errors.startDate && (
             <Alert variant="destructive" id="error-startDate" className="mt-1">
@@ -182,6 +190,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             aria-invalid={!!errors.endDate}
             aria-describedby={errors.endDate ? "error-endDate" : undefined}
             ref={errors.endDate && !errors.name && !errors.destination && !errors.startDate ? firstErrorRef : undefined}
+            data-test-id="form-input-end-date"
           />
           {errors.endDate && (
             <Alert variant="destructive" id="error-endDate" className="mt-1">
@@ -211,6 +220,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
                 ? firstErrorRef
                 : undefined
             }
+            data-test-id="form-input-adults-count"
           />
           {errors.adultsCount && (
             <Alert variant="destructive" id="error-adultsCount" className="mt-1">
@@ -242,6 +252,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
                 ? firstErrorRef
                 : undefined
             }
+            data-test-id="form-input-children-count"
           />
           {errors.childrenCount && (
             <Alert variant="destructive" id="error-childrenCount" className="mt-1">
@@ -276,6 +287,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
                 ? firstErrorRef
                 : undefined
             }
+            data-test-id="form-input-budget-total"
           />
           {errors.budgetTotal && (
             <Alert variant="destructive" id="error-budgetTotal" className="mt-1">
@@ -309,6 +321,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
                 ? firstErrorRef
                 : undefined
             }
+            data-test-id="form-input-budget-currency"
           />
           {errors.budgetCurrency && (
             <Alert variant="destructive" id="error-budgetCurrency" className="mt-1">
@@ -326,13 +339,20 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             id="travelStyle"
             aria-invalid={!!errors.travelStyle}
             aria-describedby={errors.travelStyle ? "error-travelStyle" : undefined}
+            data-test-id="form-select-travel-style"
           >
             <SelectValue placeholder="Choose..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="relaxation">Relaxation</SelectItem>
-            <SelectItem value="flexible">Flexible</SelectItem>
+            <SelectItem value="active" data-test-id="travel-style-option-active">
+              Active
+            </SelectItem>
+            <SelectItem value="relaxation" data-test-id="travel-style-option-relaxation">
+              Relaxation
+            </SelectItem>
+            <SelectItem value="flexible" data-test-id="travel-style-option-flexible">
+              Flexible
+            </SelectItem>
           </SelectContent>
         </Select>
         {errors.travelStyle && (
@@ -346,6 +366,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
         className="w-full py-3 text-base"
         disabled={loading || limitReached}
         aria-disabled={loading || limitReached}
+        data-test-id="form-submit-button"
       >
         {loading ? "Generating..." : limitReached ? "Daily limit reached" : "Generate plan"}
       </Button>

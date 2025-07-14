@@ -44,9 +44,13 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 w-full">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 w-full" data-test-id="login-form">
       <AuthHeader title="Login" />
-      {errors.api && <p className="text-red-500 text-sm mb-4">{errors.api}</p>}
+      {errors.api && (
+        <p className="text-red-500 text-sm mb-4" data-test-id="login-error-alert">
+          {errors.api}
+        </p>
+      )}
       <div className="mb-4">
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email
@@ -59,6 +63,7 @@ const LoginForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
+          data-test-id="login-input-email"
         />
         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
       </div>
@@ -74,10 +79,11 @@ const LoginForm: React.FC = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
+          data-test-id="login-input-password"
         />
         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
       </div>
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={loading} data-test-id="login-submit-button">
         {loading ? "Logging in..." : "Log in"}
       </Button>
       <AuthFooter mode="login" />

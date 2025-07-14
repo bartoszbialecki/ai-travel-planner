@@ -18,7 +18,7 @@ const GenerationPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-xl py-8">
+    <div className="container mx-auto max-w-xl py-8" data-test-id="generation-page">
       <GenerationForm onSubmit={handleFormSubmit} />
       {jobId && <StatusModal jobId={jobId} onComplete={handleStatusComplete} onRetry={handleRetry} />}
     </div>
