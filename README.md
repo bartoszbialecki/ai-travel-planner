@@ -18,13 +18,24 @@
     - [Frontend](#frontend)
     - [Backend](#backend)
     - [AI Integration](#ai-integration)
+    - [Testing](#testing)
     - [Infrastructure](#infrastructure)
   - [API Documentation](#api-documentation)
-    - [GET /api/plans](#get-apiplans)
-    - [POST /api/plans/generate](#post-apiplansgenerate)
-    - [PUT /api/plans/{id}/activities/{activityId}/reject](#put-apiplansidactivitiesactivityidreject)
+    - [Authentication Endpoints](#authentication-endpoints)
+      - [POST /api/auth/register](#post-apiauthregister)
+      - [POST /api/auth/login](#post-apiauthlogin)
+      - [POST /api/auth/logout](#post-apiauthlogout)
+    - [Plan Management Endpoints](#plan-management-endpoints)
+      - [GET /api/plans](#get-apiplans)
+      - [POST /api/plans/generate](#post-apiplansgenerate)
+      - [GET /api/plans/generate/{jobId}/status](#get-apiplansgeneratejobidstatus)
+      - [GET /api/plans/{id}](#get-apiplansid)
+      - [DELETE /api/plans/{id}](#delete-apiplansid)
+    - [Activity Management Endpoints](#activity-management-endpoints)
+      - [PUT /api/plans/{id}/activities/{activityId}](#put-apiplansidactivitiesactivityid)
+      - [PUT /api/plans/{id}/activities/{activityId}/accept](#put-apiplansidactivitiesactivityidaccept)
+      - [PUT /api/plans/{id}/activities/{activityId}/reject](#put-apiplansidactivitiesactivityidreject)
   - [Project Structure](#project-structure)
-  - [Development](#development)
   - [Environment Variables](#environment-variables)
   - [Getting Started Locally](#getting-started-locally)
     - [Prerequisites](#prerequisites)
@@ -48,12 +59,13 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 
 ### Key Features
 
-- **AI-Powered Generation**: Creates detailed travel plans using LLM
-- **Interactive Editing**: Accept/reject individual activities and edit descriptions
-- **User Management**: Secure authentication and account management
-- **Plan Storage**: Save and manage multiple travel itineraries
+- **AI-Powered Generation**: Creates detailed travel plans using LLM through OpenRouter.ai
+- **Interactive Editing**: Accept/reject individual activities and edit descriptions inline
+- **User Management**: Secure authentication and account management with Supabase Auth
+- **Plan Storage**: Save and manage multiple travel itineraries with full CRUD operations
 - **Responsive Design**: Works seamlessly across desktop, tablet, and mobile devices
-- **Accessibility**: WCAG 2.1 AA compliant interface
+- **Accessibility**: WCAG 2.1 AA compliant interface with proper semantic markup
+- **Real-time Status**: Live plan generation progress with polling and status updates
 
 ### Target Audience
 
@@ -85,11 +97,8 @@ Planning a detailed, personalized trip requires hours of research - searching fo
   - Access to multiple AI models (OpenAI, Anthropic, Google)
   - Financial limits on API keys
   - Cost-effective AI solutions
-
-### Infrastructure
-
-- **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipelines
-- **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker
+  - Circuit breaker pattern for reliability
+  - Monitoring and caching capabilities
 
 ### Testing
 
@@ -99,16 +108,84 @@ Planning a detailed, personalized trip requires hours of research - searching fo
 - **[jsdom](https://github.com/jsdom/jsdom)** - DOM environment simulation for testing
 - **[MSW (Mock Service Worker)](https://mswjs.io/)** - API call mocking for testing
 - **[Playwright](https://playwright.dev/)** - End-to-end testing across multiple browsers
-- **[Lighthouse](https://developers.google.com/web/tools/lighthouse)** - Performance and accessibility auditing
-- **[k6](https://k6.io/)** - Load testing for API endpoints
+
+### Infrastructure
+
+- **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipelines
+- **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker
 
 ## API Documentation
 
-### GET /api/plans
+### Authentication Endpoints
 
-Retrieves a paginated list of travel plans for the logged-in user with support for pagination and sorting.
+#### POST /api/auth/register
 
-**Endpoint:** `GET /api/plans`
+Register a new user account.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "message": "Registration successful. Please check your email to confirm your account before logging in.",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com"
+  }
+}
+```
+
+#### POST /api/auth/login
+
+Authenticate user and create session.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com"
+  },
+  "session": {
+    "access_token": "jwt_token",
+    "refresh_token": "refresh_token"
+  }
+}
+```
+
+#### POST /api/auth/logout
+
+End user session.
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Response (200 OK):** Empty response
+
+### Plan Management Endpoints
+
+#### GET /api/plans
+
+Retrieves a paginated list of travel plans for the logged-in user.
+
+**Headers:** `Authorization: Bearer {token}`
 
 **Query Parameters:**
 
@@ -116,10 +193,6 @@ Retrieves a paginated list of travel plans for the logged-in user with support f
 - `limit` (optional, default: 10, max: 50) - Number of items per page
 - `sort` (optional, default: "created_at") - Sort column: "created_at", "name", "destination"
 - `order` (optional, default: "desc") - Sort direction: "asc", "desc"
-
-**Headers:**
-
-- `Authorization: Bearer {token}` - Required (to be implemented)
 
 **Response (200 OK):**
 
@@ -151,16 +224,11 @@ Retrieves a paginated list of travel plans for the logged-in user with support f
 }
 ```
 
-**Error Responses:**
-
-- `400 Bad Request` - Invalid query parameters
-- `500 Internal Server Error` - Server errors
-
-### POST /api/plans/generate
+#### POST /api/plans/generate
 
 Initiates the generation of a new travel plan using AI.
 
-**Endpoint:** `POST /api/plans/generate`
+**Headers:** `Authorization: Bearer {token}`
 
 **Request Body:**
 
@@ -188,58 +256,159 @@ Initiates the generation of a new travel plan using AI.
 }
 ```
 
-### PUT /api/plans/{id}/activities/{activityId}/reject
+#### GET /api/plans/generate/{jobId}/status
 
-Rejects (removes acceptance of) a specific activity in a travel plan. Requires user authentication and verifies plan ownership.
+Checks the status of a travel plan generation job.
 
-**Endpoint:** `PUT /api/plans/{id}/activities/{activityId}/reject`
+**Path Parameters:**
+
+- `jobId` (required) - UUID of the generation job
+
+**Response Examples:**
+
+Processing:
+
+```json
+{
+  "job_id": "uuid",
+  "status": "processing",
+  "progress": 50,
+  "plan_id": null,
+  "error_message": null
+}
+```
+
+Completed:
+
+```json
+{
+  "job_id": "uuid",
+  "status": "completed",
+  "progress": 100,
+  "plan_id": "plan-uuid",
+  "error_message": null
+}
+```
+
+#### GET /api/plans/{id}
+
+Retrieves detailed information about a travel plan with activities.
+
+**Headers:** `Authorization: Bearer {token}`
 
 **Path Parameters:**
 
 - `id` (required) - UUID of the plan
-- `activityId` (required) - UUID of the activity to reject
-
-**Headers:**
-
-- `Authorization: Bearer {token}` - Required JWT token
-
-**Request Body:**
-
-- _None_
 
 **Response (200 OK):**
 
 ```json
 {
   "id": "uuid",
-  "accepted": false,
-  "message": "Activity rejected"
+  "name": "Paris Adventure",
+  "destination": "Paris, France",
+  "start_date": "2024-06-01",
+  "end_date": "2024-06-05",
+  "adults_count": 2,
+  "children_count": 1,
+  "budget_total": 3000,
+  "budget_currency": "EUR",
+  "travel_style": "active",
+  "activities": {
+    "1": [
+      {
+        "id": "activity-uuid",
+        "name": "Eiffel Tower Visit",
+        "description": "Visit the iconic Eiffel Tower",
+        "address": "Champ de Mars, Paris",
+        "opening_hours": "9:00-23:00",
+        "cost": 25,
+        "accepted": true,
+        "custom_desc": null,
+        "day_number": 1,
+        "activity_order": 1
+      }
+    ]
+  },
+  "summary": {
+    "total_days": 5,
+    "total_activities": 15,
+    "accepted_activities": 12,
+    "total_cost": 2500
+  }
 }
 ```
 
-**Error Responses:**
+#### DELETE /api/plans/{id}
 
-- `400 Bad Request` - Invalid UUID format or command parameters
-- `401 Unauthorized` - Missing or invalid authorization token
-- `403 Forbidden` - Plan does not belong to the logged-in user
-- `404 Not Found` - Plan or activity does not exist
-- `500 Internal Server Error` - Server or database error
+Deletes a travel plan and all related data.
 
-**Example Request:**
+**Headers:** `Authorization: Bearer {token}`
 
-```http
-PUT /api/plans/123e4567-e89b-12d3-a456-426614174000/activities/987e6543-e21b-12d3-a456-426614174999/reject
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+**Path Parameters:**
 
-**Example Error Response:**
+- `id` (required) - UUID of the plan to delete
+
+**Response (200 OK):**
 
 ```json
 {
-  "error": {
-    "code": "PLAN_NOT_FOUND",
-    "message": "Plan with the given ID does not exist"
-  }
+  "message": "Plan deleted successfully"
+}
+```
+
+### Activity Management Endpoints
+
+#### PUT /api/plans/{id}/activities/{activityId}
+
+Updates specific details of an activity within a travel plan.
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Path Parameters:**
+
+- `id` (required) - UUID of the plan
+- `activityId` (required) - UUID of the activity
+
+**Request Body:**
+
+```json
+{
+  "custom_desc": "Updated description",
+  "opening_hours": "10:00-18:00",
+  "cost": 30
+}
+```
+
+#### PUT /api/plans/{id}/activities/{activityId}/accept
+
+Accepts an activity in a travel plan.
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "activity-uuid",
+  "accepted": true,
+  "message": "Activity accepted"
+}
+```
+
+#### PUT /api/plans/{id}/activities/{activityId}/reject
+
+Rejects an activity in a travel plan.
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "activity-uuid",
+  "accepted": false,
+  "message": "Activity rejected"
 }
 ```
 
@@ -258,29 +427,29 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - `./src/assets` - static internal assets
 - `./public` - public assets
 
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
 ## Environment Variables
 
 Create a `.env` file with the following variables:
 
 ```env
-SUPABASE_URL=your_supabase_url
+# Supabase Configuration
+SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# OpenRouter AI Configuration
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=gpt-4o-mini
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_TIMEOUT=300000
+OPENROUTER_MAX_RETRIES=3
+OPENROUTER_TEMPERATURE=0.7
+OPENROUTER_MAX_TOKENS=4000
+
+# Testing (optional)
+E2E_USERNAME=test@example.com
+E2E_PASSWORD=testpassword123
+E2E_USERNAME_ID=test-user-uuid
 ```
 
 ## Getting Started Locally
@@ -316,13 +485,20 @@ SUPABASE_KEY=your_supabase_anon_key
    # Edit .env with your configuration
    ```
 
-4. **Start the development server**
+4. **Set up Supabase database**
+
+   ```bash
+   # If using Supabase CLI
+   supabase db reset
+   ```
+
+5. **Start the development server**
 
    ```bash
    npm run dev
    ```
 
-5. **Open your browser**
+6. **Open your browser**
    Navigate to `http://localhost:3000` to view the application.
 
 ## Available Scripts
@@ -336,20 +512,25 @@ SUPABASE_KEY=your_supabase_anon_key
 | `npm run lint:fix`      | Fix ESLint errors automatically      |
 | `npm run format`        | Format code using Prettier           |
 | `npm run test`          | Run unit and integration tests       |
+| `npm run test:ui`       | Run tests with UI interface          |
 | `npm run test:e2e`      | Run end-to-end tests                 |
 | `npm run test:coverage` | Run tests with coverage report       |
+| `npm run test:all`      | Run all tests (unit + e2e)           |
 
 ## Project Scope
 
 ### MVP Features ✅
 
-- Generating one detailed travel plan per trip
-- Basic editing of activity descriptions
-- Simple user account management
-- Saving and viewing itineraries
-- Responsive web interface
-- AI-powered plan generation (≤5 minutes)
-- Interactive activity moderation
+- ✅ **AI-powered travel plan generation** - Complete with OpenRouter integration
+- ✅ **User authentication system** - Registration, login, logout with Supabase Auth
+- ✅ **Plan management** - Create, view, edit, delete travel plans
+- ✅ **Interactive activity moderation** - Accept/reject individual activities
+- ✅ **Inline editing** - Edit activity descriptions, hours, and costs
+- ✅ **Plans dashboard** - List, sort, and paginate saved plans
+- ✅ **Real-time generation status** - Progress tracking with polling
+- ✅ **Responsive design** - Mobile-first design with Tailwind CSS
+- ✅ **Accessibility support** - WCAG compliant with proper semantic markup
+- ✅ **Error handling** - Comprehensive error logging and user feedback
 
 ### Success Metrics
 
@@ -373,18 +554,24 @@ SUPABASE_KEY=your_supabase_anon_key
 
 **Current Version**: 0.0.1
 
-This project is in early development. The MVP is being built according to the Product Requirements Document (PRD) with focus on core AI-powered travel planning functionality.
+**Status**: 🎯 **MVP Completed** - All core features implemented and tested
 
 ### Development Progress
 
 - ✅ Project setup and configuration
-- ✅ Basic Astro + React + TypeScript setup
+- ✅ Astro + React + TypeScript setup with Tailwind CSS
 - ✅ ESLint and Prettier configuration
-- 🔄 Core application development
-- ⏳ AI integration
-- ⏳ User authentication
-- ⏳ Database setup
-- ⏳ UI/UX implementation
+- ✅ **Core application development** - All MVP features implemented
+- ✅ **AI integration** - OpenRouter service with circuit breaker and monitoring
+- ✅ **User authentication** - Complete auth system with Supabase
+- ✅ **Database setup** - Schema, migrations, and RLS policies
+- ✅ **UI/UX implementation** - Responsive design with accessibility
+- ✅ **API endpoints** - All CRUD operations for plans and activities
+- ✅ **Testing infrastructure** - Unit, integration, and E2E tests
+- ✅ **Error handling** - Comprehensive logging and user feedback
+- ✅ **Job queue system** - Background plan generation
+- 🔄 **Production deployment** - Ready for deployment
+- 📋 **Documentation** - API docs and technical specifications
 
 ## License
 
