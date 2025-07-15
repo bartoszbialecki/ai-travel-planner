@@ -31,10 +31,10 @@ export const Topbar: React.FC<TopbarProps> = ({ user: initialUser }) => {
         </a>
         {user && (
           <>
-            <a href="/" className="ml-4 text-gray-700 hover:text-blue-600">
+            <a href="/" className="ml-4 text-gray-700 hover:text-blue-600 cursor-pointer">
               Dashboard
             </a>
-            <a href="/generate" className="ml-4 text-gray-700 hover:text-blue-600">
+            <a href="/generate" className="ml-4 text-gray-700 hover:text-blue-600 cursor-pointer">
               Generate Plan
             </a>
           </>
@@ -50,10 +50,10 @@ export const Topbar: React.FC<TopbarProps> = ({ user: initialUser }) => {
           </div>
         ) : (
           <>
-            <a href="/auth/login" className="mr-2 text-gray-700 hover:text-blue-600">
+            <a href="/auth/login" className="mr-2 text-gray-700 hover:text-blue-600 cursor-pointer">
               Login
             </a>
-            <a href="/auth/register" className="text-gray-700 hover:text-blue-600">
+            <a href="/auth/register" className="text-gray-700 hover:text-blue-600 cursor-pointer">
               Register
             </a>
           </>

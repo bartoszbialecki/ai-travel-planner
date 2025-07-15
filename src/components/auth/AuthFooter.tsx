@@ -11,7 +11,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
       {mode === "login" && (
         <>
           <span>Don&apos;t have an account? </span>
-          <a href="/auth/register" className="text-blue-600 hover:underline">
+          <a href="/auth/register" className="text-blue-600 hover:underline cursor-pointer">
             Register
           </a>
         </>
@@ -19,7 +19,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => {
       {mode === "register" && (
         <>
           <span>Already have an account? </span>
-          <a href="/auth/login" className="text-blue-600 hover:underline">
+          <a href="/auth/login" className="text-blue-600 hover:underline cursor-pointer">
             Log in
           </a>
         </>

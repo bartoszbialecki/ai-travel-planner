@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 /**
  * EmptyState
@@ -10,9 +11,7 @@ const EmptyState: React.FC = () => (
     <div className="text-3xl mb-4">🗺️</div>
     <div className="text-lg font-semibold mb-2">You don&apos;t have any travel plans yet</div>
     <div className="text-muted-foreground mb-6">Create your first plan and start exploring the world!</div>
-    <a href="/generate" className="shadcn-btn shadcn-btn-primary">
-      Create new plan
-    </a>
+    <Button onClick={() => (window.location.href = "/generate")}>Create new plan</Button>
   </div>
 );
 

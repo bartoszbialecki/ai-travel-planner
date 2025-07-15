@@ -4,6 +4,7 @@ import PlansGrid from "@/components/PlansGrid";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
 import SortSelect from "@/components/SortSelect";
+import { Button } from "@/components/ui/button";
 
 /**
  * PlansDashboardPage
@@ -26,9 +27,7 @@ const PlansDashboardPage: React.FC = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Your travel plans</h1>
-        <a href="/generate" tabIndex={0} className="shadcn-btn shadcn-btn-primary">
-          + New plan
-        </a>
+        <Button onClick={() => (window.location.href = "/generate")}>+ New plan</Button>
       </div>
       <SortSelect sort={sort} order={order} onSortChange={handleSortChange} />
       {loading ? (
