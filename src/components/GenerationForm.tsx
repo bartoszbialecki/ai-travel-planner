@@ -123,9 +123,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           data-test-id="form-input-name"
         />
         {errors.name && (
-          <Alert variant="destructive" id="error-name" className="mt-1">
+          <p className="text-red-500 text-xs mt-1" id="error-name">
             {errors.name}
-          </Alert>
+          </p>
         )}
       </div>
       <div>
@@ -146,9 +146,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           data-test-id="form-input-destination"
         />
         {errors.destination && (
-          <Alert variant="destructive" id="error-destination" className="mt-1">
+          <p className="text-red-500 text-xs mt-1" id="error-destination">
             {errors.destination}
-          </Alert>
+          </p>
         )}
       </div>
       <div className="flex flex-col sm:flex-row gap-4">
@@ -170,9 +170,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-start-date"
           />
           {errors.startDate && (
-            <Alert variant="destructive" id="error-startDate" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-startDate">
               {errors.startDate}
-            </Alert>
+            </p>
           )}
         </div>
         <div className="flex-1">
@@ -193,9 +193,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-end-date"
           />
           {errors.endDate && (
-            <Alert variant="destructive" id="error-endDate" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-endDate">
               {errors.endDate}
-            </Alert>
+            </p>
           )}
         </div>
       </div>
@@ -223,9 +223,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-adults-count"
           />
           {errors.adultsCount && (
-            <Alert variant="destructive" id="error-adultsCount" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-adultsCount">
               {errors.adultsCount}
-            </Alert>
+            </p>
           )}
         </div>
         <div className="flex-1">
@@ -255,9 +255,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-children-count"
           />
           {errors.childrenCount && (
-            <Alert variant="destructive" id="error-childrenCount" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-childrenCount">
               {errors.childrenCount}
-            </Alert>
+            </p>
           )}
         </div>
       </div>
@@ -290,9 +290,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-budget-total"
           />
           {errors.budgetTotal && (
-            <Alert variant="destructive" id="error-budgetTotal" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-budgetTotal">
               {errors.budgetTotal}
-            </Alert>
+            </p>
           )}
         </div>
         <div className="flex-1">
@@ -324,9 +324,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-budget-currency"
           />
           {errors.budgetCurrency && (
-            <Alert variant="destructive" id="error-budgetCurrency" className="mt-1">
+            <p className="text-red-500 text-xs mt-1" id="error-budgetCurrency">
               {errors.budgetCurrency}
-            </Alert>
+            </p>
           )}
         </div>
       </div>
@@ -356,9 +356,9 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           </SelectContent>
         </Select>
         {errors.travelStyle && (
-          <Alert variant="destructive" id="error-travelStyle" className="mt-1">
+          <p className="text-red-500 text-xs mt-1" id="error-travelStyle">
             {errors.travelStyle}
-          </Alert>
+          </p>
         )}
       </div>
       <Button
