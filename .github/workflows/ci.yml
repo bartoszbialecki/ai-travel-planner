@@ -23,6 +23,9 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run ESLint
         shell: bash
         run: npm run lint
@@ -47,6 +50,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run unit tests with coverage
         shell: bash
@@ -93,6 +99,9 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Install Playwright browsers
         shell: bash
         run: npx playwright install --with-deps
@@ -135,6 +144,9 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build application
         shell: bash
         run: npm run build
@@ -163,6 +175,9 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run security audit
         shell: bash
         run: npm audit --audit-level=moderate
@@ -184,6 +199,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
