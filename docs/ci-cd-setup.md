@@ -27,12 +27,9 @@ The project uses GitHub Actions to automate the CI/CD process with the following
    - Docker image build and push
    - Automatic deployment after successful CI/CD pipeline
 
-### Composite Actions
+### Node.js Configuration
 
-The project uses composite actions for better reusability:
-
-- **`.github/actions/setup-node/action.yml`** - Node.js setup with .nvmrc
-- **`.github/actions/checkout/action.yml`** - Repository checkout
+The project uses Node.js 22.16.0 (defined in `.nvmrc`), which is automatically detected by the `actions/setup-node@v4` action.
 
 ## Configuration
 
@@ -62,10 +59,6 @@ The project uses GitHub Environments for secure secret management:
 4. **Protection Rules**: Configure as needed for your security requirements
 
 The workflows automatically use the `integration` environment for E2E tests, providing secure access to secrets without exposing them in logs.
-
-### Node.js Version
-
-The project uses Node.js 22.16.0 (defined in `.nvmrc`), which is automatically detected by the composite action.
 
 ## Execution
 
@@ -135,18 +128,13 @@ The project uses Node.js 22.16.0 (defined in `.nvmrc`), which is automatically d
 
 ### Latest Versions:
 
-- **actions/checkout@v4** - Repository checkout
-- **actions/setup-node@v4** - Node.js setup
+- **actions/checkout@v4** - Repository checkout with fetch-depth: 0
+- **actions/setup-node@v4** - Node.js setup with .nvmrc and npm cache
 - **actions/upload-artifact@v4** - Artifact upload
 - **actions/download-artifact@v4** - Artifact download
 - **codecov/codecov-action@v5** - Coverage reporting
 - **treosh/lighthouse-ci-action@v12.6.1** - Performance testing
 - **actions/github-script@v7** - PR status comments
-
-### Composite Actions:
-
-- **./.github/actions/setup-node** - Node.js setup with .nvmrc
-- **./.github/actions/checkout** - Checkout with configuration
 
 ## Deployment
 
