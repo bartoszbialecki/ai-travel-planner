@@ -1,0 +1,174 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  # Lint and format check
+  lint:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: ./.github/actions/checkout
+
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node
+
+      - name: Run ESLint
+        shell: bash
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        shell: bash
+        run: npx prettier --check .
+
+  # Unit and integration tests with coverage
+  unit-test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout Repository
+        uses: ./.github/actions/checkout
+
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node
+
+      - name: Run unit tests with coverage
+        shell: bash
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 30
+
+  # E2E tests with Playwright
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    environment: integration
+    env:
+      # Integration environment variables from secrets
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+    steps:
+      - name: Checkout Repository
+        uses: ./.github/actions/checkout
+
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node
+
+      - name: Install Playwright browsers
+        shell: bash
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        shell: bash
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+  # Status comment to PR
+  status-comment:
+    name: Status Comment
+    runs-on: ubuntu-latest
+    needs: [lint, unit-test, e2e-test]
+    if: always()
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout Repository
+        uses: ./.github/actions/checkout
+
+      - name: Comment PR Status
+        uses: actions/github-script@v7
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          UNIT_TEST_RESULT: ${{ needs.unit-test.result }}
+          E2E_TEST_RESULT: ${{ needs.e2e-test.result }}
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            // Remove previous status comments
+            for (const comment of comments) {
+              if (comment.user.type === 'Bot' && comment.body.includes('## 🚀 Pull Request Status')) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                });
+              }
+            }
+
+            // Create new status comment
+            const allPassed = process.env.LINT_RESULT === 'success' && 
+                             process.env.UNIT_TEST_RESULT === 'success' && 
+                             process.env.E2E_TEST_RESULT === 'success';
+
+            const statusEmoji = allPassed ? '✅' : '❌';
+            const statusText = allPassed ? 'All checks passed!' : 'Some checks failed.';
+
+            const commentBody = `## 🚀 Pull Request Status ${statusEmoji}
+
+            ${statusText}
+
+            ### Test Results:
+            - **Linting**: ${process.env.LINT_RESULT === 'success' ? '✅ Passed' : '❌ Failed'}
+            - **Unit Tests**: ${process.env.UNIT_TEST_RESULT === 'success' ? '✅ Passed' : '❌ Failed'}
+            - **E2E Tests**: ${process.env.E2E_TEST_RESULT === 'success' ? '✅ Passed' : '❌ Failed'}
+
+            ### Coverage Reports:
+            - Unit test coverage reports are available in the workflow artifacts
+            - E2E test reports are available in the workflow artifacts
+
+            ---
+            *This comment was automatically generated by GitHub Actions*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody,
+            });
