@@ -123,7 +123,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           data-test-id="form-input-name"
         />
         {errors.name && (
-          <p className="text-red-500 text-xs mt-1" id="error-name">
+          <p className="text-red-500 text-xs mt-1" id="error-name" role="alert">
             {errors.name}
           </p>
         )}
@@ -146,7 +146,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           data-test-id="form-input-destination"
         />
         {errors.destination && (
-          <p className="text-red-500 text-xs mt-1" id="error-destination">
+          <p className="text-red-500 text-xs mt-1" id="error-destination" role="alert">
             {errors.destination}
           </p>
         )}
@@ -170,7 +170,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-start-date"
           />
           {errors.startDate && (
-            <p className="text-red-500 text-xs mt-1" id="error-startDate">
+            <p className="text-red-500 text-xs mt-1" id="error-startDate" role="alert">
               {errors.startDate}
             </p>
           )}
@@ -193,7 +193,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-end-date"
           />
           {errors.endDate && (
-            <p className="text-red-500 text-xs mt-1" id="error-endDate">
+            <p className="text-red-500 text-xs mt-1" id="error-endDate" role="alert">
               {errors.endDate}
             </p>
           )}
@@ -223,7 +223,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-adults-count"
           />
           {errors.adultsCount && (
-            <p className="text-red-500 text-xs mt-1" id="error-adultsCount">
+            <p className="text-red-500 text-xs mt-1" id="error-adultsCount" role="alert">
               {errors.adultsCount}
             </p>
           )}
@@ -255,7 +255,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-children-count"
           />
           {errors.childrenCount && (
-            <p className="text-red-500 text-xs mt-1" id="error-childrenCount">
+            <p className="text-red-500 text-xs mt-1" id="error-childrenCount" role="alert">
               {errors.childrenCount}
             </p>
           )}
@@ -290,7 +290,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-budget-total"
           />
           {errors.budgetTotal && (
-            <p className="text-red-500 text-xs mt-1" id="error-budgetTotal">
+            <p className="text-red-500 text-xs mt-1" id="error-budgetTotal" role="alert">
               {errors.budgetTotal}
             </p>
           )}
@@ -324,7 +324,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
             data-test-id="form-input-budget-currency"
           />
           {errors.budgetCurrency && (
-            <p className="text-red-500 text-xs mt-1" id="error-budgetCurrency">
+            <p className="text-red-500 text-xs mt-1" id="error-budgetCurrency" role="alert">
               {errors.budgetCurrency}
             </p>
           )}
@@ -356,7 +356,7 @@ const GenerationForm: React.FC<GenerationFormProps> = ({ onSubmit }) => {
           </SelectContent>
         </Select>
         {errors.travelStyle && (
-          <p className="text-red-500 text-xs mt-1" id="error-travelStyle">
+          <p className="text-red-500 text-xs mt-1" id="error-travelStyle" role="alert">
             {errors.travelStyle}
           </p>
         )}

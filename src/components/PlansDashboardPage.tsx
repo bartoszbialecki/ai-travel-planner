@@ -27,7 +27,11 @@ const PlansDashboardPage: React.FC = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Your travel plans</h1>
-        <Button onClick={() => (window.location.href = "/generate")}>+ New plan</Button>
+        <Button asChild>
+          <a href="/generate" tabIndex={0}>
+            + New plan
+          </a>
+        </Button>
       </div>
       <SortSelect sort={sort} order={order} onSortChange={handleSortChange} />
       {loading ? (

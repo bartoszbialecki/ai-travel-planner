@@ -9,7 +9,13 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
-    exclude: ["node_modules/**/*", "tests/e2e/**/*", "**/*.e2e.spec.ts", "**/*.e2e.test.ts"],
+    exclude: [
+      "node_modules/**/*",
+      "tests/e2e/**/*",
+      "**/*.e2e.spec.ts",
+      "**/*.e2e.test.ts",
+      "tests/global-teardown.spec.ts",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],

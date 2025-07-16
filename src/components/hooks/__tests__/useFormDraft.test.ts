@@ -326,9 +326,9 @@ describe("useFormDraft", () => {
         "plan-generation-draft",
         JSON.stringify({
           ...defaultValues,
-          budgetTotal: null,
-          budgetCurrency: null,
-          travelStyle: null,
+          budgetTotal: undefined,
+          budgetCurrency: undefined,
+          travelStyle: undefined,
         })
       );
     });
