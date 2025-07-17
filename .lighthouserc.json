@@ -2,10 +2,11 @@
   "ci": {
     "collect": {
       "url": ["http://localhost:3000"],
-      "startServerCommand": "npm run preview",
-      "startServerReadyPattern": "Local:",
-      "startServerReadyTimeout": 10000,
-      "numberOfRuns": 3
+      "startServerCommand": "npm run preview -- --port 3000",
+      "startServerReadyPattern": "Server listening on",
+      "startServerReadyTimeout": 15000,
+      "numberOfRuns": 3,
+      "chromeFlags": "--no-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --disable-features=VizDisplayCompositor"
     },
     "assert": {
       "assertions": {
