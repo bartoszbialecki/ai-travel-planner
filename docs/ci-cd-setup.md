@@ -19,7 +19,6 @@ The project uses GitHub Actions to automate the CI/CD process with the following
    - E2E tests with Playwright (parallel)
    - Production build
    - Security audit
-   - Performance tests with Lighthouse
    - Runs only on push to main
 
 3. **Deploy** (`.github/workflows/deploy.yml`)
@@ -114,16 +113,6 @@ The workflows automatically use the `integration` environment for E2E tests, pro
 - npm audit with moderate level
 - Execution time: ~1-2 min
 
-### 6. Lighthouse Performance
-
-- Performance, accessibility, SEO tests
-- Lighthouse CI v12.6.1 with `.lighthouserc.json` configuration
-- Core Web Vitals monitoring (FCP, LCP, CLS)
-- 3 test runs for reliability
-- Uses build artifacts (no duplicate build)
-- Runs only on main
-- Execution time: ~3-5 min
-
 ## Used GitHub Actions
 
 ### Latest Versions:
@@ -133,7 +122,7 @@ The workflows automatically use the `integration` environment for E2E tests, pro
 - **actions/upload-artifact@v4** - Artifact upload
 - **actions/download-artifact@v4** - Artifact download
 - **codecov/codecov-action@v5** - Coverage reporting
-- **treosh/lighthouse-ci-action@v12.6.1** - Performance testing
+
 - **actions/github-script@v7** - PR status comments
 
 ## Deployment
@@ -163,7 +152,6 @@ The workflows automatically use the `integration` environment for E2E tests, pro
 - **Playwright reports** - available for 30 days
 - **Test results** - available for 30 days
 - **Build artifacts** - available for 7 days
-- **Lighthouse reports** - temporary public storage
 
 ### Logs
 
@@ -221,36 +209,6 @@ npm run test:e2e
 
 - Container Registry: $5/month
 - App Platform: from $5/month (depending on plan)
-
-## Lighthouse Configuration
-
-### Performance Thresholds
-
-The project uses `.lighthouserc.json` for performance monitoring:
-
-```json
-{
-  "ci": {
-    "assert": {
-      "assertions": {
-        "categories:performance": ["warn", { "minScore": 0.8 }],
-        "categories:accessibility": ["error", { "minScore": 0.9 }],
-        "categories:best-practices": ["warn", { "minScore": 0.8 }],
-        "categories:seo": ["warn", { "minScore": 0.8 }],
-        "first-contentful-paint": ["warn", { "maxNumericValue": 2000 }],
-        "largest-contentful-paint": ["warn", { "maxNumericValue": 4000 }],
-        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.1 }]
-      }
-    }
-  }
-}
-```
-
-### Core Web Vitals
-
-- **First Contentful Paint (FCP)**: ≤ 2000ms
-- **Largest Contentful Paint (LCP)**: ≤ 4000ms
-- **Cumulative Layout Shift (CLS)**: ≤ 0.1
 
 ## Extensions
 
