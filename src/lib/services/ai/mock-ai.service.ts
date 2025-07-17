@@ -25,7 +25,9 @@ export class MockAIService extends BaseAIService {
   }
 
   private async simulateProcessing(): Promise<void> {
-    const delay = Math.random() * 2000 + 1000; // 1-3 seconds
+    // Use shorter delay in test environment to avoid timeouts
+    const isTest = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+    const delay = isTest ? Math.random() * 100 + 50 : Math.random() * 2000 + 1000; // 50-150ms in tests, 1-3s in production
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 

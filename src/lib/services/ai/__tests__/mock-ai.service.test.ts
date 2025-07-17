@@ -149,7 +149,7 @@ describe("MockAIService", () => {
       expect(hasFamilyActivities).toBe(true);
     });
 
-    it("should simulate processing delay", async () => {
+    it("should simulate processing delay (>=50ms in test mode)", async () => {
       const request: AIGenerationRequest = {
         destination: "Berlin",
         start_date: "2024-06-01",
@@ -163,8 +163,8 @@ describe("MockAIService", () => {
       const endTime = Date.now();
 
       expect(result.success).toBe(true);
-      expect(result.processing_time_ms).toBeGreaterThanOrEqual(100); // Should simulate at least 100ms
-      expect(endTime - startTime).toBeGreaterThanOrEqual(100);
+      expect(result.processing_time_ms).toBeGreaterThanOrEqual(50); // Should simulate at least 50ms in test mode
+      expect(endTime - startTime).toBeGreaterThanOrEqual(50);
     });
 
     it("should handle different travel styles", async () => {
