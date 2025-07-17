@@ -44,7 +44,7 @@ const PlansGrid: React.FC<PlansGridProps> = ({ plans, onPlanClick, loading }) =>
         <a
           key={plan.id}
           href={onPlanClick(plan.id)}
-          className="block focus:outline-none focus:ring-2 focus:ring-primary"
+          className="block focus:outline-none"
           aria-label={`Details of plan ${plan.name}`}
         >
           <Card className="cursor-pointer hover:shadow-lg">

@@ -71,5 +71,14 @@ export default tseslint.config(
         "no-console": "off",
       },
     },
+  ],
+  // Add override for test files
+  [
+    {
+      files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "tests/**/*.ts"],
+      rules: {
+        "no-console": "off",
+      },
+    },
   ]
 );

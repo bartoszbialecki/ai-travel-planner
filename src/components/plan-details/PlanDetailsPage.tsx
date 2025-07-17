@@ -44,7 +44,7 @@ const PlanDetailsPage: React.FC<PlanDetailsPageProps> = ({ planId }) => {
   return (
     <div className="container mx-auto py-4 px-2 md:px-0">
       <PlanHeader plan={plan} onDelete={onDelete} />
-      <PlanSummary summary={plan.summary} />
+      <PlanSummary summary={plan.summary} currency={plan.budget_currency || "USD"} />
       <DaysList activities={plan.activities} currentDay={currentDay} onDaySelect={setCurrentDay} />
       <DaySection
         dayNumber={currentDay}
@@ -52,6 +52,7 @@ const PlanDetailsPage: React.FC<PlanDetailsPageProps> = ({ planId }) => {
         onActivityEdit={onActivityEdit}
         onActivityAccept={onActivityAccept}
         onActivityReject={onActivityReject}
+        currency={plan.budget_currency || "USD"}
       />
     </div>
   );

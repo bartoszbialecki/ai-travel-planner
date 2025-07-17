@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (error || !data.user) {
       return new Response(JSON.stringify({ error: "Invalid email or password" }), { status: 401 });
     }
-    // Zwracamy usera i tokeny, ale bez poufnych danych
+    // Return user and tokens without sensitive data
     return new Response(
       JSON.stringify({
         user: {
