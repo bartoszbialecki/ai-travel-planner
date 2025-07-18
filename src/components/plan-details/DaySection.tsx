@@ -8,6 +8,7 @@ interface DaySectionProps {
   onActivityEdit: (activityId: string, data: { custom_desc?: string | null }) => Promise<void>;
   onActivityAccept: (activityId: string) => void;
   onActivityReject: (activityId: string) => void;
+  currency?: string;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -16,6 +17,7 @@ const DaySection: React.FC<DaySectionProps> = ({
   onActivityEdit,
   onActivityAccept,
   onActivityReject,
+  currency,
 }) => {
   return (
     <section>
@@ -31,6 +33,7 @@ const DaySection: React.FC<DaySectionProps> = ({
               onEdit={onActivityEdit}
               onAccept={onActivityAccept}
               onReject={onActivityReject}
+              currency={currency}
             />
           ))
         )}

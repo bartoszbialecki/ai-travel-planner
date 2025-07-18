@@ -53,7 +53,7 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 ```bash
 npm install
 # or
-pnpm install
+npm install
 ```
 
 ### 2. Set Up OpenRouter Account

@@ -475,7 +475,7 @@ E2E_USERNAME_ID=test-user-uuid
    # or
    yarn install
    # or
-   pnpm install
+   npm install
    ```
 
 3. **Set up environment variables**

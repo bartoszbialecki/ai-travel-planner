@@ -4,9 +4,10 @@ import { Card, CardContent } from "../ui/card";
 
 interface PlanSummaryProps {
   summary: PlanSummaryType;
+  currency?: string;
 }
 
-const PlanSummary: React.FC<PlanSummaryProps> = ({ summary }) => {
+const PlanSummary: React.FC<PlanSummaryProps> = ({ summary, currency = "USD" }) => {
   return (
     <Card className="my-4">
       <CardContent className="flex flex-col gap-2">
@@ -20,7 +21,10 @@ const PlanSummary: React.FC<PlanSummaryProps> = ({ summary }) => {
           Accepted activities: <span className="font-semibold">{summary.accepted_activities}</span>
         </div>
         <div>
-          Estimated cost: <span className="font-semibold">{summary.estimated_total_cost} zł</span>
+          Estimated cost:{" "}
+          <span className="font-semibold">
+            {summary.estimated_total_cost} {currency}
+          </span>
         </div>
       </CardContent>
     </Card>

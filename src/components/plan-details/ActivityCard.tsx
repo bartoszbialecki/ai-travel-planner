@@ -24,9 +24,10 @@ interface ActivityCardProps {
   onEdit: (activityId: string, data: { custom_desc?: string | null }) => Promise<void>;
   onAccept: (activityId: string) => void;
   onReject: (activityId: string) => void;
+  currency?: string;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept, onReject }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept, onReject, currency = "USD" }) => {
   // Local state for editing
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(activity.custom_desc ?? "");
@@ -144,7 +145,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onEdit, onAccept,
           {activity.custom_desc || activity.attraction.description}
         </div>
         {activity.opening_hours && <div className="text-xs text-gray-400">Hours: {activity.opening_hours}</div>}
-        {activity.cost !== null && <div className="text-xs text-gray-400">Cost: {activity.cost} zł</div>}
+        {activity.cost !== null && (
+          <div className="text-xs text-gray-400">
+            Cost: {activity.cost} {currency}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

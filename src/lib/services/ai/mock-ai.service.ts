@@ -97,32 +97,32 @@ export class MockAIService extends BaseAIService {
   }
 
   private getAttractionsForDestination(destination: string) {
-    if (destination.includes("paryż") || destination.includes("paris")) {
+    if (destination.includes("paris")) {
       return [
         {
-          name: "Wieża Eiffla",
-          description: "Ikoniczna żelazna wieża o wysokości 324 metrów, symbol Paryża",
+          name: "Eiffel Tower",
+          description: "Iconic iron tower standing 324 meters tall, symbol of Paris",
           address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris",
           opening_hours: "09:00-23:45",
           baseCost: 26,
         },
         {
-          name: "Luwr",
-          description: "Największe muzeum sztuki na świecie z kolekcją ponad 35,000 dzieł",
+          name: "Louvre Museum",
+          description: "World's largest art museum with collection of over 35,000 works",
           address: "Rue de Rivoli, 75001 Paris",
           opening_hours: "09:00-18:00",
           baseCost: 17,
         },
         {
-          name: "Łuk Triumfalny",
-          description: "Monumentalny łuk upamiętniający zwycięstwa Napoleona",
+          name: "Arc de Triomphe",
+          description: "Monumental arch commemorating Napoleon's victories",
           address: "Place Charles de Gaulle, 75008 Paris",
           opening_hours: "10:00-23:00",
           baseCost: 13,
         },
         {
-          name: "Katedra Notre-Dame",
-          description: "Średniowieczna katedra gotycka, arcydzieło architektury",
+          name: "Notre-Dame Cathedral",
+          description: "Medieval Gothic cathedral, architectural masterpiece",
           address: "6 Parvis Notre-Dame - Pl. Jean-Paul II, 75004 Paris",
           opening_hours: "08:00-18:45",
           baseCost: 0,
@@ -130,25 +130,25 @@ export class MockAIService extends BaseAIService {
       ];
     }
 
-    if (destination.includes("rzym") || destination.includes("rome")) {
+    if (destination.includes("rome")) {
       return [
         {
-          name: "Koloseum",
-          description: "Antyczny amfiteatr, symbol potęgi Imperium Rzymskiego",
+          name: "Colosseum",
+          description: "Ancient amphitheater, symbol of Roman Empire's power",
           address: "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
           opening_hours: "08:30-19:00",
           baseCost: 16,
         },
         {
-          name: "Watykan",
-          description: "Najmniejsze państwo świata, siedziba papieża",
+          name: "Vatican City",
+          description: "World's smallest state, seat of the Pope",
           address: "Vatican City",
           opening_hours: "07:00-18:00",
           baseCost: 0,
         },
         {
-          name: "Fontanna di Trevi",
-          description: "Barokowa fontanna, jedno z najpiękniejszych miejsc w Rzymie",
+          name: "Trevi Fountain",
+          description: "Baroque fountain, one of Rome's most beautiful places",
           address: "Piazza di Trevi, 00187 Roma RM, Italy",
           opening_hours: "24/7",
           baseCost: 0,

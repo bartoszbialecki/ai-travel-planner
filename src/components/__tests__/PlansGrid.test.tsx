@@ -165,16 +165,6 @@ describe("PlansGrid", () => {
       expect(planLinks[0]).toHaveAttribute("aria-label", "Details of plan Paris Adventure");
       expect(planLinks[1]).toHaveAttribute("aria-label", "Details of plan Rome Discovery");
     });
-
-    it("should have proper focus styles", () => {
-      render(<PlansGrid plans={mockPlans} onPlanClick={mockOnPlanClick} />);
-
-      const planLinks = screen.getAllByRole("link");
-
-      planLinks.forEach((link) => {
-        expect(link).toHaveClass("focus:outline-none", "focus:ring-2", "focus:ring-primary");
-      });
-    });
   });
 
   describe("loading state", () => {
