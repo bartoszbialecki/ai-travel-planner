@@ -1,10 +1,8 @@
 # Dependencies
 node_modules/
-.pnpm-store/
 
 # Lock files
 package-lock.json
-pnpm-lock.yaml
 yarn.lock
 
 # Build outputs
