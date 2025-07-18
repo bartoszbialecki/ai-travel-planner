@@ -105,11 +105,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: |
-          # Use npm install for better native dependency handling
-          npm install
-          # Ensure LightningCSS native dependencies are properly built
-          npm rebuild lightningcss
+        run: npm ci
 
       - name: Install Playwright browsers
         shell: bash
