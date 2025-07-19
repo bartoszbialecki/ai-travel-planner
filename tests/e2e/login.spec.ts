@@ -84,7 +84,7 @@ test.describe("Login Flow", () => {
 
     // Initially button should be enabled
     expect(await loginPage.submitButton.isEnabled()).toBe(true);
-    expect(await loginPage.submitButton.textContent()).toBe("Log in");
+    expect(await loginPage.submitButton.textContent()).toBe("Sign In");
 
     // Fill form
     await loginPage.fillAndSubmitLogin(credentials);

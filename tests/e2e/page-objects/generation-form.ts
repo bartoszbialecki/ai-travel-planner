@@ -200,7 +200,7 @@ export class GenerationForm extends BasePage {
    */
   async isSubmitButtonLoading(): Promise<boolean> {
     const text = await this.submitButton.textContent();
-    return text?.includes("Generating...") || false;
+    return text?.includes("Generating Your Plan...") || false;
   }
 
   /**
@@ -208,7 +208,7 @@ export class GenerationForm extends BasePage {
    */
   async isSubmitButtonLimitReached(): Promise<boolean> {
     const text = await this.submitButton.textContent();
-    return text?.includes("Daily limit reached") || false;
+    return text?.includes("Daily Limit Reached") || false;
   }
 
   /**
