@@ -10,7 +10,7 @@ const { user } = Astro.locals;
     <meta name="viewport" content="width=device-width" />
     <slot name="head" />
   </head>
-  <body class="bg-gray-50 min-h-screen">
+  <body class="min-h-screen gradient-bg">
     <Topbar client:load user={user} />
     <slot />
   </body>

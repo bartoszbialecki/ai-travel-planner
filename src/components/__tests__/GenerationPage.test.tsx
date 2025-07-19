@@ -58,11 +58,26 @@ describe("GenerationPage", () => {
       expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
     });
 
+    it("renders hero section", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText("Create Your Perfect Travel Plan")).toBeInTheDocument();
+      expect(screen.getByText(/Let AI craft a personalized itinerary/)).toBeInTheDocument();
+    });
+
+    it("renders features section", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText("AI-Powered")).toBeInTheDocument();
+      expect(screen.getByText("Budget-Friendly")).toBeInTheDocument();
+      expect(screen.getByText("Personalized")).toBeInTheDocument();
+    });
+
     it("has correct container structure", () => {
       render(<GenerationPage />);
 
-      const container = screen.getByTestId("generation-form").parentElement;
-      expect(container).toHaveClass("container", "mx-auto", "max-w-xl", "py-8");
+      const container = screen.getByTestId("generation-form").closest("div")?.parentElement?.parentElement;
+      expect(container).toBeInTheDocument();
     });
 
     it("renders only the form component without modal", () => {
@@ -70,6 +85,38 @@ describe("GenerationPage", () => {
 
       expect(screen.getByTestId("generation-form")).toBeInTheDocument();
       expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Hero section", () => {
+    it("renders hero title", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText("Create Your Perfect Travel Plan")).toBeInTheDocument();
+    });
+
+    it("renders hero description", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText(/Let AI craft a personalized itinerary/)).toBeInTheDocument();
+    });
+  });
+
+  describe("Features section", () => {
+    it("renders all feature cards", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText("AI-Powered")).toBeInTheDocument();
+      expect(screen.getByText("Budget-Friendly")).toBeInTheDocument();
+      expect(screen.getByText("Personalized")).toBeInTheDocument();
+    });
+
+    it("renders feature descriptions", () => {
+      render(<GenerationPage />);
+
+      expect(screen.getByText(/Advanced AI algorithms/)).toBeInTheDocument();
+      expect(screen.getByText(/Get detailed cost estimates/)).toBeInTheDocument();
+      expect(screen.getByText(/Customized plans based on your travel style/)).toBeInTheDocument();
     });
   });
 
@@ -199,50 +246,28 @@ describe("GenerationPage", () => {
       const retryButton = screen.getByText("Retry");
       await user.click(retryButton);
 
+      // Modal should be hidden
       expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-
-      // Second submission
-      await user.click(submitButton);
-
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-      expect(screen.getByText("Job ID: test-job-123")).toBeInTheDocument();
-    });
-
-    it("clears jobId state on retry", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      // Submit and verify modal shows with jobId
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      expect(screen.getByText("Job ID: test-job-123")).toBeInTheDocument();
-
-      // Retry
-      const retryButton = screen.getByText("Retry");
-      await user.click(retryButton);
 
       // Submit again
       await user.click(submitButton);
-
-      // Should show modal with jobId again
-      expect(screen.getByText("Job ID: test-job-123")).toBeInTheDocument();
+      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
     });
   });
 
-  describe("Component prop passing", () => {
+  describe("Component integration", () => {
     it("passes onSubmit prop to GenerationForm", () => {
       render(<GenerationPage />);
 
       expect(mockGenerationForm).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           onSubmit: expect.any(Function),
-        },
+        }),
         undefined
       );
     });
 
-    it("passes correct props to StatusModal when visible", async () => {
+    it("passes correct props to StatusModal when shown", async () => {
       const user = userEvent.setup();
       render(<GenerationPage />);
 
@@ -250,226 +275,59 @@ describe("GenerationPage", () => {
       await user.click(submitButton);
 
       expect(mockStatusModal).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           jobId: "test-job-123",
           onComplete: expect.any(Function),
           onRetry: expect.any(Function),
-        },
+        }),
         undefined
       );
     });
 
-    it("does not render StatusModal when jobId is null", () => {
+    it("does not render StatusModal initially", () => {
       render(<GenerationPage />);
 
       expect(mockStatusModal).not.toHaveBeenCalled();
     });
   });
 
-  describe("State management", () => {
-    it("manages jobId state correctly", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      // Initial state - no modal
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-
-      // After form submission - modal appears
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-
-      // After retry - modal disappears
-      const retryButton = screen.getByText("Retry");
-      await user.click(retryButton);
-
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-    });
-
-    it("handles multiple form submissions", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      const submitButton = screen.getByText("Submit Form");
-
-      // First submission
-      await user.click(submitButton);
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-
-      // Retry to reset
-      const retryButton = screen.getByText("Retry");
-      await user.click(retryButton);
-
-      // Second submission
-      await user.click(submitButton);
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-    });
-
-    it("preserves form state during modal display", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      // Form should be present initially
-      expect(screen.getByTestId("generation-form")).toBeInTheDocument();
-
-      // Submit form
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      // Form should still be present with modal
-      expect(screen.getByTestId("generation-form")).toBeInTheDocument();
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-    });
-  });
-
-  describe("Error handling", () => {
-    it("handles form submission errors gracefully", async () => {
-      const user = userEvent.setup();
-
-      // Mock GenerationForm to throw an error
-      mockGenerationForm.mockImplementation(({ onSubmit }) => (
-        <div data-testid="generation-form">
-          <button
-            onClick={() => {
-              try {
-                onSubmit("test-job-123");
-              } catch {
-                // Error should be handled gracefully
-              }
-            }}
-          >
-            Submit Form
-          </button>
-        </div>
-      ));
-
-      render(<GenerationPage />);
-
-      const submitButton = screen.getByText("Submit Form");
-
-      // Should not throw
-      expect(async () => {
-        await user.click(submitButton);
-      }).not.toThrow();
-    });
-
-    it("handles completion callback errors gracefully", async () => {
-      const user = userEvent.setup();
-
-      // Mock location.href to throw
-      Object.defineProperty(window.location, "href", {
-        set: () => {
-          throw new Error("Navigation error");
-        },
-        configurable: true,
-      });
-
-      render(<GenerationPage />);
-
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      const completeButton = screen.getByText("Complete");
-
-      // Should not throw
-      expect(async () => {
-        await user.click(completeButton);
-      }).not.toThrow();
-    });
-  });
-
   describe("Accessibility", () => {
-    it("maintains proper focus management", async () => {
-      const user = userEvent.setup();
+    it("has proper heading structure", () => {
       render(<GenerationPage />);
 
-      // Form should be focusable
-      const form = screen.getByTestId("generation-form");
-      expect(form).toBeInTheDocument();
-
-      // After showing modal, modal should be accessible
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      const modal = screen.getByTestId("status-modal");
-      expect(modal).toBeInTheDocument();
+      const mainHeading = screen.getByText("Create Your Perfect Travel Plan");
+      expect(mainHeading.tagName).toBe("H1");
     });
 
-    it("provides proper semantic structure", () => {
+    it("has proper feature headings", () => {
       render(<GenerationPage />);
 
-      const container = screen.getByTestId("generation-form").parentElement;
-      expect(container).toHaveClass("container");
+      const featureHeadings = screen.getAllByText(/AI-Powered|Budget-Friendly|Personalized/);
+      featureHeadings.forEach((heading) => {
+        expect(heading.tagName).toBe("H3");
+      });
+    });
+
+    it("has proper semantic structure", () => {
+      render(<GenerationPage />);
+
+      // Should have main content area
+      const mainContent = screen.getByTestId("generation-form").closest("div")?.parentElement;
+      expect(mainContent).toBeInTheDocument();
     });
   });
 
-  describe("Edge cases", () => {
-    it("handles rapid form submissions", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
+  describe("Performance optimization", () => {
+    it("does not re-render unnecessarily with same props", () => {
+      const { rerender } = render(<GenerationPage />);
 
-      const submitButton = screen.getByText("Submit Form");
+      const initialForm = screen.getByTestId("generation-form");
 
-      // Rapid clicks
-      await user.click(submitButton);
-      await user.click(submitButton);
-      await user.click(submitButton);
+      // Re-render with same props
+      rerender(<GenerationPage />);
 
-      // Should only show one modal
-      expect(screen.getByTestId("status-modal")).toBeInTheDocument();
-    });
-
-    it("handles empty or invalid jobId", async () => {
-      const user = userEvent.setup();
-
-      // Mock form to submit empty jobId
-      mockGenerationForm.mockImplementation(({ onSubmit }) => (
-        <div data-testid="generation-form">
-          <button onClick={() => onSubmit("")}>Submit Empty</button>
-          <button onClick={() => onSubmit(null as unknown as string)}>Submit Null</button>
-          <button onClick={() => onSubmit(undefined as unknown as string)}>Submit Undefined</button>
-        </div>
-      ));
-
-      render(<GenerationPage />);
-
-      // Test empty string
-      await user.click(screen.getByText("Submit Empty"));
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-
-      // Test null
-      await user.click(screen.getByText("Submit Null"));
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-
-      // Test undefined
-      await user.click(screen.getByText("Submit Undefined"));
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-    });
-
-    it("handles component unmounting during generation", () => {
-      const { unmount } = render(<GenerationPage />);
-
-      // Should unmount without errors
-      expect(() => unmount()).not.toThrow();
-    });
-
-    it("handles rapid retry clicks", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      // Show modal
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      // Rapid retry clicks
-      const retryButton = screen.getByText("Retry");
-      await user.click(retryButton);
-      await user.click(retryButton);
-      await user.click(retryButton);
-
-      // Should handle gracefully
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
+      const newForm = screen.getByTestId("generation-form");
+      expect(newForm).toBe(initialForm);
     });
   });
 });

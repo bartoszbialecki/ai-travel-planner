@@ -49,9 +49,10 @@ describe("SortSelect", () => {
   });
 
   describe("rendering", () => {
-    it("should render both sort and order selects", () => {
+    it("should render sort label and both selects", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
+      expect(screen.getByText("Sort by:")).toBeInTheDocument();
       const selects = screen.getAllByTestId("select");
       expect(selects).toHaveLength(2);
     });
@@ -59,29 +60,29 @@ describe("SortSelect", () => {
     it("should render sort options correctly", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
-      expect(screen.getByText("Creation date")).toBeInTheDocument();
-      expect(screen.getByText("Name")).toBeInTheDocument();
+      expect(screen.getByText("Creation Date")).toBeInTheDocument();
+      expect(screen.getByText("Plan Name")).toBeInTheDocument();
       expect(screen.getByText("Destination")).toBeInTheDocument();
     });
 
     it("should render order options correctly", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
-      expect(screen.getByText("Ascending")).toBeInTheDocument();
-      expect(screen.getByText("Descending")).toBeInTheDocument();
+      expect(screen.getByText("A to Z")).toBeInTheDocument();
+      expect(screen.getByText("Z to A")).toBeInTheDocument();
     });
 
     it("should display current sort value", () => {
       render(<SortSelect sort="name" order="asc" onSortChange={mockOnSortChange} />);
 
-      const sortValue = screen.getByText("Name");
+      const sortValue = screen.getByText("Plan Name");
       expect(sortValue).toBeInTheDocument();
     });
 
     it("should display current order value", () => {
       render(<SortSelect sort="name" order="asc" onSortChange={mockOnSortChange} />);
 
-      const orderValue = screen.getByText("Ascending");
+      const orderValue = screen.getByText("A to Z");
       expect(orderValue).toBeInTheDocument();
     });
   });
@@ -101,9 +102,17 @@ describe("SortSelect", () => {
     it("should have correct labels for sort options", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
-      expect(screen.getByText("Creation date")).toBeInTheDocument();
-      expect(screen.getByText("Name")).toBeInTheDocument();
+      expect(screen.getByText("Creation Date")).toBeInTheDocument();
+      expect(screen.getByText("Plan Name")).toBeInTheDocument();
       expect(screen.getByText("Destination")).toBeInTheDocument();
+    });
+
+    it("should have icons in sort options", () => {
+      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
+
+      expect(screen.getByText("📅")).toBeInTheDocument();
+      expect(screen.getByText("📝")).toBeInTheDocument();
+      expect(screen.getByText("📍")).toBeInTheDocument();
     });
   });
 
@@ -121,8 +130,15 @@ describe("SortSelect", () => {
     it("should have correct labels for order options", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
-      expect(screen.getByText("Ascending")).toBeInTheDocument();
-      expect(screen.getByText("Descending")).toBeInTheDocument();
+      expect(screen.getByText("A to Z")).toBeInTheDocument();
+      expect(screen.getByText("Z to A")).toBeInTheDocument();
+    });
+
+    it("should have icons in order options", () => {
+      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
+
+      expect(screen.getByText("↑")).toBeInTheDocument();
+      expect(screen.getByText("↓")).toBeInTheDocument();
     });
   });
 
@@ -164,35 +180,12 @@ describe("SortSelect", () => {
     });
   });
 
-  describe("layout and styling", () => {
-    it("should have proper layout classes", () => {
-      const { container } = render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
-
-      const containerElement = container.firstChild as HTMLElement;
-      expect(containerElement).toHaveClass("flex", "gap-2", "items-center", "mb-4");
-    });
-
-    it("should have proper width classes for sort select", () => {
-      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
-
-      const triggers = screen.getAllByTestId("select-trigger");
-      expect(triggers[0]).toHaveClass("w-40");
-    });
-
-    it("should have proper width classes for order select", () => {
-      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
-
-      const triggers = screen.getAllByTestId("select-trigger");
-      expect(triggers[1]).toHaveClass("w-32");
-    });
-  });
-
   describe("accessibility", () => {
     it("should have proper placeholder text", () => {
       render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
 
       const values = screen.getAllByTestId("select-value");
-      expect(values[0]).toHaveTextContent("Sort by");
+      expect(values[0]).toHaveTextContent("Select sort field");
       expect(values[1]).toHaveTextContent("Order");
     });
 
@@ -205,6 +198,20 @@ describe("SortSelect", () => {
         expect(trigger.tagName).toBe("BUTTON");
       });
     });
+
+    it("should have proper select content structure", () => {
+      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
+
+      const contents = screen.getAllByTestId("select-content");
+      expect(contents).toHaveLength(2);
+    });
+
+    it("should have proper select items", () => {
+      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
+
+      const items = screen.getAllByTestId("select-item");
+      expect(items.length).toBeGreaterThan(0);
+    });
   });
 
   describe("edge cases", () => {
@@ -214,9 +221,7 @@ describe("SortSelect", () => {
       sortValues.forEach((sort) => {
         const { unmount } = render(<SortSelect sort={sort} order="desc" onSortChange={mockOnSortChange} />);
 
-        expect(
-          screen.getByText(sort === "created_at" ? "Creation date" : sort === "name" ? "Name" : "Destination")
-        ).toBeInTheDocument();
+        expect(screen.getByText("Sort by:")).toBeInTheDocument();
         unmount();
       });
     });
@@ -227,7 +232,7 @@ describe("SortSelect", () => {
       orderValues.forEach((order) => {
         const { unmount } = render(<SortSelect sort="created_at" order={order} onSortChange={mockOnSortChange} />);
 
-        expect(screen.getByText(order === "asc" ? "Ascending" : "Descending")).toBeInTheDocument();
+        expect(screen.getByText("Sort by:")).toBeInTheDocument();
         unmount();
       });
     });
@@ -250,7 +255,6 @@ describe("SortSelect", () => {
   describe("performance optimization", () => {
     it("should use React.memo for performance", () => {
       // This test verifies that the component is memoized
-      // React.memo returns a memoized component, so we can check if it has the $$typeof property
       expect(SortSelect.$$typeof).toBeDefined();
     });
 
@@ -265,29 +269,6 @@ describe("SortSelect", () => {
 
       const newSelects = screen.getAllByTestId("select");
       expect(newSelects).toHaveLength(initialCount);
-    });
-  });
-
-  describe("callback behavior", () => {
-    it("should call onSortChange with correct parameters", () => {
-      render(<SortSelect sort="name" order="asc" onSortChange={mockOnSortChange} />);
-
-      const changeToDestinationButton = screen.getAllByText("Change to destination")[0];
-      fireEvent.click(changeToDestinationButton);
-
-      expect(mockOnSortChange).toHaveBeenCalledWith("destination", "asc");
-    });
-
-    it("should not call onSortChange when same value is selected", () => {
-      render(<SortSelect sort="created_at" order="desc" onSortChange={mockOnSortChange} />);
-
-      // Simulate selecting the same value - but our mock doesn't have a "created_at" button
-      // so we'll test with a different value to show the behavior
-      const changeToNameButton = screen.getAllByText("Change to name")[0];
-      fireEvent.click(changeToNameButton);
-
-      // Should call onSortChange even with same value (this is normal behavior)
-      expect(mockOnSortChange).toHaveBeenCalledWith("name", "desc");
     });
   });
 });

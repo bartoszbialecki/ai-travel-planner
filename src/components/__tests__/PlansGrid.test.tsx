@@ -39,8 +39,8 @@ describe("PlansGrid", () => {
       id: "1",
       name: "Paris Adventure",
       destination: "Paris, France",
-      start_date: "2024-06-01",
-      end_date: "2024-06-05",
+      start_date: "2025-06-01",
+      end_date: "2025-06-05",
       adults_count: 2,
       children_count: 1,
       budget_total: 1500,
@@ -54,8 +54,8 @@ describe("PlansGrid", () => {
       id: "2",
       name: "Rome Discovery",
       destination: "Rome, Italy",
-      start_date: "2024-07-10",
-      end_date: "2024-07-15",
+      start_date: "2025-07-10",
+      end_date: "2025-07-15",
       adults_count: 1,
       children_count: 0,
       budget_total: 1200,
@@ -82,21 +82,21 @@ describe("PlansGrid", () => {
     it("should render plan details correctly", () => {
       render(<PlansGrid plans={mockPlans} onPlanClick={mockOnPlanClick} />);
 
-      // Check dates
-      expect(screen.getByText("2024-06-01 - 2024-06-05")).toBeInTheDocument();
-      expect(screen.getByText("2024-07-10 - 2024-07-15")).toBeInTheDocument();
+      // Check dates (new format)
+      expect(screen.getByText("Jun 1 - Jun 5, 2025")).toBeInTheDocument();
+      expect(screen.getByText("Jul 10 - Jul 15, 2025")).toBeInTheDocument();
 
-      // Check people count
-      expect(screen.getByText("2 adults, 1 children")).toBeInTheDocument();
-      expect(screen.getByText("1 adults, 0 children")).toBeInTheDocument();
+      // Check people count (new format)
+      expect(screen.getByText("2 adults, 1 child")).toBeInTheDocument();
+      expect(screen.getByText("1 adult")).toBeInTheDocument();
 
-      // Check travel style
-      expect(screen.getByText("Style: active")).toBeInTheDocument();
-      expect(screen.getByText("Style: relaxation")).toBeInTheDocument();
+      // Check travel style (new format)
+      expect(screen.getByText("active")).toBeInTheDocument();
+      expect(screen.getByText("relaxation")).toBeInTheDocument();
 
-      // Check creation date
-      expect(screen.getByText("Created: 2024-01-15")).toBeInTheDocument();
-      expect(screen.getByText("Created: 2024-01-20")).toBeInTheDocument();
+      // Check creation date (new format)
+      expect(screen.getByText("Created Jan 15, 2024")).toBeInTheDocument();
+      expect(screen.getByText("Created Jan 20, 2024")).toBeInTheDocument();
     });
 
     it("should handle missing optional fields gracefully", () => {
@@ -122,8 +122,8 @@ describe("PlansGrid", () => {
 
       expect(screen.getByText("Minimal Plan")).toBeInTheDocument();
       expect(screen.getByText("Berlin, Germany")).toBeInTheDocument();
-      expect(screen.getByText("Style: -")).toBeInTheDocument(); // Should show dash for null
-      expect(screen.getByText("Created: 2024-01-25")).toBeInTheDocument();
+      expect(screen.getByText("Flexible")).toBeInTheDocument(); // Should show "Flexible" for null
+      expect(screen.getByText("Created Jan 25, 2024")).toBeInTheDocument();
     });
 
     it("should render empty state when no plans provided", () => {
@@ -200,22 +200,46 @@ describe("PlansGrid", () => {
     });
   });
 
-  describe("grid layout", () => {
-    it("should have responsive grid classes", () => {
-      render(<PlansGrid plans={mockPlans} onPlanClick={mockOnPlanClick} />);
+  describe("plan status indicators", () => {
+    it("should show active status for future plans", () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
 
-      const gridContainer = screen.getByText("Paris Adventure").closest("div")?.parentElement
-        ?.parentElement?.parentElement;
-      expect(gridContainer).toHaveClass("grid", "grid-cols-1", "sm:grid-cols-2", "md:grid-cols-3", "gap-6");
+      const futurePlan: PlanListResponse["plans"] = [
+        {
+          ...mockPlans[0],
+          end_date: futureDate.toISOString().split("T")[0],
+        },
+      ];
+
+      render(<PlansGrid plans={futurePlan} onPlanClick={mockOnPlanClick} />);
+
+      expect(screen.getByText("Active")).toBeInTheDocument();
     });
 
-    it("should render cards with hover effects", () => {
+    it("should show past status for completed plans", () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 30);
+
+      const pastPlan: PlanListResponse["plans"] = [
+        {
+          ...mockPlans[0],
+          end_date: pastDate.toISOString().split("T")[0],
+        },
+      ];
+
+      render(<PlansGrid plans={pastPlan} onPlanClick={mockOnPlanClick} />);
+
+      expect(screen.getByText("Past")).toBeInTheDocument();
+    });
+
+    it("should show correct day count", () => {
       render(<PlansGrid plans={mockPlans} onPlanClick={mockOnPlanClick} />);
 
-      const cards = screen.getAllByTestId("card");
-      cards.forEach((card) => {
-        expect(card).toHaveClass("cursor-pointer", "hover:shadow-lg");
-      });
+      // First plan: Jun 1 to Jun 5 = 5 days
+      expect(screen.getByText("5 days")).toBeInTheDocument();
+      // Second plan: Jul 10 to Jul 15 = 5 days (inclusive)
+      expect(screen.getByText("5 days")).toBeInTheDocument();
     });
   });
 
@@ -257,7 +281,7 @@ describe("PlansGrid", () => {
 
       render(<PlansGrid plans={zeroPeoplePlan} onPlanClick={mockOnPlanClick} />);
 
-      expect(screen.getByText("0 adults, 0 children")).toBeInTheDocument();
+      expect(screen.getByText("0 adults")).toBeInTheDocument();
     });
 
     it("should handle plans with empty created_at string", () => {
@@ -272,6 +296,20 @@ describe("PlansGrid", () => {
 
       // Should not crash and should handle empty string gracefully
       expect(screen.getByText("Paris Adventure")).toBeInTheDocument();
+    });
+
+    it("should handle single day trips", () => {
+      const singleDayPlan: PlanListResponse["plans"] = [
+        {
+          ...mockPlans[0],
+          start_date: "2024-06-01",
+          end_date: "2024-06-01",
+        },
+      ];
+
+      render(<PlansGrid plans={singleDayPlan} onPlanClick={mockOnPlanClick} />);
+
+      expect(screen.getByText("0 days")).toBeInTheDocument();
     });
   });
 

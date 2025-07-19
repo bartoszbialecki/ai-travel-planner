@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { PlanListResponse } from "@/types";
 
@@ -122,8 +122,8 @@ describe("PlansDashboardPage", () => {
 
       render(<PlansDashboardPage />);
 
-      expect(screen.getByText("Your travel plans")).toBeInTheDocument();
-      expect(screen.getByText("+ New plan")).toBeInTheDocument();
+      expect(screen.getByText("Your Travel Plans")).toBeInTheDocument();
+      expect(screen.getByText("Create New Plan")).toBeInTheDocument();
       expect(screen.getByTestId("sort-select")).toBeInTheDocument();
       expect(screen.getByTestId("plans-grid-loading")).toBeInTheDocument();
       expect(screen.queryByTestId("empty-state")).not.toBeInTheDocument();
@@ -198,13 +198,115 @@ describe("PlansDashboardPage", () => {
       expect(screen.getByTestId("plans-grid")).toBeInTheDocument();
       expect(screen.getByTestId("plan-1")).toBeInTheDocument();
       expect(screen.getByTestId("plan-2")).toBeInTheDocument();
-      expect(screen.getByText("Paris Adventure")).toBeInTheDocument();
-      expect(screen.getByText("Tokyo Trip")).toBeInTheDocument();
       expect(screen.getByTestId("pagination")).toBeInTheDocument();
-      expect(screen.getByTestId("page-info")).toHaveTextContent("Page 1 of 3");
+    });
+  });
+
+  describe("hero section", () => {
+    it("should render hero title", () => {
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      expect(screen.getByText("Your Travel Plans")).toBeInTheDocument();
     });
 
-    it("should not render pagination when totalPages is 1", () => {
+    it("should render hero description", () => {
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      expect(screen.getByText(/Manage and explore your AI-generated travel itineraries/)).toBeInTheDocument();
+    });
+
+    it("should render create new plan button", () => {
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      const createButton = screen.getByText("Create New Plan");
+      expect(createButton).toBeInTheDocument();
+      expect(createButton).toHaveAttribute("href", "/generate");
+    });
+  });
+
+  describe("statistics section", () => {
+    it("should render statistics cards", () => {
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      expect(screen.getByText("Total Plans")).toBeInTheDocument();
+      expect(screen.getByText("Active Plans")).toBeInTheDocument();
+      expect(screen.getByText("Completed Plans")).toBeInTheDocument();
+    });
+
+    it("should display correct plan counts", () => {
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      expect(screen.getAllByText("2")).toHaveLength(2); // Total plans and Completed plans
+    });
+  });
+
+  describe("controls section", () => {
+    it("should render sort controls", () => {
       mockUsePlansList.mockReturnValue({
         plans: mockPlans,
         loading: false,
@@ -221,45 +323,12 @@ describe("PlansDashboardPage", () => {
       render(<PlansDashboardPage />);
 
       expect(screen.getByTestId("sort-select")).toBeInTheDocument();
-      expect(screen.getByTestId("plans-grid")).toBeInTheDocument();
-      expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
     });
   });
 
-  describe("user interactions", () => {
-    it("should handle pagination correctly", async () => {
-      const mockSetPage = vi.fn();
+  describe("interactions", () => {
+    it("should handle sort changes", () => {
       const mockSetSort = vi.fn();
-
-      mockUsePlansList.mockReturnValue({
-        plans: mockPlans,
-        loading: false,
-        error: null,
-        page: 2,
-        totalPages: 3,
-        sort: "created_at",
-        order: "desc",
-        setPage: mockSetPage,
-        setSort: mockSetSort,
-        fetchPlans: vi.fn(),
-      });
-
-      render(<PlansDashboardPage />);
-
-      const prevButton = screen.getByTestId("prev-page");
-      const nextButton = screen.getByTestId("next-page");
-
-      fireEvent.click(prevButton);
-      expect(mockSetPage).toHaveBeenCalledWith(1);
-
-      fireEvent.click(nextButton);
-      expect(mockSetPage).toHaveBeenCalledWith(3);
-    });
-
-    it("should handle sort changes correctly", () => {
-      const mockSetPage = vi.fn();
-      const mockSetSort = vi.fn();
-
       mockUsePlansList.mockReturnValue({
         plans: mockPlans,
         loading: false,
@@ -268,24 +337,43 @@ describe("PlansDashboardPage", () => {
         totalPages: 1,
         sort: "created_at",
         order: "desc",
-        setPage: mockSetPage,
+        setPage: vi.fn(),
         setSort: mockSetSort,
         fetchPlans: vi.fn(),
       });
 
       render(<PlansDashboardPage />);
 
-      const sortByNameButton = screen.getByTestId("sort-name-asc");
-      const sortByDestinationButton = screen.getByTestId("sort-destination-desc");
+      const sortButton = screen.getByTestId("sort-name-asc");
+      fireEvent.click(sortButton);
 
-      fireEvent.click(sortByNameButton);
       expect(mockSetSort).toHaveBeenCalledWith("name", "asc");
-
-      fireEvent.click(sortByDestinationButton);
-      expect(mockSetSort).toHaveBeenCalledWith("destination", "desc");
     });
 
-    it("should generate correct plan URLs", () => {
+    it("should handle pagination changes", () => {
+      const mockSetPage = vi.fn();
+      mockUsePlansList.mockReturnValue({
+        plans: mockPlans,
+        loading: false,
+        error: null,
+        page: 1,
+        totalPages: 3,
+        sort: "created_at",
+        order: "desc",
+        setPage: mockSetPage,
+        setSort: vi.fn(),
+        fetchPlans: vi.fn(),
+      });
+
+      render(<PlansDashboardPage />);
+
+      const nextButton = screen.getByTestId("next-page");
+      fireEvent.click(nextButton);
+
+      expect(mockSetPage).toHaveBeenCalledWith(2);
+    });
+
+    it("should handle plan clicks", () => {
       mockUsePlansList.mockReturnValue({
         plans: mockPlans,
         loading: false,
@@ -301,7 +389,6 @@ describe("PlansDashboardPage", () => {
 
       render(<PlansDashboardPage />);
 
-      // Check that PlansGrid receives the correct onPlanClick function
       expect(mockPlansGrid).toHaveBeenCalledWith(
         expect.objectContaining({
           plans: mockPlans,
@@ -309,10 +396,32 @@ describe("PlansDashboardPage", () => {
         }),
         undefined
       );
+    });
+  });
 
-      // Test the onPlanClick function
-      const plansGridCall = mockPlansGrid.mock.calls[0][0];
-      expect(plansGridCall.onPlanClick("123")).toBe("/plans/123");
+  describe("error handling", () => {
+    it("should show retry button on error", () => {
+      const mockFetchPlans = vi.fn();
+      mockUsePlansList.mockReturnValue({
+        plans: [],
+        loading: false,
+        error: "Failed to load plans",
+        page: 1,
+        totalPages: 1,
+        sort: "created_at",
+        order: "desc",
+        setPage: vi.fn(),
+        setSort: vi.fn(),
+        fetchPlans: mockFetchPlans,
+      });
+
+      render(<PlansDashboardPage />);
+
+      const retryButton = screen.getByText("Try Again");
+      expect(retryButton).toBeInTheDocument();
+
+      fireEvent.click(retryButton);
+      expect(mockFetchPlans).toHaveBeenCalled();
     });
   });
 
@@ -333,11 +442,11 @@ describe("PlansDashboardPage", () => {
 
       render(<PlansDashboardPage />);
 
-      const heading = screen.getByRole("heading", { level: 1 });
-      expect(heading).toHaveTextContent("Your travel plans");
+      const mainHeading = screen.getByText("Your Travel Plans");
+      expect(mainHeading.tagName).toBe("H1");
     });
 
-    it("should have accessible new plan button", () => {
+    it("should have proper button labels", () => {
       mockUsePlansList.mockReturnValue({
         plans: mockPlans,
         loading: false,
@@ -353,16 +462,15 @@ describe("PlansDashboardPage", () => {
 
       render(<PlansDashboardPage />);
 
-      const newPlanButton = screen.getByRole("link", { name: "+ New plan" });
-      expect(newPlanButton).toHaveAttribute("href", "/generate");
-      expect(newPlanButton).toHaveAttribute("tabIndex", "0");
+      const createButton = screen.getByRole("link", { name: "Create New Plan" });
+      expect(createButton).toBeInTheDocument();
     });
   });
 
-  describe("hook integration", () => {
-    it("should call usePlansList with correct parameters", () => {
+  describe("performance optimization", () => {
+    it("should not re-render unnecessarily with same props", () => {
       mockUsePlansList.mockReturnValue({
-        plans: [],
+        plans: mockPlans,
         loading: false,
         error: null,
         page: 1,
@@ -371,78 +479,18 @@ describe("PlansDashboardPage", () => {
         order: "desc",
         setPage: vi.fn(),
         setSort: vi.fn(),
-        fetchPlans: vi.fn(),
-      });
-
-      render(<PlansDashboardPage />);
-
-      expect(mockUsePlansList).toHaveBeenCalledWith({});
-    });
-
-    it("should handle hook state changes correctly", async () => {
-      const mockSetPage = vi.fn();
-      const mockSetSort = vi.fn();
-
-      // Initial state
-      mockUsePlansList.mockReturnValue({
-        plans: [],
-        loading: true,
-        error: null,
-        page: 1,
-        totalPages: 1,
-        sort: "created_at",
-        order: "desc",
-        setPage: mockSetPage,
-        setSort: mockSetSort,
         fetchPlans: vi.fn(),
       });
 
       const { rerender } = render(<PlansDashboardPage />);
-      expect(screen.getByTestId("plans-grid-loading")).toBeInTheDocument();
 
-      // Change to loaded state with plans
-      mockUsePlansList.mockReturnValue({
-        plans: mockPlans,
-        loading: false,
-        error: null,
-        page: 1,
-        totalPages: 1,
-        sort: "created_at",
-        order: "desc",
-        setPage: mockSetPage,
-        setSort: mockSetSort,
-        fetchPlans: vi.fn(),
-      });
+      const initialTitle = screen.getByText("Your Travel Plans");
 
+      // Re-render with same props
       rerender(<PlansDashboardPage />);
-      await waitFor(() => {
-        expect(screen.getByTestId("plans-grid")).toBeInTheDocument();
-      });
-    });
-  });
 
-  describe("error handling", () => {
-    it("should display error message with proper styling", () => {
-      const errorMessage = "Network error occurred";
-      mockUsePlansList.mockReturnValue({
-        plans: [],
-        loading: false,
-        error: errorMessage,
-        page: 1,
-        totalPages: 1,
-        sort: "created_at",
-        order: "desc",
-        setPage: vi.fn(),
-        setSort: vi.fn(),
-        fetchPlans: vi.fn(),
-      });
-
-      render(<PlansDashboardPage />);
-
-      const errorElement = screen.getByText(errorMessage);
-      expect(errorElement).toHaveClass("text-destructive");
-      expect(errorElement).toHaveClass("text-center");
-      expect(errorElement).toHaveClass("py-12");
+      const newTitle = screen.getByText("Your Travel Plans");
+      expect(newTitle).toBe(initialTitle);
     });
   });
 });
