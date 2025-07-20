@@ -4,7 +4,11 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert } from "../ui/alert";
 
-const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  "client:load"?: boolean;
+}
+
+const LoginForm: React.FC<LoginFormProps> = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string; api?: string }>({});

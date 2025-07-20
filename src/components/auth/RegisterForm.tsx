@@ -4,7 +4,11 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert } from "../ui/alert";
 
-const RegisterForm: React.FC = () => {
+interface RegisterFormProps {
+  "client:load"?: boolean;
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
