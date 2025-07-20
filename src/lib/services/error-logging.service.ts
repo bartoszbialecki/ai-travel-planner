@@ -1,5 +1,6 @@
 import { supabaseClient } from "../../db/supabase.client";
 import { logger } from "@/lib/services/logger";
+import type { Json } from "../../db/database.types";
 
 export async function logGenerationError(job_id: string, error_message: string, details?: Record<string, unknown>) {
   // First, get plan_id from plans table using job_id
@@ -19,7 +20,7 @@ export async function logGenerationError(job_id: string, error_message: string, 
     {
       plan_id: planData.id,
       error_message,
-      error_details: details,
+      error_details: details as Json,
       created_at: new Date().toISOString(),
     },
   ]);

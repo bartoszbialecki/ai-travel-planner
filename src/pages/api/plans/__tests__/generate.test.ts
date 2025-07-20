@@ -19,6 +19,13 @@ vi.mock("../../../../lib/services/job-queue.service", () => ({
   JobQueueService: {
     getInstance: vi.fn(() => ({
       addJob: vi.fn(),
+      jobs: new Map(),
+      aiService: {},
+      isProcessing: false,
+      getJobStatus: vi.fn(),
+      processJobs: vi.fn(),
+      processJob: vi.fn(),
+      saveActivitiesToDatabase: vi.fn(),
     })),
   },
 }));
@@ -44,6 +51,19 @@ const createMockContext = (overrides: any = {}) => ({
   params: {},
   ...overrides,
 });
+
+// Create complete JobQueueService mock helper
+const createJobQueueServiceMock = (addJobMock: ReturnType<typeof vi.fn>) =>
+  ({
+    addJob: addJobMock,
+    jobs: new Map(),
+    aiService: {},
+    isProcessing: false,
+    getJobStatus: vi.fn(),
+    processJobs: vi.fn(),
+    processJob: vi.fn(),
+    saveActivitiesToDatabase: vi.fn(),
+  }) as unknown as JobQueueService;
 
 describe("POST /api/plans/generate", () => {
   const mockCreatePlanInDb = vi.mocked(createPlanInDb);
@@ -302,9 +322,7 @@ describe("POST /api/plans/generate", () => {
         estimated_completion: mockEstimatedCompletion,
       });
 
-      mockJobQueueService.mockReturnValue({
-        addJob: mockAddJob,
-      });
+      mockJobQueueService.mockReturnValue(createJobQueueServiceMock(mockAddJob));
 
       const context = createMockContext({
         request: {
@@ -350,9 +368,7 @@ describe("POST /api/plans/generate", () => {
         estimated_completion: mockEstimatedCompletion,
       });
 
-      mockJobQueueService.mockReturnValue({
-        addJob: mockAddJob,
-      });
+      mockJobQueueService.mockReturnValue(createJobQueueServiceMock(mockAddJob));
 
       const context = createMockContext({
         request: {
@@ -429,9 +445,7 @@ describe("POST /api/plans/generate", () => {
         estimated_completion: mockEstimatedCompletion,
       });
 
-      mockJobQueueService.mockReturnValue({
-        addJob: mockAddJob,
-      });
+      mockJobQueueService.mockReturnValue(createJobQueueServiceMock(mockAddJob));
 
       const context = createMockContext({
         request: {
@@ -502,9 +516,7 @@ describe("POST /api/plans/generate", () => {
         estimated_completion: mockEstimatedCompletion,
       });
 
-      mockJobQueueService.mockReturnValue({
-        addJob: mockAddJob,
-      });
+      mockJobQueueService.mockReturnValue(createJobQueueServiceMock(mockAddJob));
 
       const context = createMockContext({
         request: {
@@ -541,9 +553,7 @@ describe("POST /api/plans/generate", () => {
         estimated_completion: mockEstimatedCompletion,
       });
 
-      mockJobQueueService.mockReturnValue({
-        addJob: mockAddJob,
-      });
+      mockJobQueueService.mockReturnValue(createJobQueueServiceMock(mockAddJob));
 
       const context = createMockContext({
         request: {
