@@ -16,6 +16,63 @@ interface UsePlanDetailsResult {
   onActivityReject: (activityId: string) => Promise<void>;
 }
 
+// Helper function to handle API responses consistently
+async function handleApiResponse<T>(response: Response, defaultErrorMessage: string): Promise<T> {
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data?.error?.message || defaultErrorMessage);
+  }
+  return response.json();
+}
+
+// Helper function to create optimistic updates for activities
+function createOptimisticActivityUpdate(
+  plan: PlanDetailResponse,
+  activityId: string,
+  updates: Record<string, unknown>
+): PlanDetailResponse {
+  const updatedActivities = { ...plan.activities };
+  for (const day in updatedActivities) {
+    updatedActivities[day] = updatedActivities[day].map((activity) =>
+      activity.id === activityId ? { ...activity, ...updates } : activity
+    );
+  }
+  return { ...plan, activities: updatedActivities };
+}
+
+// Helper function to perform optimistic updates with rollback
+async function performOptimisticUpdate<T>(
+  currentPlan: PlanDetailResponse,
+  activityId: string,
+  updates: Record<string, unknown>,
+  apiCall: () => Promise<T>,
+  setPlan: (plan: PlanDetailResponse) => void,
+  setError: (error: string | null) => void,
+  defaultErrorMessage: string
+): Promise<T> {
+  if (!currentPlan) throw new Error("Plan not available");
+
+  setError(null);
+
+  // Store previous state for rollback
+  const previousPlan = JSON.parse(JSON.stringify(currentPlan));
+
+  // Apply optimistic update
+  const optimisticPlan = createOptimisticActivityUpdate(currentPlan, activityId, updates);
+  setPlan(optimisticPlan);
+
+  try {
+    const result = await apiCall();
+    return result;
+  } catch (err) {
+    // Rollback on error
+    setPlan(previousPlan);
+    const errorMessage = err instanceof Error ? err.message : defaultErrorMessage;
+    setError(errorMessage);
+    throw err;
+  }
+}
+
 export function usePlanDetails(planId: string): UsePlanDetailsResult {
   const [plan, setPlan] = useState<PlanDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,14 +84,9 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
     let isMounted = true;
     setLoading(true);
     setError(null);
+
     fetch(`/api/plans/${planId}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data?.error?.message || "Failed to fetch plan");
-        }
-        return res.json();
-      })
+      .then((res) => handleApiResponse<PlanDetailResponse>(res, "Failed to fetch plan"))
       .then((data: PlanDetailResponse) => {
         if (isMounted) {
           setPlan(data);
@@ -51,6 +103,7 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
       .finally(() => {
         if (isMounted) setLoading(false);
       });
+
     return () => {
       isMounted = false;
     };
@@ -60,20 +113,13 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
   const onDelete = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const res = await fetch(`/api/plans/${planId}`, { method: "DELETE" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error?.message || "Failed to delete plan");
-      }
-      // Redirect or clear plan after deletion
+      await handleApiResponse(await fetch(`/api/plans/${planId}`, { method: "DELETE" }), "Failed to delete plan");
       setPlan(null);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Failed to delete plan");
-      } else {
-        setError("Failed to delete plan");
-      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete plan";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -86,32 +132,23 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
       data: { custom_desc?: string | null; opening_hours?: string | null; cost?: number | null }
     ) => {
       if (!plan) return;
-      setError(null);
-      // Optimistic update
-      const prevPlan = JSON.parse(JSON.stringify(plan));
-      const updatedActivities = { ...plan.activities };
-      for (const day in updatedActivities) {
-        updatedActivities[day] = updatedActivities[day].map((a) => (a.id === activityId ? { ...a, ...data } : a));
-      }
-      setPlan({ ...plan, activities: updatedActivities });
-      try {
-        const res = await fetch(`/api/plans/${planId}/activities/${activityId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        if (!res.ok) {
-          const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Failed to edit activity");
-        }
-      } catch (err: unknown) {
-        setPlan(prevPlan);
-        if (err instanceof Error) {
-          setError(err.message || "Failed to edit activity");
-        } else {
-          setError("Failed to edit activity");
-        }
-      }
+
+      await performOptimisticUpdate(
+        plan,
+        activityId,
+        data,
+        async () => {
+          const res = await fetch(`/api/plans/${planId}/activities/${activityId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          return handleApiResponse(res, "Failed to edit activity");
+        },
+        setPlan,
+        setError,
+        "Failed to edit activity"
+      );
     },
     [plan, planId]
   );
@@ -120,30 +157,21 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
   const onActivityAccept = useCallback(
     async (activityId: string) => {
       if (!plan) return;
-      setError(null);
-      // Optimistic update
-      const prevPlan = JSON.parse(JSON.stringify(plan));
-      const updatedActivities = { ...plan.activities };
-      for (const day in updatedActivities) {
-        updatedActivities[day] = updatedActivities[day].map((a) =>
-          a.id === activityId ? { ...a, accepted: true } : a
-        );
-      }
-      setPlan({ ...plan, activities: updatedActivities });
-      try {
-        const res = await fetch(`/api/plans/${planId}/activities/${activityId}/accept`, { method: "PUT" });
-        if (!res.ok) {
-          const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Failed to accept activity");
-        }
-      } catch (err: unknown) {
-        setPlan(prevPlan);
-        if (err instanceof Error) {
-          setError(err.message || "Failed to accept activity");
-        } else {
-          setError("Failed to accept activity");
-        }
-      }
+
+      await performOptimisticUpdate(
+        plan,
+        activityId,
+        { accepted: true },
+        async () => {
+          const res = await fetch(`/api/plans/${planId}/activities/${activityId}/accept`, {
+            method: "PUT",
+          });
+          return handleApiResponse(res, "Failed to accept activity");
+        },
+        setPlan,
+        setError,
+        "Failed to accept activity"
+      );
     },
     [plan, planId]
   );
@@ -152,30 +180,21 @@ export function usePlanDetails(planId: string): UsePlanDetailsResult {
   const onActivityReject = useCallback(
     async (activityId: string) => {
       if (!plan) return;
-      setError(null);
-      // Optimistic update
-      const prevPlan = JSON.parse(JSON.stringify(plan));
-      const updatedActivities = { ...plan.activities };
-      for (const day in updatedActivities) {
-        updatedActivities[day] = updatedActivities[day].map((a) =>
-          a.id === activityId ? { ...a, accepted: false } : a
-        );
-      }
-      setPlan({ ...plan, activities: updatedActivities });
-      try {
-        const res = await fetch(`/api/plans/${planId}/activities/${activityId}/reject`, { method: "PUT" });
-        if (!res.ok) {
-          const resp = await res.json().catch(() => ({}));
-          throw new Error(resp?.error?.message || "Failed to reject activity");
-        }
-      } catch (err: unknown) {
-        setPlan(prevPlan);
-        if (err instanceof Error) {
-          setError(err.message || "Failed to reject activity");
-        } else {
-          setError("Failed to reject activity");
-        }
-      }
+
+      await performOptimisticUpdate(
+        plan,
+        activityId,
+        { accepted: false },
+        async () => {
+          const res = await fetch(`/api/plans/${planId}/activities/${activityId}/reject`, {
+            method: "PUT",
+          });
+          return handleApiResponse(res, "Failed to reject activity");
+        },
+        setPlan,
+        setError,
+        "Failed to reject activity"
+      );
     },
     [plan, planId]
   );
