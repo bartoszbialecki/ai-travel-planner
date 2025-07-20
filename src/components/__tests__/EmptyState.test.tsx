@@ -4,60 +4,31 @@ import EmptyState from "../EmptyState";
 
 describe("EmptyState", () => {
   describe("rendering", () => {
-    it("should render the empty state message", () => {
+    it("should render all main elements", () => {
       render(<EmptyState />);
 
+      // Main content
       expect(screen.getByText("No Travel Plans Yet")).toBeInTheDocument();
-    });
-
-    it("should render the description text", () => {
-      render(<EmptyState />);
-
       expect(screen.getByText(/Start your journey by creating your first AI-powered travel plan/)).toBeInTheDocument();
-    });
 
-    it("should render the icon container", () => {
-      render(<EmptyState />);
-
-      // Check for the icon container with gradient background
-      const iconContainer = screen.getByTestId("empty-state-icon");
-      expect(iconContainer).toBeInTheDocument();
-    });
-
-    it("should render the call-to-action button", () => {
-      render(<EmptyState />);
-
+      // Buttons
       expect(screen.getByText("Create Your First Plan")).toBeInTheDocument();
-    });
-
-    it("should render the learn more button", () => {
-      render(<EmptyState />);
-
       expect(screen.getByText("Learn More")).toBeInTheDocument();
+
+      // Icon
+      expect(screen.getByTestId("empty-state-icon")).toBeInTheDocument();
     });
   });
 
   describe("navigation", () => {
-    it("should have correct href for the primary CTA button", () => {
+    it("should have correct navigation links", () => {
       render(<EmptyState />);
 
-      const button = screen.getByText("Create Your First Plan");
-      expect(button).toHaveAttribute("href", "/generate");
-    });
+      const primaryButton = screen.getByRole("link", { name: "Create Your First Plan" });
+      const secondaryButton = screen.getByRole("link", { name: "Learn More" });
 
-    it("should have correct href for the learn more button", () => {
-      render(<EmptyState />);
-
-      const button = screen.getByText("Learn More");
-      expect(button).toHaveAttribute("href", "/generate");
-    });
-
-    it("should navigate to generate page when clicked", () => {
-      render(<EmptyState />);
-
-      const primaryButton = screen.getByText("Create Your First Plan");
-      expect(primaryButton.tagName).toBe("A");
       expect(primaryButton).toHaveAttribute("href", "/generate");
+      expect(secondaryButton).toHaveAttribute("href", "/generate");
     });
   });
 
@@ -80,89 +51,26 @@ describe("EmptyState", () => {
   });
 
   describe("accessibility", () => {
-    it("should have proper semantic structure", () => {
+    it("should have proper semantic structure and link roles", () => {
       render(<EmptyState />);
 
-      // Should have a heading-like element for the main message
-      const title = screen.getByText("No Travel Plans Yet");
-      expect(title).toBeInTheDocument();
-
-      // Should have descriptive text
-      const description = screen.getByText(/Start your journey by creating your first AI-powered travel plan/);
-      expect(description).toBeInTheDocument();
-
-      // Should have clickable links
-      const primaryLink = screen.getByRole("link", { name: "Create Your First Plan" });
-      const secondaryLink = screen.getByRole("link", { name: "Learn More" });
-      expect(primaryLink).toBeInTheDocument();
-      expect(secondaryLink).toBeInTheDocument();
-    });
-
-    it("should have proper link roles", () => {
-      render(<EmptyState />);
-
+      // Should have proper link roles
       const links = screen.getAllByRole("link");
       expect(links).toHaveLength(2);
       expect(links[0]).toHaveTextContent("Create Your First Plan");
       expect(links[1]).toHaveTextContent("Learn More");
-    });
-  });
-
-  describe("content verification", () => {
-    it("should have the correct main message", () => {
-      render(<EmptyState />);
-
-      expect(screen.getByText("No Travel Plans Yet")).toBeInTheDocument();
-    });
-
-    it("should have the correct description", () => {
-      render(<EmptyState />);
-
-      expect(screen.getByText(/Start your journey by creating your first AI-powered travel plan/)).toBeInTheDocument();
-    });
-
-    it("should have the correct primary button text", () => {
-      render(<EmptyState />);
-
-      expect(screen.getByText("Create Your First Plan")).toBeInTheDocument();
-    });
-
-    it("should have the correct secondary button text", () => {
-      render(<EmptyState />);
-
-      expect(screen.getByText("Learn More")).toBeInTheDocument();
-    });
-  });
-
-  describe("interaction behavior", () => {
-    it("should be clickable", () => {
-      render(<EmptyState />);
-
-      const links = screen.getAllByRole("link");
-      expect(links).toHaveLength(2);
-      links.forEach((link) => {
-        expect(link.tagName).toBe("A");
-      });
     });
 
     it("should be focusable", () => {
       render(<EmptyState />);
 
       const primaryLink = screen.getByRole("link", { name: "Create Your First Plan" });
-      // The link should be focusable
       primaryLink.focus();
       expect(document.activeElement).toBe(primaryLink);
     });
   });
 
   describe("edge cases", () => {
-    it("should render without any props", () => {
-      render(<EmptyState />);
-
-      expect(screen.getByText("No Travel Plans Yet")).toBeInTheDocument();
-      expect(screen.getByText("Create Your First Plan")).toBeInTheDocument();
-    });
-
     it("should handle rapid re-renders", () => {
       const { rerender } = render(<EmptyState />);
 

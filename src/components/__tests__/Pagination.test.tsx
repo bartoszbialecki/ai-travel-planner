@@ -2,28 +2,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Pagination from "../Pagination";
 
-// Mock the UI components
-vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    disabled,
-    variant,
-    className,
-    ...props
-  }: React.ComponentProps<"button"> & { variant?: string; className?: string }) => (
-    <button
-      data-testid="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`${variant} ${className || ""}`}
-      {...props}
-    >
-      {children}
-    </button>
-  ),
-}));
-
 describe("Pagination", () => {
   const mockOnPageChange = vi.fn();
 
@@ -79,27 +57,22 @@ describe("Pagination", () => {
     it("should disable Previous button on first page", () => {
       render(<Pagination page={1} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const previousButton = buttons.find((button) => button.textContent?.includes("Previous"));
-
+      const previousButton = screen.getByRole("button", { name: /previous/i });
       expect(previousButton).toBeDisabled();
     });
 
     it("should disable Next button on last page", () => {
       render(<Pagination page={3} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const nextButton = buttons.find((button) => button.textContent?.includes("Next"));
-
+      const nextButton = screen.getByRole("button", { name: /next/i });
       expect(nextButton).toBeDisabled();
     });
 
     it("should enable both buttons on middle page", () => {
       render(<Pagination page={2} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const previousButton = buttons.find((button) => button.textContent?.includes("Previous"));
-      const nextButton = buttons.find((button) => button.textContent?.includes("Next"));
+      const previousButton = screen.getByRole("button", { name: /previous/i });
+      const nextButton = screen.getByRole("button", { name: /next/i });
 
       expect(previousButton).not.toBeDisabled();
       expect(nextButton).not.toBeDisabled();
@@ -108,8 +81,7 @@ describe("Pagination", () => {
     it("should highlight current page", () => {
       render(<Pagination page={2} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const currentPageButton = buttons.find((button) => button.textContent === "2");
+      const currentPageButton = screen.getByRole("button", { name: "2" });
       expect(currentPageButton).toBeInTheDocument();
     });
   });
@@ -118,12 +90,8 @@ describe("Pagination", () => {
     it("should call onPageChange with previous page when Previous button is clicked", () => {
       render(<Pagination page={2} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const previousButton = buttons.find((button) => button.textContent?.includes("Previous"));
-
-      if (previousButton) {
-        fireEvent.click(previousButton);
-      }
+      const previousButton = screen.getByRole("button", { name: /previous/i });
+      fireEvent.click(previousButton);
 
       expect(mockOnPageChange).toHaveBeenCalledWith(1);
     });
@@ -131,12 +99,8 @@ describe("Pagination", () => {
     it("should call onPageChange with next page when Next button is clicked", () => {
       render(<Pagination page={2} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const nextButton = buttons.find((button) => button.textContent?.includes("Next"));
-
-      if (nextButton) {
-        fireEvent.click(nextButton);
-      }
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      fireEvent.click(nextButton);
 
       expect(mockOnPageChange).toHaveBeenCalledWith(3);
     });
@@ -144,12 +108,8 @@ describe("Pagination", () => {
     it("should call onPageChange when page number is clicked", () => {
       render(<Pagination page={2} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const pageButton = buttons.find((button) => button.textContent === "3");
-
-      if (pageButton) {
-        fireEvent.click(pageButton);
-      }
+      const pageButton = screen.getByRole("button", { name: "3" });
+      fireEvent.click(pageButton);
 
       expect(mockOnPageChange).toHaveBeenCalledWith(3);
     });
@@ -157,12 +117,8 @@ describe("Pagination", () => {
     it("should not call onPageChange when Previous button is disabled", () => {
       render(<Pagination page={1} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const previousButton = buttons.find((button) => button.textContent?.includes("Previous"));
-
-      if (previousButton) {
-        fireEvent.click(previousButton);
-      }
+      const previousButton = screen.getByRole("button", { name: /previous/i });
+      fireEvent.click(previousButton);
 
       expect(mockOnPageChange).not.toHaveBeenCalled();
     });
@@ -170,12 +126,8 @@ describe("Pagination", () => {
     it("should not call onPageChange when Next button is disabled", () => {
       render(<Pagination page={3} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const nextButton = buttons.find((button) => button.textContent?.includes("Next"));
-
-      if (nextButton) {
-        fireEvent.click(nextButton);
-      }
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      fireEvent.click(nextButton);
 
       expect(mockOnPageChange).not.toHaveBeenCalled();
     });
@@ -277,9 +229,8 @@ describe("Pagination", () => {
     it("should have proper disabled states", () => {
       render(<Pagination page={1} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const buttons = screen.getAllByTestId("button");
-      const previousButton = buttons.find((button) => button.textContent?.includes("Previous"));
-      const nextButton = buttons.find((button) => button.textContent?.includes("Next"));
+      const previousButton = screen.getByRole("button", { name: /previous/i });
+      const nextButton = screen.getByRole("button", { name: /next/i });
 
       expect(previousButton).toBeDisabled();
       expect(nextButton).not.toBeDisabled();
@@ -295,13 +246,13 @@ describe("Pagination", () => {
     it("should not re-render unnecessarily with same props", () => {
       const { rerender } = render(<Pagination page={1} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const initialButtons = screen.getAllByTestId("button");
+      const initialButtons = screen.getAllByRole("button");
       const initialCount = initialButtons.length;
 
       // Re-render with same props
       rerender(<Pagination page={1} totalPages={3} onPageChange={mockOnPageChange} />);
 
-      const newButtons = screen.getAllByTestId("button");
+      const newButtons = screen.getAllByRole("button");
       expect(newButtons).toHaveLength(initialCount);
     });
   });

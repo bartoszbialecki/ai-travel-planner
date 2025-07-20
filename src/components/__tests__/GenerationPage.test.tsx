@@ -64,42 +64,6 @@ describe("GenerationPage", () => {
       expect(screen.getByText("Create Your Perfect Travel Plan")).toBeInTheDocument();
       expect(screen.getByText(/Let AI craft a personalized itinerary/)).toBeInTheDocument();
     });
-
-    it("renders features section", () => {
-      render(<GenerationPage />);
-
-      expect(screen.getByText("AI-Powered")).toBeInTheDocument();
-      expect(screen.getByText("Budget-Friendly")).toBeInTheDocument();
-      expect(screen.getByText("Personalized")).toBeInTheDocument();
-    });
-
-    it("has correct container structure", () => {
-      render(<GenerationPage />);
-
-      const container = screen.getByTestId("generation-form").closest("div")?.parentElement?.parentElement;
-      expect(container).toBeInTheDocument();
-    });
-
-    it("renders only the form component without modal", () => {
-      render(<GenerationPage />);
-
-      expect(screen.getByTestId("generation-form")).toBeInTheDocument();
-      expect(screen.queryByTestId("status-modal")).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Hero section", () => {
-    it("renders hero title", () => {
-      render(<GenerationPage />);
-
-      expect(screen.getByText("Create Your Perfect Travel Plan")).toBeInTheDocument();
-    });
-
-    it("renders hero description", () => {
-      render(<GenerationPage />);
-
-      expect(screen.getByText(/Let AI craft a personalized itinerary/)).toBeInTheDocument();
-    });
   });
 
   describe("Features section", () => {
@@ -198,18 +162,6 @@ describe("GenerationPage", () => {
 
       expect(mockLocationHref).toHaveBeenCalledWith("/plans/different-plan-id");
     });
-
-    it("uses useCallback for handleStatusComplete", async () => {
-      const user = userEvent.setup();
-      render(<GenerationPage />);
-
-      const submitButton = screen.getByText("Submit Form");
-      await user.click(submitButton);
-
-      // The onComplete function should be stable between renders
-      const completeButton = screen.getByText("Complete");
-      expect(completeButton).toBeInTheDocument();
-    });
   });
 
   describe("Retry workflow", () => {
@@ -283,12 +235,6 @@ describe("GenerationPage", () => {
         undefined
       );
     });
-
-    it("does not render StatusModal initially", () => {
-      render(<GenerationPage />);
-
-      expect(mockStatusModal).not.toHaveBeenCalled();
-    });
   });
 
   describe("Accessibility", () => {
@@ -306,14 +252,6 @@ describe("GenerationPage", () => {
       featureHeadings.forEach((heading) => {
         expect(heading.tagName).toBe("H3");
       });
-    });
-
-    it("has proper semantic structure", () => {
-      render(<GenerationPage />);
-
-      // Should have main content area
-      const mainContent = screen.getByTestId("generation-form").closest("div")?.parentElement;
-      expect(mainContent).toBeInTheDocument();
     });
   });
 

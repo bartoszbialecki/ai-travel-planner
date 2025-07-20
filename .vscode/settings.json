@@ -10,7 +10,21 @@
   "vitest.include": ["**/*.{test,spec}.{js,ts,jsx,tsx}"],
   "vitest.exclude": ["**/node_modules/**", "**/dist/**", "**/cypress/**", "**/e2e/**"],
   "vitest.nodeEnv": null,
+  "vitest.environment": "jsdom",
+  "vitest.globals": true,
+  "vitest.setupFiles": ["./src/test/setup.ts"],
+  "vitest.configPath": "./vitest.config.ts",
+  "vitest.workspaceRoot": ".",
+  "vitest.reporters": ["verbose"],
   "testing.automaticallyOpenPeekView": "never",
   "testing.openTesting": "neverOpen",
-  "testing.automaticallyOpenTestResults": "neverOpen"
+  "testing.automaticallyOpenTestResults": "neverOpen",
+  "testing.gutterEnabled": true,
+  "testing.showInlineError": true,
+  "testing.followRunningTest": true,
+  "testing.autoRun.delay": 1000,
+  "testing.autoRun.mode": "test-failed",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }

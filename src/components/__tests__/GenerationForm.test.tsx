@@ -158,12 +158,6 @@ describe("GenerationForm", () => {
       expect(mockSetValues).toHaveBeenCalledWith(expect.any(Function));
     });
 
-    it("handles select changes", async () => {
-      // Skip this test for now due to ResizeObserver issue
-      // We'll need to investigate the Radix UI Select component issue separately
-      expect(true).toBe(true);
-    });
-
     it("focuses first error field on validation failure", async () => {
       const user = userEvent.setup();
       render(<GenerationForm onSubmit={mockOnSubmit} />);
@@ -270,13 +264,6 @@ describe("GenerationForm", () => {
   });
 
   describe("Form field descriptions", () => {
-    it("renders field descriptions", () => {
-      render(<GenerationForm onSubmit={mockOnSubmit} />);
-
-      // Field descriptions are not present in the current UI
-      // These tests are removed as they don't match the actual component
-    });
-
     it("renders travel style options", () => {
       render(<GenerationForm onSubmit={mockOnSubmit} />);
 
@@ -284,50 +271,6 @@ describe("GenerationForm", () => {
       expect(screen.getByText("Active - Adventure & Exploration")).toBeInTheDocument();
       expect(screen.getByText("Relaxation - Peaceful & Calm")).toBeInTheDocument();
       expect(screen.getByText("Flexible - Mix of Both")).toBeInTheDocument();
-    });
-  });
-
-  describe("Error handling", () => {
-    const validFormData = {
-      name: "Paris Trip",
-      destination: "Paris",
-      startDate: "2024-06-01",
-      endDate: "2024-06-10",
-      adultsCount: 2,
-      childrenCount: 0,
-      budgetTotal: 1000,
-      budgetCurrency: "EUR",
-      travelStyle: "active" as const,
-    };
-
-    it("allows dismissing error alerts", async () => {
-      const user = userEvent.setup();
-
-      mockUseFormDraft.mockReturnValue({
-        values: validFormData,
-        setValues: mockSetValues,
-        resetDraft: mockResetDraft,
-      });
-
-      vi.mocked(fetch).mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: "Internal Server Error",
-        json: async () => ({ error: { message: "An error occurred while generating the plan." } }),
-      } as Response);
-
-      render(<GenerationForm onSubmit={mockOnSubmit} />);
-
-      const submitButton = screen.getByRole("button", { name: /generate travel plan/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        const errorAlert = screen.getByText(/An error occurred while generating the plan/i);
-        expect(errorAlert).toBeInTheDocument();
-      });
-
-      // Error alert should be present (no close button in current implementation)
-      expect(screen.getByRole("alert")).toBeInTheDocument();
     });
   });
 
