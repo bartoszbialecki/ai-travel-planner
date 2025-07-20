@@ -2,8 +2,9 @@ import type { APIRoute } from "astro";
 import { planIdSchema, deletePlanCommandSchema } from "../../../lib/schemas/plan-management.schema";
 import { PlanManagementService } from "../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
-import type { DeletePlanResponse, ErrorResponse } from "../../../types";
-import { logger } from "../../../lib/services/logger";
+import type { DeletePlanResponse } from "../../../types";
+import { createApiHandler, createSuccessResponse, createErrorResponse } from "../../../lib/api-utils";
+import { HTTP_STATUS } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -27,113 +28,24 @@ export const prerender = false;
  * - 404 Not Found: Plan with the given ID does not exist
  * - 500 Internal Server Error: Server errors
  */
-export const GET: APIRoute = async (context) => {
-  const user = context.locals.user;
-  try {
-    const { id } = context.params;
-
-    // Validate plan ID format
-    const parseResult = planIdSchema.safeParse(id);
-    if (!parseResult.success) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            code: "INVALID_PLAN_ID",
-            message: "Invalid plan ID format",
-            details: parseResult.error.flatten(),
-          },
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const planId = parseResult.data;
-
-    // Use authenticated user id from locals
-    if (!user || !user.id) {
-      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    const user_id = user.id;
+export const GET: APIRoute = createApiHandler({
+  paramValidations: [{ name: "id", schema: planIdSchema }],
+  requireAuthentication: true,
+  endpoint: "GET /api/plans/[id]",
+  logError: (userId: string, message: string) => logGenerationErrorWithoutJobId(userId, message),
+  handler: async (context, params, _, user) => {
+    const { id: planId } = params as { id: string };
 
     // Retrieve plan details using the service
     const planManagementService = new PlanManagementService(context.locals.supabase);
     const result = await planManagementService.getPlanDetails({
       plan_id: planId,
-      user_id,
+      user_id: user.id,
     });
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    // Handle specific error cases with appropriate HTTP status codes
-    if (error instanceof Error) {
-      const errorMessage = error.message;
-
-      // Plan not found (404)
-      if (errorMessage === "Plan not found") {
-        return new Response(
-          JSON.stringify({
-            error: {
-              code: "PLAN_NOT_FOUND",
-              message: "Plan with the given ID does not exist",
-            },
-          }),
-          { status: 404, headers: { "Content-Type": "application/json" } }
-        );
-      }
-
-      // Validation errors (400)
-      if (errorMessage.includes("required") || errorMessage.includes("invalid")) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              code: "VALIDATION_ERROR",
-              message: errorMessage,
-            },
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-      }
-
-      // Database errors (500)
-      if (errorMessage.includes("Database error")) {
-        // Log database errors for debugging
-        await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans/[id] database error: ${errorMessage}`);
-
-        return new Response(
-          JSON.stringify({
-            error: {
-              code: "DATABASE_ERROR",
-              message: "Database error occurred",
-            },
-          }),
-          { status: 500, headers: { "Content-Type": "application/json" } }
-        );
-      }
-    }
-
-    // Log unexpected errors for debugging
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(user?.id || "", `GET /api/plans/[id] unexpected error: ${errorMessage}`);
-
-    logger.error("GET /api/plans/[id] error:", error);
-
-    return new Response(
-      JSON.stringify({
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "An internal server error occurred",
-        },
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
-};
+    return createSuccessResponse(result);
+  },
+});
 
 /**
  * DELETE /api/plans/{id}
@@ -162,157 +74,40 @@ export const GET: APIRoute = async (context) => {
  * - 404 Not Found: Plan with the given ID does not exist
  * - 500 Internal Server Error: Server errors
  */
-export const DELETE: APIRoute = async (context) => {
-  const user = context.locals.user;
-  try {
-    const { id } = context.params;
-
-    // Validate plan ID format
-    const parseResult = planIdSchema.safeParse(id);
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "INVALID_PLAN_ID",
-          message: "Invalid plan ID format",
-          details: parseResult.error.flatten(),
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const planId = parseResult.data;
-
-    // Use authenticated user id from locals
-    if (!user || !user.id) {
-      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    const user_id = user.id;
+export const DELETE: APIRoute = createApiHandler({
+  paramValidations: [{ name: "id", schema: planIdSchema }],
+  requireAuthentication: true,
+  endpoint: "DELETE /api/plans/[id]",
+  logError: (userId: string, message: string) => logGenerationErrorWithoutJobId(userId, message),
+  handler: async (context, params, _, user) => {
+    const { id: planId } = params as { id: string };
 
     // Validate the delete command structure
     const commandValidation = deletePlanCommandSchema.safeParse({
       plan_id: planId,
-      user_id,
+      user_id: user.id,
     });
 
     if (!commandValidation.success) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "INVALID_COMMAND",
-          message: "Invalid command parameters",
-          details: commandValidation.error.flatten(),
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return createErrorResponse(
+        "VALIDATION_ERROR",
+        "Invalid command parameters",
+        commandValidation.error.flatten(),
+        HTTP_STATUS.BAD_REQUEST
+      );
     }
 
     // Delete plan using the service
     const planManagementService = new PlanManagementService(context.locals.supabase);
     await planManagementService.deletePlan({
       plan_id: planId,
-      user_id,
+      user_id: user.id,
     });
 
     const response: DeletePlanResponse = {
       message: "Plan deleted successfully",
     };
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    // Handle specific error cases with appropriate HTTP status codes
-    if (error instanceof Error) {
-      const errorMessage = error.message;
-
-      // Plan not found (404)
-      if (errorMessage === "Plan not found") {
-        const errorResponse: ErrorResponse = {
-          error: {
-            code: "PLAN_NOT_FOUND",
-            message: "Plan with the given ID does not exist",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      // Validation errors (400)
-      if (errorMessage.includes("required") || errorMessage.includes("invalid")) {
-        const errorResponse: ErrorResponse = {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: errorMessage,
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      // Permission errors (403) - when plan exists but doesn't belong to user
-      if (
-        errorMessage.includes("permission") ||
-        errorMessage.includes("access") ||
-        errorMessage.includes("forbidden")
-      ) {
-        const errorResponse: ErrorResponse = {
-          error: {
-            code: "FORBIDDEN",
-            message: "You do not have permission to delete this plan",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      // Database errors (500)
-      if (errorMessage.includes("Database error")) {
-        // Log database errors for debugging
-        await logGenerationErrorWithoutJobId(user?.id || "", `DELETE /api/plans/[id] database error: ${errorMessage}`);
-
-        const errorResponse: ErrorResponse = {
-          error: {
-            code: "DATABASE_ERROR",
-            message: "Database error occurred",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-    }
-
-    // Log unexpected errors for debugging
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(user?.id || "", `DELETE /api/plans/[id] unexpected error: ${errorMessage}`);
-
-    logger.error("DELETE /api/plans/[id] error:", error);
-
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "An internal server error occurred",
-      },
-    };
-    return new Response(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-};
+    return createSuccessResponse(response);
+  },
+});

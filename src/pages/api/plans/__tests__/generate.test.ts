@@ -91,8 +91,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Invalid JSON in request body.");
+      expect(data.error.code).toBe("INVALID_JSON");
+      expect(data.error.message).toBe("Invalid JSON in request body");
     });
 
     it("should return 400 for missing required fields", async () => {
@@ -112,8 +112,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
       expect(data.error.details).toBeDefined();
     });
 
@@ -137,8 +137,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
     });
 
     it("should return 400 for invalid adults count", async () => {
@@ -161,8 +161,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
     });
 
     it("should return 400 for negative children count", async () => {
@@ -185,8 +185,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
     });
 
     it("should return 400 for invalid currency format", async () => {
@@ -211,8 +211,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
     });
 
     it("should return 400 for invalid travel style", async () => {
@@ -236,8 +236,8 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("bad_request");
-      expect(data.error.message).toBe("Validation failed.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid request body");
     });
   });
 
@@ -418,7 +418,7 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error.code).toBe("internal_error");
+      expect(data.error.code).toBe("INTERNAL_SERVER_ERROR");
       expect(data.error.message).toBe("Failed to create plan.");
 
       // Verify error logging
@@ -457,7 +457,7 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error.code).toBe("internal_error");
+      expect(data.error.code).toBe("INTERNAL_SERVER_ERROR");
       expect(data.error.message).toBe("Failed to create plan.");
 
       // Verify error logging
@@ -487,7 +487,7 @@ describe("POST /api/plans/generate", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error.code).toBe("internal_error");
+      expect(data.error.code).toBe("INTERNAL_SERVER_ERROR");
       expect(data.error.message).toBe("Failed to create plan.");
 
       // Verify error logging with unknown error message

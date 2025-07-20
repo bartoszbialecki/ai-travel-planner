@@ -32,7 +32,7 @@ const LoginForm: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setErrors((prev) => ({ ...prev, api: data.error || "Login failed. Please try again." }));
+        setErrors((prev) => ({ ...prev, api: data.error?.message || "Login failed. Please try again." }));
         setLoading(false);
         return;
       }

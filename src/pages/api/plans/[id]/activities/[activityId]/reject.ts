@@ -6,143 +6,75 @@ import {
 } from "../../../../../../lib/schemas/plan-management.schema";
 import { PlanManagementService } from "../../../../../../lib/services/plan-management.service";
 import { logGenerationErrorWithoutJobId } from "../../../../../../lib/services/error-logging.service";
-import type { ActivityRejectResponse, ErrorResponse } from "../../../../../../types";
+import {
+  createApiHandler,
+  createSuccessResponse,
+  createErrorResponse,
+  HTTP_STATUS,
+} from "../../../../../../lib/api-utils";
 
 export const prerender = false;
 
 /**
- * PUT endpoint to reject an activity in a travel plan
- * Sets the activity's accepted status to false
+ * PUT /api/plans/{id}/activities/{activityId}/reject
+ *
+ * Rejects an activity in a travel plan. Users can reject a specific activity,
+ * which means it is removed from the approved plan. The operation requires
+ * authorization and verifies user permissions to modify the plan.
+ *
+ * Path Parameters:
+ * - id (required) - UUID of the plan
+ * - activityId (required) - UUID of the activity to reject
+ *
+ * Headers:
+ * - Authorization: Bearer {token} - required JWT token
+ *
+ * Responses:
+ * - 200 OK: Activity successfully rejected
+ * - 400 Bad Request: Invalid UUID format or input data
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: User doesn't have access to the plan
+ * - 404 Not Found: Plan or activity doesn't exist
+ * - 500 Internal Server Error: Server or database error
  */
-export const PUT: APIRoute = async ({ params, locals }) => {
-  try {
-    // Stage 1: Request Validation
-    const { id: planId, activityId } = params;
-
-    // Validate plan ID format
-    const planIdParseResult = planIdSchema.safeParse(planId);
-    if (!planIdParseResult.success) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "INVALID_PLAN_ID",
-          message: "Invalid plan ID format",
-          details: planIdParseResult.error.flatten(),
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Validate activity ID format
-    const activityIdParseResult = activityIdSchema.safeParse(activityId);
-    if (!activityIdParseResult.success) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "INVALID_ACTIVITY_ID",
-          message: "Invalid activity ID format",
-          details: activityIdParseResult.error.flatten(),
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const planIdValid = planIdParseResult.data;
-    const activityIdValid = activityIdParseResult.data;
+export const PUT: APIRoute = createApiHandler({
+  paramValidations: [
+    { name: "id", schema: planIdSchema },
+    { name: "activityId", schema: activityIdSchema },
+  ],
+  requireAuthentication: true,
+  endpoint: "PUT /api/plans/[id]/activities/[activityId]/reject",
+  logError: (userId: string, message: string) => logGenerationErrorWithoutJobId(userId, message),
+  handler: async (context, params, _, user) => {
+    const { id: planId, activityId } = params as { id: string; activityId: string };
 
     // Validate the command structure
     const commandValidation = toggleActivityCommandSchema.safeParse({
-      plan_id: planIdValid,
-      activity_id: activityIdValid,
+      plan_id: planId,
+      activity_id: activityId,
       accepted: false,
     });
 
     if (!commandValidation.success) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "INVALID_COMMAND",
-          message: "Invalid command parameters",
-          details: commandValidation.error.flatten(),
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Stage 2: Business Logic Implementation
-    const planManagementService = new PlanManagementService(locals.supabase);
-
-    const userId = locals.user && locals.user.id ? locals.user.id : undefined;
-    if (!userId) {
-      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    const result = await planManagementService.rejectActivity(
-      {
-        plan_id: planIdValid,
-        activity_id: activityIdValid,
-        accepted: false,
-      },
-      userId
-    );
-
-    if (!result.success) {
-      // Log the error for monitoring
-      await logGenerationErrorWithoutJobId(userId, `Activity rejection failed: ${result.error}`);
-
-      return new Response(
-        JSON.stringify({
-          error: {
-            code: result.errorCode || "REJECTION_FAILED",
-            message: result.error,
-          },
-        }),
-        {
-          status: result.statusCode || 500,
-          headers: { "Content-Type": "application/json" },
-        }
+      return createErrorResponse(
+        "VALIDATION_ERROR",
+        "Invalid command parameters",
+        commandValidation.error.flatten(),
+        HTTP_STATUS.BAD_REQUEST
       );
     }
 
-    // Stage 3: Success Response
-    const response: ActivityRejectResponse = {
-      id: activityIdValid,
-      accepted: false,
-      message: "Activity rejected",
-    };
-
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    // Stage 4: Error Handling Implementation
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-
-    // Log unexpected errors
-    if (locals.supabase) {
-      await logGenerationErrorWithoutJobId("unknown", `An unexpected error occurred: ${errorMessage}`);
-    }
-
-    return new Response(
-      JSON.stringify({
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred while rejecting the activity",
-        },
-      }),
+    const planManagementService = new PlanManagementService(context.locals.supabase);
+    const result = await planManagementService.rejectActivity(
       {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+        plan_id: planId,
+        activity_id: activityId,
+        accepted: false,
+        user_id: user.id,
+      },
+      user.id
     );
-  }
-};
+
+    return createSuccessResponse(result);
+  },
+});

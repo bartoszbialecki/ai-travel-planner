@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
-import type { GeneratePlanRequest } from "../../../types";
 import { generatePlanRequestSchema } from "../../../lib/schemas/plan-generation.schema";
 import { createPlanInDb } from "../../../lib/services/plan-generation.service";
 import { logGenerationErrorWithoutJobId } from "../../../lib/services/error-logging.service";
 import { JobQueueService } from "../../../lib/services/job-queue.service";
+import { createApiHandler, createSuccessResponse, createErrorResponse, HTTP_STATUS } from "../../../lib/api-utils";
 import { logger } from "../../../lib/services/logger";
 
 export const prerender = false;
@@ -30,38 +30,27 @@ export const prerender = false;
  * - 400 Bad Request: Invalid input data
  * - 500 Internal Server Error: Server errors
  */
-export const POST: APIRoute = async (context) => {
-  const user = context.locals.user;
-  // Parse and validate input
-  let body: GeneratePlanRequest;
-  try {
-    body = await context.request.json();
-  } catch {
-    return new Response(JSON.stringify({ error: { code: "bad_request", message: "Invalid JSON in request body." } }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  const parseResult = generatePlanRequestSchema.safeParse(body);
-  if (!parseResult.success) {
-    return new Response(
-      JSON.stringify({
-        error: { code: "bad_request", message: "Validation failed.", details: parseResult.error.flatten() },
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+export const POST: APIRoute = createApiHandler({
+  bodySchema: generatePlanRequestSchema,
+  requireAuthentication: true,
+  endpoint: "POST /api/plans/generate",
+  logError: (userId: string, message: string) => logGenerationErrorWithoutJobId(userId, message),
+  customErrorHandler: async (error, _, user) => {
+    // Log error to generation_errors table
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    await logGenerationErrorWithoutJobId(user.id, errorMessage);
+    logger.error("Plan generation DB error", error);
 
-  // Create plan in database
-  try {
-    if (!user || !user.id) {
-      return new Response(JSON.stringify({ error: { code: "UNAUTHORIZED", message: "User not authenticated" } }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    return createErrorResponse(
+      "INTERNAL_SERVER_ERROR",
+      "Failed to create plan.",
+      undefined,
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+  },
+  handler: async (context, _, body, user) => {
     const { job_id, estimated_completion } = await createPlanInDb(context.locals.supabase, {
-      ...parseResult.data,
+      ...body,
       user_id: user.id,
     });
 
@@ -69,18 +58,6 @@ export const POST: APIRoute = async (context) => {
     const jobQueue = JobQueueService.getInstance();
     await jobQueue.addJob(job_id);
 
-    return new Response(JSON.stringify({ job_id, status: "processing", estimated_completion }), {
-      status: 202,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    // Log error to generation_errors table
-    const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
-    await logGenerationErrorWithoutJobId(user?.id || "", errorMessage);
-    logger.error("Plan generation DB error", err);
-    return new Response(JSON.stringify({ error: { code: "internal_error", message: "Failed to create plan." } }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-};
+    return createSuccessResponse({ job_id, status: "processing", estimated_completion }, HTTP_STATUS.ACCEPTED);
+  },
+});

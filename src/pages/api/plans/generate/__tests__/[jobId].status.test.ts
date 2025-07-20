@@ -1,16 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GET } from "../[jobId]/status";
 import { getPlanGenerationStatus } from "../../../../../lib/services/plan-generation.service";
-import { createSupabaseServiceRoleClient } from "../../../../../db/supabase.client";
+
 import type { GenerationStatusResponse, ErrorResponse } from "../../../../../types";
 
 // Mock dependencies
 vi.mock("../../../../../lib/services/plan-generation.service", () => ({
   getPlanGenerationStatus: vi.fn(),
-}));
-
-vi.mock("../../../../../db/supabase.client", () => ({
-  createSupabaseServiceRoleClient: vi.fn(),
 }));
 
 // Create mock context helper
@@ -31,12 +27,9 @@ const createMockContext = (jobId: string, overrides: any = {}) => ({
 
 describe("GET /api/plans/generate/{jobId}/status", () => {
   const mockGetPlanGenerationStatus = vi.mocked(getPlanGenerationStatus);
-  const mockCreateSupabaseClient = vi.mocked(createSupabaseServiceRoleClient);
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockCreateSupabaseClient.mockReturnValue({ mockSupabaseClient: true } as any);
   });
 
   afterEach(() => {
@@ -51,11 +44,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const data: ErrorResponse = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("INVALID_JOB_ID");
-      expect(data.error.message).toBe("Invalid job ID format. Must be a valid UUID.");
-      expect(data.error.details.field).toBe("jobId");
-      expect(data.error.details.issue).toBe("Invalid UUID format");
-      expect(data.error.details.provided).toBe("invalid-uuid");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid jobId format");
     });
 
     it("should return 400 for empty jobId", async () => {
@@ -65,8 +55,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const data: ErrorResponse = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("INVALID_JOB_ID");
-      expect(data.error.message).toBe("Invalid job ID format. Must be a valid UUID.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Missing required parameter: jobId");
     });
 
     it("should return 400 for undefined jobId", async () => {
@@ -76,8 +66,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const data: ErrorResponse = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("INVALID_JOB_ID");
-      expect(data.error.message).toBe("Invalid job ID format. Must be a valid UUID.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Missing required parameter: jobId");
     });
 
     it("should return 400 for malformed UUID", async () => {
@@ -87,8 +77,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const data: ErrorResponse = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error.code).toBe("INVALID_JOB_ID");
-      expect(data.error.message).toBe("Invalid job ID format. Must be a valid UUID.");
+      expect(data.error.code).toBe("VALIDATION_ERROR");
+      expect(data.error.message).toBe("Invalid jobId format");
     });
 
     it("should accept valid UUID v4", async () => {
@@ -99,6 +89,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
         job_id: validUUID,
         status: "processing",
         progress: 50,
+        plan_id: undefined,
+        error_message: undefined,
       });
 
       const response = await GET(context);
@@ -115,6 +107,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
         job_id: validUUID,
         status: "processing",
         progress: 50,
+        plan_id: undefined,
+        error_message: undefined,
       });
 
       const response = await GET(context);
@@ -135,12 +129,10 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       });
 
       const response = await GET(context);
-      const data: ErrorResponse = await response.json();
+      const data = await response.json();
 
       expect(response.status).toBe(404);
-      expect(data.error.code).toBe("PLAN_NOT_FOUND");
-      expect(data.error.message).toBe("Plan with specified job ID not found.");
-      expect(data.error.details.job_id).toBe(validUUID);
+      expect(data).toBeNull();
     });
 
     it("should return processing status", async () => {
@@ -293,25 +285,25 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const response = await GET(context);
       const data: ErrorResponse = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error.code).toBe("INTERNAL_ERROR");
-      expect(data.error.message).toBe("Internal server error occurred while processing request.");
-      expect(data.error.details.job_id).toBe(validUUID);
+      expect(response.status).toBe(503);
+      expect(data.error.code).toBe("NETWORK_ERROR");
+      expect(data.error.message).toBe("Network error occurred");
     });
 
-    it("should handle service client creation errors", async () => {
-      const context = createMockContext(validUUID);
-
-      mockCreateSupabaseClient.mockImplementation(() => {
-        throw new Error("Failed to create Supabase client");
+    it("should handle authentication errors", async () => {
+      const context = createMockContext(validUUID, {
+        locals: {
+          user: null, // No authenticated user
+          supabase: { mockSupabaseClient: true },
+        },
       });
 
       const response = await GET(context);
       const data: ErrorResponse = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.error.code).toBe("INTERNAL_ERROR");
-      expect(data.error.message).toBe("Internal server error occurred while processing request.");
+      expect(response.status).toBe(401);
+      expect(data.error.code).toBe("UNAUTHORIZED");
+      expect(data.error.message).toBe("User not authenticated");
     });
 
     it("should handle unexpected errors", async () => {
@@ -324,8 +316,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       const data: ErrorResponse = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data.error.code).toBe("INTERNAL_ERROR");
-      expect(data.error.message).toBe("Internal server error occurred while processing request.");
+      expect(data.error.code).toBe("INTERNAL_SERVER_ERROR");
+      expect(data.error.message).toBe("An unexpected error occurred");
     });
   });
 
@@ -338,6 +330,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
         job_id: mixedCaseUUID,
         status: "processing",
         progress: 50,
+        plan_id: undefined,
+        error_message: undefined,
       });
 
       const response = await GET(context);
@@ -354,10 +348,10 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       mockGetPlanGenerationStatus.mockResolvedValue(null as any);
 
       const response = await GET(context);
-      const data: ErrorResponse = await response.json();
+      const data = await response.json();
 
       expect(response.status).toBe(404);
-      expect(data.error.code).toBe("PLAN_NOT_FOUND");
+      expect(data).toBeNull();
     });
 
     it("should handle service returning undefined", async () => {
@@ -368,10 +362,10 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
       mockGetPlanGenerationStatus.mockResolvedValue(undefined as any);
 
       const response = await GET(context);
-      const data: ErrorResponse = await response.json();
+      const data = await response.json();
 
       expect(response.status).toBe(404);
-      expect(data.error.code).toBe("PLAN_NOT_FOUND");
+      expect(data).toBeNull();
     });
   });
 
@@ -385,6 +379,8 @@ describe("GET /api/plans/generate/{jobId}/status", () => {
         job_id: validUUID,
         status: "processing",
         progress: 50,
+        plan_id: undefined,
+        error_message: undefined,
       });
 
       const response = await GET(context);

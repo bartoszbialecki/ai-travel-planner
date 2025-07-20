@@ -1,9 +1,19 @@
 import type { APIRoute } from "astro";
-import type { GenerationStatusResponse, ErrorResponse } from "../../../../../types";
+import { z } from "zod";
+import type { GenerationStatusResponse } from "../../../../../types";
 import { getPlanGenerationStatus } from "../../../../../lib/services/plan-generation.service";
-import { createSupabaseServiceRoleClient } from "../../../../../db/supabase.client";
+
+import { createApiHandler, createSuccessResponse } from "../../../../../lib/api-utils";
 
 export const prerender = false;
+
+// UUID validation schema
+const jobIdSchema = z
+  .string()
+  .regex(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    "Invalid job ID format. Must be a valid UUID."
+  );
 
 /**
  * GET /api/plans/generate/{jobId}/status
@@ -16,6 +26,7 @@ export const prerender = false;
  * - jobId: string (UUID) - Generation job identifier from plan creation
  *
  * Request Headers:
+ * - Authorization: Bearer {token} - required JWT token
  * - Content-Type: application/json (optional, no body required)
  *
  * Response Examples:
@@ -31,7 +42,7 @@ export const prerender = false;
  *
  * Success - Completed:
  * {
- *   "job_id": "123e4567-e89b-12d3-a456-426614174000",
+ *   "job_id": "123e4567-e89b-12d3-a456-426614174001",
  *   "status": "completed",
  *   "progress": 100,
  *   "plan_id": "456e7890-e89b-12d3-a456-426614174001",
@@ -49,6 +60,8 @@ export const prerender = false;
  *
  * Error Responses:
  * - 400 Bad Request: Invalid jobId format (not a valid UUID)
+ * - 401 Unauthorized: Missing or invalid authorization token
+ * - 403 Forbidden: Plan with specified jobId doesn't belong to the authenticated user
  * - 404 Not Found: Plan with specified jobId doesn't exist
  * - 500 Internal Server Error: Database or server errors
  *
@@ -57,77 +70,23 @@ export const prerender = false;
  * - Stop polling when status is "completed" or "failed"
  * - Use plan_id from completed response to fetch plan details
  */
-export const GET: APIRoute = async (context) => {
-  const { jobId } = context.params;
+export const GET: APIRoute = createApiHandler({
+  paramValidations: [{ name: "jobId", schema: jobIdSchema }],
+  requireAuthentication: true,
+  endpoint: "GET /api/plans/generate/[jobId]/status",
+  handler: async (context, params) => {
+    const { jobId } = params as { jobId: string };
 
-  // Step 1: Request Validation
-  // Validate UUID format of jobId using RFC 4122 pattern
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!jobId || !uuidRegex.test(jobId)) {
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: "INVALID_JOB_ID",
-        message: "Invalid job ID format. Must be a valid UUID.",
-        details: {
-          field: "jobId",
-          issue: "Invalid UUID format",
-          provided: jobId,
-        },
-      },
-    };
-    return new Response(JSON.stringify(errorResponse), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  try {
-    // Step 2: Business Logic via service
-    // Retrieve plan generation status from database
-    const supabase = createSupabaseServiceRoleClient();
+    // Retrieve plan generation status from database using user's context
+    const supabase = context.locals.supabase;
     const status = await getPlanGenerationStatus(supabase, jobId);
 
     // Handle case when plan is not found
     if (!status || status.notFound) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: "PLAN_NOT_FOUND",
-          message: "Plan with specified job ID not found.",
-          details: {
-            job_id: jobId,
-          },
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return createSuccessResponse(null, 404);
     }
 
-    // Step 3: Response
     // Return successful response with generation status
-    return new Response(JSON.stringify(status as GenerationStatusResponse), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch {
-    // Step 4: Error Handling
-    // Log error (optional, if you want to log here)
-    // await logGenerationError(jobId, errorMessage, { endpoint: "GET /api/plans/generate/[jobId]/status" });
-
-    // Return generic error response for unexpected errors
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "Internal server error occurred while processing request.",
-        details: {
-          job_id: jobId,
-        },
-      },
-    };
-    return new Response(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-};
+    return createSuccessResponse(status as GenerationStatusResponse);
+  },
+});
