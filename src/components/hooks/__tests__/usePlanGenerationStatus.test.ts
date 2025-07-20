@@ -49,39 +49,42 @@ describe("usePlanGenerationStatus", () => {
     it("should not fetch when jobId is null", async () => {
       const { unmount } = renderHook(() => usePlanGenerationStatus(null));
 
-      expect(fetch).not.toHaveBeenCalled();
-
-      // Wait for any potential async operations
+      // Wait for any potential async operations and advance time
       await act(async () => {
+        await vi.runOnlyPendingTimersAsync();
+        vi.advanceTimersByTime(5000); // Wait 5 seconds
         await vi.runOnlyPendingTimersAsync();
       });
 
+      expect(fetch).not.toHaveBeenCalled();
       unmount();
     });
 
     it("should not fetch when jobId is undefined", async () => {
       const { unmount } = renderHook(() => usePlanGenerationStatus(undefined));
 
-      expect(fetch).not.toHaveBeenCalled();
-
-      // Wait for any potential async operations
+      // Wait for any potential async operations and advance time
       await act(async () => {
+        await vi.runOnlyPendingTimersAsync();
+        vi.advanceTimersByTime(5000); // Wait 5 seconds
         await vi.runOnlyPendingTimersAsync();
       });
 
+      expect(fetch).not.toHaveBeenCalled();
       unmount();
     });
 
     it("should not fetch when jobId is empty string", async () => {
       const { unmount } = renderHook(() => usePlanGenerationStatus(""));
 
-      expect(fetch).not.toHaveBeenCalled();
-
-      // Wait for any potential async operations
+      // Wait for any potential async operations and advance time
       await act(async () => {
+        await vi.runOnlyPendingTimersAsync();
+        vi.advanceTimersByTime(5000); // Wait 5 seconds
         await vi.runOnlyPendingTimersAsync();
       });
 
+      expect(fetch).not.toHaveBeenCalled();
       unmount();
     });
   });
@@ -184,6 +187,8 @@ describe("usePlanGenerationStatus", () => {
         vi.advanceTimersByTime(5000);
         await vi.runOnlyPendingTimersAsync();
       });
+
+      // Verify no additional calls were made after unmount
       expect(fetch).toHaveBeenCalledTimes(initialCallCount);
     });
 
@@ -825,7 +830,7 @@ describe("usePlanGenerationStatus", () => {
         rerender({ jobId: null });
       });
 
-      // Should stop polling
+      // Should stop polling - verify no additional calls are made
       await act(async () => {
         vi.advanceTimersByTime(5000);
         await vi.runOnlyPendingTimersAsync();

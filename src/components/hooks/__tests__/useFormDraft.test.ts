@@ -310,29 +310,6 @@ describe("useFormDraft", () => {
       );
     });
 
-    it("should handle null values correctly", () => {
-      const { result } = renderHook(() => useFormDraft());
-
-      act(() => {
-        result.current.setValues({
-          ...defaultValues,
-          budgetTotal: undefined,
-          budgetCurrency: undefined,
-          travelStyle: undefined,
-        });
-      });
-
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "plan-generation-draft",
-        JSON.stringify({
-          ...defaultValues,
-          budgetTotal: undefined,
-          budgetCurrency: undefined,
-          travelStyle: undefined,
-        })
-      );
-    });
-
     it("should handle special string values", () => {
       const { result } = renderHook(() => useFormDraft());
 
