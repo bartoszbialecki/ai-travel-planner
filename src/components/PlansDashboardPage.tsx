@@ -5,6 +5,7 @@ import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
 import SortSelect from "@/components/SortSelect";
 import { Button } from "@/components/ui/button";
+import { StatsCard } from "@/components/StatsCard";
 
 /**
  * PlansDashboardPage
@@ -28,6 +29,11 @@ const PlansDashboardPage: React.FC = () => {
     fetchPlans();
   };
 
+  // Calculate plan statistics
+  const now = new Date();
+  const activePlans = plans.filter((plan) => new Date(plan.end_date) >= now);
+  const completedPlans = plans.filter((plan) => new Date(plan.end_date) < now);
+
   return (
     <div className="min-h-screen gradient-bg">
       <div className="container mx-auto py-12 px-6">
@@ -50,78 +56,51 @@ const PlansDashboardPage: React.FC = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white rounded-lg p-4 shadow-soft border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-600">Total Plans</p>
-                  <p className="text-xl font-bold text-gray-900">{plans.length}</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg p-4 shadow-soft border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-600">Active Plans</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {
-                      plans.filter((plan) => {
-                        const endDate = new Date(plan.end_date);
-                        const now = new Date();
-                        return endDate >= now;
-                      }).length
-                    }
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg p-4 shadow-soft border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-600">Completed Plans</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {
-                      plans.filter((plan) => {
-                        const endDate = new Date(plan.end_date);
-                        const now = new Date();
-                        return endDate < now;
-                      }).length
-                    }
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            <StatsCard
+              title="Total Plans"
+              value={plans.length}
+              icon={
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              }
+              bgColor="bg-blue-50"
+            />
+            <StatsCard
+              title="Active Plans"
+              value={activePlans.length}
+              icon={
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                  />
+                </svg>
+              }
+              bgColor="bg-purple-50"
+            />
+            <StatsCard
+              title="Completed Plans"
+              value={completedPlans.length}
+              icon={
+                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+              bgColor="bg-orange-50"
+            />
           </div>
         </div>
 

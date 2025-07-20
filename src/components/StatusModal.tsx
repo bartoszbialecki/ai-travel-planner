@@ -35,12 +35,6 @@ const StatusModal: React.FC<StatusModalProps> = ({ jobId, onComplete, onRetry })
     return () => clearTimeout(timeout);
   }, [status]);
 
-  // Retry logic
-  // const handleRetry = () => {
-  //   setTimedOut(false);
-  //   setRetryKey((k) => k + 1);
-  // };
-
   // Return to form
   const handleReturn = () => {
     window.location.reload();
